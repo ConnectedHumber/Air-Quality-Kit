@@ -13,3 +13,5 @@ The kit requires 2xInner Vent Plugs and 2xouter vent plugs otherwise one of each
 Use PVC weld to seal the plugs thus making the case water tight.
 
 The inner vent plugs protrude through the case so you can glue the side vent cowls to them.
+
+Kit assembly instructions will be posted when the documentation has been completed.
