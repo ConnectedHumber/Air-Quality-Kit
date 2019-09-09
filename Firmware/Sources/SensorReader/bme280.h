@@ -28,10 +28,10 @@
 #define SEALEVELPRESSURE_HPA (1013.25)
 
 Adafruit_BME280 bme; // I2C
-//Adafruit_BME280 bme(BME_CS); // hardware SPI
-//Adafruit_BME280 bme(BME_CS, BME_MOSI, BME_MISO, BME_SCK); // software SPI
 
-enum Bme280_sensor_state { bme280_starting, bme280_active};
+int bmeAddresses[] = { 0x76, 0x77 };
+
+enum Bme280_sensor_state { bme280_starting, bme280_active, bme280_connecting};
 
 Bme280_sensor_state bme280_sensor_state;
 
@@ -44,6 +44,19 @@ void setup_bme280()
 	pub_bme_values_ready = false;
 
 	TRACELN("Done setting up BME 280");
+}
+
+bool beginBME()
+{
+  for (int i = 0; i < sizeof(bmeAddresses) / sizeof(int); i++)
+  {
+    if (bme.begin(bmeAddresses[i]))
+    {
+      Serial.print("BME 280 found at addr 0x"); Serial.println(bmeAddresses[i],HEX);
+      return true;
+    }
+  }
+  return false;
 }
 
 
@@ -70,32 +83,34 @@ void printBMEValues() {
 
 void loop_bme280() 
 {
-	switch(bme280_sensor_state)
+  switch(bme280_sensor_state)
 	{
-		case bme280_starting:
+	  case bme280_starting:
+      if(beginBME())
+      {
+        bme280_sensor_state = bme280_active;
+      }
+      else
+      {
+        Serial.println("Unable to start BMEx80 sensor");
+        bme280_sensor_state = bme280_connecting;
+      }
+      
+      break;
 
-		if(bme.begin(0x76))
-		{
-			Serial.println("BME 280 running");
-			bme280_sensor_state = bme280_active;
-		}
-
-		break;
+    case bme280_connecting:
+      if(beginBME())
+      {
+        bme280_sensor_state = bme280_active;
+      } 
+      break;
 
 		case bme280_active:
-
-		//if (pub_bme_values_ready)
-		//	return;
-
-		//if (pub_millis_to_next_update > 0)
-		//	return;
-
-		pub_temp = bme.readTemperature();
-		pub_pressure = bme.readPressure() / 100.0F;
-		pub_humidity = bme.readHumidity();
-		pub_bme_values_ready = true;
-
+  		pub_temp = bme.readTemperature();
+  		pub_pressure = bme.readPressure() / 100.0F;
+  		pub_humidity = bme.readHumidity();
+  		pub_bme_values_ready = true;
+  
 		break;
 	}
 }
-

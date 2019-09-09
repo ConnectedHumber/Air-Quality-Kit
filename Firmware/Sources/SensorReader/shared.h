@@ -90,6 +90,8 @@ int32_t pub_millis_to_next_update;
 #define MQTT_PUBLISH_TOPIC_LENGTH 100
 #define MQTT_SUBSCRIBE_TOPIC_LENGTH 100
 
+#define MQTT_MAX_PORT_NUMBER 9999
+
 #define SPLASH_LINE_LENGTH 15
 
 #define LORA_KEY_LENGTH 16

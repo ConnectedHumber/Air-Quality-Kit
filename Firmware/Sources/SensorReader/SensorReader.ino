@@ -14,8 +14,6 @@
 
 #include "HeltecMD_DS3231.h"
 //#define DEBUG
-//#define SECURE_SOCKETS
-
 //#define TEST_LORA
 
 #ifdef DEBUG

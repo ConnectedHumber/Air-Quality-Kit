@@ -123,7 +123,16 @@ void setup_mqtt()
 {
 	if (espClient == NULL)
 	{
-		espClient = new WiFiClient();
+		// Decide whether or not to use secure sockets.....
+		if (settings.mqttPort == 8883)
+		{
+			espClient = new WiFiClientSecure();
+		}
+		else
+		{
+			// Anything other than port 8883 is not secure
+			espClient = new WiFiClient();
+		}
 
 		mqttPubSubClient = new PubSubClient(*espClient);
 		mqttPubSubClient->setServer(settings.mqttServer, settings.mqttPort);

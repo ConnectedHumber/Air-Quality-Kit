@@ -707,7 +707,7 @@ void do_mqtt_port(JsonObject& root, char * resultBuffer)
 			return;
 		}
 
-		reply = decodeNumericValue(&settings.mqttPort, root, "val", 0, 2047);
+		reply = decodeNumericValue(&settings.mqttPort, root, "val", 0, MQTT_MAX_PORT_NUMBER);
 		if (reply == WORKED_OK)
 		{
 			save_settings();
