@@ -1,7 +1,6 @@
 #include "Average.h"
 #include <Arduino.h>
 
-
 void Average::setNoOfValuesToAverage(int no)
 {
 	NoOfValuesToAverage = no;
@@ -24,9 +23,10 @@ bool Average::averageReady()
 	return NoOfValuesToAverage == averageCount;
 }
 
-bool Average::getAverage(float * result)
+bool Average::getAverage(float *result)
 {
-	if (!averageReady()) return false;
+	if (!averageReady())
+		return false;
 
 	*result = total / averageCount;
 
@@ -45,7 +45,6 @@ Average::Average(int NoOfValuesToAverage)
 {
 	setNoOfValuesToAverage(NoOfValuesToAverage);
 }
-
 
 Average::~Average()
 {

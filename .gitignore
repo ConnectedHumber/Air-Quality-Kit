@@ -6,3 +6,4 @@ Firmware/Sources/SensorReader/__vm/Configuration.Release.vmps.xml
 Firmware/Sources/SensorReader/SensorReader.vcxproj
 Firmware/Sources/SensorReader/SensorReader.vcxproj.filters
 Firmware/Sources/SensorReader/SensorReader.vcxproj.user
+Firmware/Sources/SensorReader/__vm/Configuration.Debug.vmps.xml

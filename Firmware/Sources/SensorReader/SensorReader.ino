@@ -1,7 +1,4 @@
 #include <MicroNMEA.h>
-#include <NeoPixelBus.h>
-#include <NeoPixelBrightnessBus.h>
-#include <NeoPixelAnimator.h>
 
 #include <EEPROM.h>
 #include <base64.h>

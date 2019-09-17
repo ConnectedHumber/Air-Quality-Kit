@@ -39,11 +39,11 @@ void setup_timing();
 
 char command_reply_buffer[COMMAND_REPLY_BUFFER_SIZE];
 
-void build_command_reply(int errorNo, JsonObject& root, char * resultBuffer)
+void build_command_reply(int errorNo, JsonObject &root, char *resultBuffer)
 {
 	char replyBuffer[REPLY_ELEMENT_SIZE];
 
-	const char * sequence = root["seq"];
+	const char *sequence = root["seq"];
 
 	if (sequence)
 	{
@@ -59,11 +59,11 @@ void build_command_reply(int errorNo, JsonObject& root, char * resultBuffer)
 	strcat(resultBuffer, replyBuffer);
 }
 
-void build_text_value_command_reply(int errorNo, String result, JsonObject& root, char * resultBuffer)
+void build_text_value_command_reply(int errorNo, String result, JsonObject &root, char *resultBuffer)
 {
 	char replyBuffer[REPLY_ELEMENT_SIZE];
 
-	const char * sequence = root["seq"];
+	const char *sequence = root["seq"];
 
 	if (sequence)
 	{
@@ -80,11 +80,11 @@ void build_text_value_command_reply(int errorNo, String result, JsonObject& root
 	strcat(resultBuffer, replyBuffer);
 }
 
-void build_number_value_command_reply(int errorNo, int result, JsonObject& root, char * resultBuffer)
+void build_number_value_command_reply(int errorNo, int result, JsonObject &root, char *resultBuffer)
 {
 	char replyBuffer[REPLY_ELEMENT_SIZE];
 
-	const char * sequence = root["seq"];
+	const char *sequence = root["seq"];
 
 	if (sequence)
 	{
@@ -101,12 +101,13 @@ void build_number_value_command_reply(int errorNo, int result, JsonObject& root,
 	strcat(resultBuffer, replyBuffer);
 }
 
-void dump_hex(u1_t * pos, int length)
+void dump_hex(u1_t *pos, int length)
 {
 	while (length > 0)
 	{
 		// handle leading zeroes
-		if (*pos < 0x10) {
+		if (*pos < 0x10)
+		{
 			TRACE("0");
 		}
 		TRACE_HEX(*pos);
@@ -128,7 +129,7 @@ char hex_digit(int val)
 	}
 }
 
-void dump_hex_string(char * dest, u1_t * pos, int length)
+void dump_hex_string(char *dest, u1_t *pos, int length)
 {
 	while (length > 0)
 	{
@@ -144,7 +145,7 @@ void dump_hex_string(char * dest, u1_t * pos, int length)
 	*dest = 0;
 }
 
-void dump_unsigned_long(char * dest, u4_t value)
+void dump_unsigned_long(char *dest, u4_t value)
 {
 	// Write backwards to put least significant values in
 	// the right place
@@ -168,35 +169,55 @@ void dump_unsigned_long(char * dest, u4_t value)
 
 void dump_settings()
 {
-	TRACE("Version: "); TRACELN(settings.version);
-	TRACE("Device name: "); TRACELN(settings.deviceNane);
-	TRACE("MQTT server: "); TRACELN(settings.mqttServer);
-	TRACE("MQTT port: "); TRACELN(settings.mqttPort);
-	TRACE("MQTT user: "); TRACELN(settings.mqttUser);
-	TRACE("MQTT password: "); TRACELN(settings.mqttPassword);
-	TRACE("MQTT device name: "); TRACELN(settings.mqttName);
-	TRACE("MQTT publish topic: "); TRACELN(settings.mqttPublishTopic);
-	TRACE("MQTT subscribe topic: "); TRACELN(settings.mqttSubscribeTopic);
-	TRACE("MQTT secs per update: "); TRACELN(settings.seconds_per_mqtt_update);
-	TRACE("MQTT secs per retry: "); TRACELN(settings.seconds_per_mqtt_retry);
-	TRACE("MQTT enabled: "); TRACELN(settings.mqttOn);
-	TRACE("LoRa enabled: "); TRACELN(settings.loraOn);
-	TRACE("LoRa Abp Device address: "); TRACE_HEXLN(settings.lora_abp_DEVADDR);
-	TRACE("LoRa Abp Network Key: "); dump_hex(settings.lora_abp_NWKSKEY, LORA_KEY_LENGTH);
-	TRACE("LoRa Abp App Key: "); dump_hex(settings.lora_abp_APPSKEY, LORA_KEY_LENGTH);
+	TRACE("Version: ");
+	TRACELN(settings.version);
+	TRACE("Device name: ");
+	TRACELN(settings.deviceNane);
+	TRACE("MQTT server: ");
+	TRACELN(settings.mqttServer);
+	TRACE("MQTT port: ");
+	TRACELN(settings.mqttPort);
+	TRACE("MQTT user: ");
+	TRACELN(settings.mqttUser);
+	TRACE("MQTT password: ");
+	TRACELN(settings.mqttPassword);
+	TRACE("MQTT device name: ");
+	TRACELN(settings.mqttName);
+	TRACE("MQTT publish topic: ");
+	TRACELN(settings.mqttPublishTopic);
+	TRACE("MQTT subscribe topic: ");
+	TRACELN(settings.mqttSubscribeTopic);
+	TRACE("MQTT secs per update: ");
+	TRACELN(settings.seconds_per_mqtt_update);
+	TRACE("MQTT secs per retry: ");
+	TRACELN(settings.seconds_per_mqtt_retry);
+	TRACE("MQTT enabled: ");
+	TRACELN(settings.mqttOn);
+	TRACE("LoRa enabled: ");
+	TRACELN(settings.loraOn);
+	TRACE("LoRa Abp Device address: ");
+	TRACE_HEXLN(settings.lora_abp_DEVADDR);
+	TRACE("LoRa Abp Network Key: ");
+	dump_hex(settings.lora_abp_NWKSKEY, LORA_KEY_LENGTH);
+	TRACE("LoRa Abp App Key: ");
+	dump_hex(settings.lora_abp_APPSKEY, LORA_KEY_LENGTH);
 
-	TRACE("LoRa Otaa App Key: "); dump_hex(settings.lora_otaa_APPKEY, LORA_KEY_LENGTH);
-	TRACE("LoRa Otaa Device EUI: "); dump_hex(settings.lora_otaa_DEVEUI, LORA_EUI_LENGTH);
-	TRACE("LoRa Otaa App EUI: "); dump_hex(settings.lora_otaa_APPEUI, LORA_EUI_LENGTH);
+	TRACE("LoRa Otaa App Key: ");
+	dump_hex(settings.lora_otaa_APPKEY, LORA_KEY_LENGTH);
+	TRACE("LoRa Otaa Device EUI: ");
+	dump_hex(settings.lora_otaa_DEVEUI, LORA_EUI_LENGTH);
+	TRACE("LoRa Otaa App EUI: ");
+	dump_hex(settings.lora_otaa_APPEUI, LORA_EUI_LENGTH);
 
-	TRACE("LoRa ticks per update: "); TRACELN(settings.seconds_per_lora_update);
+	TRACE("LoRa ticks per update: ");
+	TRACELN(settings.seconds_per_lora_update);
 }
 
 void save_settings()
 {
 	int addr = SETTINGS_EEPROM_OFFSET;
 
-	void * settingPtr = (void *)&settings;
+	void *settingPtr = (void *)&settings;
 
 	EEPROM.writeBytes(addr, settingPtr, sizeof(Device_Settings));
 	EEPROM.commit();
@@ -206,16 +227,16 @@ void load_settings()
 {
 	int addr = SETTINGS_EEPROM_OFFSET;
 
-	void * settingPtr = (void *)&settings;
+	void *settingPtr = (void *)&settings;
 	EEPROM.readBytes(addr, settingPtr, sizeof(Device_Settings));
 }
 
-int decodeStringValue(char * dest, JsonObject& root, const char * valName, int maxLength)
+int decodeStringValue(char *dest, JsonObject &root, const char *valName, int maxLength)
 {
 	TRACE("Decoding string value: ");
 	TRACELN(valName);
 
-	if (!root[valName].is<char*>())
+	if (!root[valName].is<char *>())
 	{
 		TRACELN("Value is missing or not a string");
 		return STRING_VALUE_MISSING_OR_NOT_STRING;
@@ -233,7 +254,7 @@ int decodeStringValue(char * dest, JsonObject& root, const char * valName, int m
 	}
 }
 
-int decodeNumericValue(int * dest, JsonObject& root, const char * valName, int min, int max)
+int decodeNumericValue(int *dest, JsonObject &root, const char *valName, int min, int max)
 {
 	TRACE("Decoding numeric value: ");
 	TRACELN(valName);
@@ -261,7 +282,7 @@ int decodeNumericValue(int * dest, JsonObject& root, const char * valName, int m
 	}
 }
 
-int hexFromChar(char c, int * dest)
+int hexFromChar(char c, int *dest)
 {
 	if (c >= '0' && c <= '9')
 	{
@@ -289,18 +310,18 @@ int hexFromChar(char c, int * dest)
 
 #define MAX_DECODE_BUFFER_LENGTH 20
 
-int decodeHexValueIntoBytes(u1_t * dest, JsonObject& root, const char * valName, int length)
+int decodeHexValueIntoBytes(u1_t *dest, JsonObject &root, const char *valName, int length)
 {
 	TRACE("Decoding array of bytes value: ");
 	TRACELN(valName);
 
-	if (!root[valName].is<char*>())
+	if (!root[valName].is<char *>())
 	{
 		TRACELN("Value is missing or not a string");
 		return VALUE_MISSING_OR_NOT_A_STRING;
 	}
 
-	if(length> MAX_DECODE_BUFFER_LENGTH)
+	if (length > MAX_DECODE_BUFFER_LENGTH)
 	{
 		TRACELN("Incoming hex value will not fit in the buffer");
 		return INCOMING_HEX_VALUE_TOO_BIG_FOR_BUFFER;
@@ -309,7 +330,7 @@ int decodeHexValueIntoBytes(u1_t * dest, JsonObject& root, const char * valName,
 	String newVal = root[valName];
 	// Each hex value is in two bytes - make sure the incoming text is the right length
 
-	if (newVal.length() != length*2)
+	if (newVal.length() != length * 2)
 	{
 		TRACELN("Incoming hex value is the wrong length");
 		return INCOMING_HEX_VALUE_IS_THE_WRONG_LENGTH;
@@ -318,7 +339,7 @@ int decodeHexValueIntoBytes(u1_t * dest, JsonObject& root, const char * valName,
 	int pos = 0;
 
 	u1_t buffer[MAX_DECODE_BUFFER_LENGTH];
-	u1_t * bpos = buffer;
+	u1_t *bpos = buffer;
 
 	while (pos < newVal.length())
 	{
@@ -343,12 +364,12 @@ int decodeHexValueIntoBytes(u1_t * dest, JsonObject& root, const char * valName,
 	return WORKED_OK;
 }
 
-int decodeHexValueIntoUnsignedLong(u4_t * dest, JsonObject& root, const char * valName)
+int decodeHexValueIntoUnsignedLong(u4_t *dest, JsonObject &root, const char *valName)
 {
 	TRACE("Decoding unsigned long value: ");
 	TRACELN(valName);
 
-	if (!root[valName].is<char*>())
+	if (!root[valName].is<char *>())
 	{
 		TRACELN("Value is missing or not a string");
 		return VALUE_MISSING_OR_NOT_A_STRING;
@@ -389,9 +410,9 @@ int decodeHexValueIntoUnsignedLong(u4_t * dest, JsonObject& root, const char * v
 	return WORKED_OK;
 }
 
-int checkTargetDeviceName(JsonObject& root)
+int checkTargetDeviceName(JsonObject &root)
 {
-	const char * target = root["t"];
+	const char *target = root["t"];
 
 	if (!target)
 	{
@@ -411,7 +432,7 @@ int checkTargetDeviceName(JsonObject& root)
 }
 
 // request: {"v":1, "t" : "Sensor01", "c" : "mqtt", "o" : "send"}
-void do_send_mqtt(JsonObject& root, char * resultBuffer)
+void do_send_mqtt(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -424,13 +445,13 @@ void do_send_mqtt(JsonObject& root, char * resultBuffer)
 
 // {"v":1, "t" : "Sensor01", "c" : "mqtt", "o" : "state", "v" : "on"}
 // {"v":1, "t" : "Sensor01", "c" : "mqtt", "o" : "state", "v" : "off"}
-void do_mqtt_state(JsonObject& root, char * resultBuffer)
+void do_mqtt_state(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 		if (!option)
 		{
 			// no option - just a status request
@@ -445,14 +466,14 @@ void do_mqtt_state(JsonObject& root, char * resultBuffer)
 			return;
 		}
 
-		if (!root["val"].is<char*>())
+		if (!root["val"].is<char *>())
 		{
 			TRACELN("Value is missing or not a string");
 			reply = INVALID_MQTT_STATUS_SETTING;
 		}
 		else
 		{
-			const char * option = root["val"];
+			const char *option = root["val"];
 			if (strcasecmp(option, "on") == 0)
 			{
 				// now we are transmitting - turn off the display
@@ -483,13 +504,13 @@ void do_mqtt_state(JsonObject& root, char * resultBuffer)
 #define MAX_MQTT_GAP 30000
 
 // {"v":1, "t" : "sensor01", "c" : "mqtt", "o" : "gap", "val":20}
-void do_mqtt_gap(JsonObject& root, char * resultBuffer)
+void do_mqtt_gap(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -514,13 +535,13 @@ void do_mqtt_gap(JsonObject& root, char * resultBuffer)
 #define MAX_MQTT_RETRY 30000
 
 // {"v":1, "t" : "sensor01", "c" : "mqtt", "o" : "retry", "val":20}
-void do_mqtt_retry(JsonObject& root, char * resultBuffer)
+void do_mqtt_retry(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -540,17 +561,17 @@ void do_mqtt_retry(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "mqtt", "o" : "publish", "val":"sensor01/data" }
-void do_mqtt_publish_location(JsonObject& root, char * resultBuffer)
+void do_mqtt_publish_location(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
-			build_text_value_command_reply (WORKED_OK, settings.mqttPublishTopic, root, resultBuffer);
+			build_text_value_command_reply(WORKED_OK, settings.mqttPublishTopic, root, resultBuffer);
 			return;
 		}
 
@@ -566,13 +587,13 @@ void do_mqtt_publish_location(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "mqtt", "o" : "subscribe", "val":"sensor01/commands" }
-void do_mqtt_subscribe_location(JsonObject& root, char * resultBuffer)
+void do_mqtt_subscribe_location(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -591,13 +612,13 @@ void do_mqtt_subscribe_location(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "mqtt", "o" : "id", "val":"sensor01" }
-void do_mqtt_device_id(JsonObject& root, char * resultBuffer)
+void do_mqtt_device_id(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -615,15 +636,14 @@ void do_mqtt_device_id(JsonObject& root, char * resultBuffer)
 	build_command_reply(reply, root, resultBuffer);
 }
 
-
 // {"v":1, "t" : "sensor01", "c" : "mqtt", "o" : "host", "val":"mqtt.connectedhumber.org" }
-void do_mqtt_host(JsonObject& root, char * resultBuffer)
+void do_mqtt_host(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -641,15 +661,14 @@ void do_mqtt_host(JsonObject& root, char * resultBuffer)
 	build_command_reply(reply, root, resultBuffer);
 }
 
-
 // {"v":1, "t" : "sensor01", "c" : "mqtt", "o" : "user", "val":"username" }
-void do_mqtt_user(JsonObject& root, char * resultBuffer)
+void do_mqtt_user(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -668,13 +687,13 @@ void do_mqtt_user(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "mqtt", "o" : "pwd", "val":"123456" }
-void do_mqtt_password(JsonObject& root, char * resultBuffer)
+void do_mqtt_password(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -693,13 +712,13 @@ void do_mqtt_password(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "mqtt", "o" : "port", "val":1883 }
-void do_mqtt_port(JsonObject& root, char * resultBuffer)
+void do_mqtt_port(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -721,8 +740,8 @@ StaticJsonBuffer<300> jsonBuffer;
 
 struct OptionDecodeItems
 {
-	const char * optionName;
-	void (*optionAction) (JsonObject& root, char * resultBuffer);
+	const char *optionName;
+	void (*optionAction)(JsonObject &root, char *resultBuffer);
 };
 
 OptionDecodeItems mqttOptionDecodeItems[] = {
@@ -736,11 +755,10 @@ OptionDecodeItems mqttOptionDecodeItems[] = {
 	{"user", do_mqtt_user},
 	{"pwd", do_mqtt_password},
 	{"host", do_mqtt_host},
-	{"port", do_mqtt_port}
-};
+	{"port", do_mqtt_port}};
 
 // {"v":1, "t" : "Sensor01", "c" : "lora", "o" : "send"}
-void do_send_lora(JsonObject& root, char * resultBuffer)
+void do_send_lora(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -752,7 +770,7 @@ void do_send_lora(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "Sensor01", "c" : "lora", "o" : "test"}
-void do_test_lora(JsonObject& root, char * resultBuffer)
+void do_test_lora(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -763,16 +781,15 @@ void do_test_lora(JsonObject& root, char * resultBuffer)
 	build_command_reply(reply, root, resultBuffer);
 }
 
-
 // {"v":1, "t" : "Sensor01", "c" : "lora", "o" : "state", "val" : "on"}
 // {"v":1, "t" : "Sensor01", "c" : "lora", "o" : "state", "val" : "off"}
-void do_lora_state(JsonObject& root, char * resultBuffer)
+void do_lora_state(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 		if (!option)
 		{
 			// no option - just a status request
@@ -787,14 +804,14 @@ void do_lora_state(JsonObject& root, char * resultBuffer)
 			return;
 		}
 
-		if (!root["val"].is<char*>())
+		if (!root["val"].is<char *>())
 		{
 			TRACELN("Value is missing or not a string");
 			reply = INVALID_LORA_STATUS_SETTING;
 		}
 		else
 		{
-			const char * option = root["val"];
+			const char *option = root["val"];
 			if (strcasecmp(option, "on") == 0)
 			{
 				settings.loraOn = true;
@@ -821,18 +838,17 @@ void do_lora_state(JsonObject& root, char * resultBuffer)
 	build_command_reply(reply, root, resultBuffer);
 }
 
-
 #define MIN_LORA_GAP 60
 #define MAX_LORA_GAP 30000
 
 // {"v":1, "t" : "sensor01", "c" : "lora", "o" : "gap", "val":20}
-void do_lora_gap(JsonObject& root, char * resultBuffer)
+void do_lora_gap(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -852,13 +868,13 @@ void do_lora_gap(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "lora", "o" : "abpapp", "val":"AD77768C296F2CA5C4C03E85862AE688"}
-void do_lora_abp_app_key(JsonObject& root,char * resultBuffer)
+void do_lora_abp_app_key(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -880,13 +896,13 @@ void do_lora_abp_app_key(JsonObject& root,char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "lora", "o" : "abpnwk", "val":"117480D907331B077C5DAE9777FFE43C"}
-void do_lora_abp_nwk_key(JsonObject& root, char* resultBuffer)
+void do_lora_abp_nwk_key(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -908,13 +924,13 @@ void do_lora_abp_nwk_key(JsonObject& root, char* resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "lora", "o" : "abpdev", "val":"26011BEE"}
-void do_lora_abp_device_id(JsonObject& root, char * resultBuffer)
+void do_lora_abp_device_id(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -937,13 +953,13 @@ void do_lora_abp_device_id(JsonObject& root, char * resultBuffer)
 
 // {"v":1, "t" : "Sensor01", "c" : "lora", "o" : "access", "val":"abp"}
 // {"v":1, "t" : "Sensor01", "c" : "lora", "o" : "access", "val":"otaa"}
-void do_lora_access(JsonObject& root, char * resultBuffer)
+void do_lora_access(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 		if (!option)
 		{
 			// no option - just a status request
@@ -958,14 +974,14 @@ void do_lora_access(JsonObject& root, char * resultBuffer)
 			return;
 		}
 
-		if (!root["val"].is<char*>())
+		if (!root["val"].is<char *>())
 		{
 			TRACELN("Value is missing or not a string");
 			reply = INVALID_LORA_ACCESS_SETTING;
 		}
 		else
 		{
-			const char * option = root["val"];
+			const char *option = root["val"];
 			if (strcasecmp(option, "abp") == 0)
 			{
 				settings.lora_abp_active = true;
@@ -998,15 +1014,14 @@ OptionDecodeItems loraOptionDecodeItems[] = {
 	{"abpapp", do_lora_abp_app_key},
 	{"abpnwk", do_lora_abp_nwk_key},
 	{"abpdev", do_lora_abp_device_id},
-	{"access", do_lora_access}
-};
+	{"access", do_lora_access}};
 
 // forward declaration - function in WiFiConnection.h
 
 void start_wifi();
 
 // {"v":1, "t" : "Sensor01", "c" : "wifi", "o" : "on"}
-void do_wifi_on(JsonObject& root, char * resultBuffer)
+void do_wifi_on(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -1019,7 +1034,7 @@ void do_wifi_on(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "Sensor01", "c" : "wifi", "o" : "off"}
-void do_wifi_off(JsonObject& root, char * resultBuffer)
+void do_wifi_off(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -1032,7 +1047,7 @@ void do_wifi_off(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "wifi",  "o" : "ssid", "set":0, "val":"ssid"}
-void do_wifi_ssid(JsonObject& root, char * resultBuffer)
+void do_wifi_ssid(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -1046,23 +1061,23 @@ void do_wifi_ssid(JsonObject& root, char * resultBuffer)
 		else
 		{
 			int settingNo = root["set"];
-			if (settingNo<0 || settingNo >= NO_OF_WIFI_SETTINGS)
+			if (settingNo < 0 || settingNo >= NO_OF_WIFI_SETTINGS)
 			{
 				reply = INVALID_WIFI_SETTING_NUMBER;
 			}
 			else
 			{
-				const char * option = root["val"];
+				const char *option = root["val"];
 
 				if (!option)
 				{
-					build_text_value_command_reply(WORKED_OK, settings.wifiSettings[settingNo].wifiSsid, 
-						root, resultBuffer);
+					build_text_value_command_reply(WORKED_OK, settings.wifiSettings[settingNo].wifiSsid,
+												   root, resultBuffer);
 					return;
 				}
 
 				reply = decodeStringValue(settings.wifiSettings[settingNo].wifiSsid, root,
-					"val", WIFI_PASSWORD_LENGTH - 1);
+										  "val", WIFI_PASSWORD_LENGTH - 1);
 			}
 
 			if (reply == WORKED_OK)
@@ -1076,7 +1091,7 @@ void do_wifi_ssid(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "wifi", "o" : "pwd", "set":0, "val":"password"}
-void do_wifi_password(JsonObject& root, char * resultBuffer)
+void do_wifi_password(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -1087,10 +1102,10 @@ void do_wifi_password(JsonObject& root, char * resultBuffer)
 			TRACELN("Missing WiFi setting number");
 			reply = MISSING_WIFI_SETTING_NUMBER;
 		}
-		else 
+		else
 		{
 			int settingNo = root["set"];
-			if (settingNo<0 || settingNo>=NO_OF_WIFI_SETTINGS)
+			if (settingNo < 0 || settingNo >= NO_OF_WIFI_SETTINGS)
 			{
 				reply = INVALID_WIFI_SETTING_NUMBER;
 			}
@@ -1113,21 +1128,19 @@ OptionDecodeItems WiFiOptionDecodeItems[] = {
 	{"on", do_wifi_on},
 	{"off", do_wifi_off},
 	{"ssid", do_wifi_ssid},
-	{"pwd", do_wifi_password}
-};
+	{"pwd", do_wifi_password}};
 
 // {"v":1, "c" : "node", "o" : "ver"}
-void do_node_version(JsonObject& root, char * resultBuffer)
+void do_node_version(JsonObject &root, char *resultBuffer)
 {
 	TRACELN("Getting version");
 	int length = sprintf(resultBuffer, "{\"version\":%d,", settings.version);
-
 
 	build_command_reply(WORKED_OK, root, resultBuffer + length);
 }
 
 // {"v":1, "c" : "node", "o" : "getdevname"}
-void do_get_device_name(JsonObject& root, char * resultBuffer)
+void do_get_device_name(JsonObject &root, char *resultBuffer)
 {
 	TRACELN("Getting device name");
 
@@ -1136,7 +1149,7 @@ void do_get_device_name(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "node", "o" : "reset"}
-void do_reset(JsonObject& root, char * resultBuffer)
+void do_reset(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -1149,7 +1162,7 @@ void do_reset(JsonObject& root, char * resultBuffer)
 void reset_settings();
 
 // {"v":1, "t" : "sensor01", "c" : "node", "o" : "clear"}
-void do_clear(JsonObject& root, char* resultBuffer)
+void do_clear(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -1162,13 +1175,13 @@ void do_clear(JsonObject& root, char* resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "node", "o" : "devname", "val":"sensor01"}
-void do_device_name(JsonObject& root, char * resultBuffer)
+void do_device_name(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -1187,19 +1200,19 @@ void do_device_name(JsonObject& root, char * resultBuffer)
 }
 
 // declared in menu.h and used to refresh the menu display
-// Allows for changes in the splash screen to be reflected instantly 
-// on arrival. 
+// Allows for changes in the splash screen to be reflected instantly
+// on arrival.
 
 void refresh_menu();
 
 // {"v":1, "t" : "sensor01", "c" : "node", "o" : "spltop", "val":"Connected"}
-void do_splash_screen_top_line(JsonObject& root, char * resultBuffer)
+void do_splash_screen_top_line(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -1211,7 +1224,7 @@ void do_splash_screen_top_line(JsonObject& root, char * resultBuffer)
 		if (reply == WORKED_OK)
 		{
 			save_settings();
-			refresh_menu();		
+			refresh_menu();
 		}
 	}
 
@@ -1219,13 +1232,13 @@ void do_splash_screen_top_line(JsonObject& root, char * resultBuffer)
 }
 
 // {"v":1, "t" : "sensor01", "c" : "node", "o" : "splbtm", "val":"Humber"}
-void do_splash_screen_bottom_line(JsonObject& root, char * resultBuffer)
+void do_splash_screen_bottom_line(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -1237,7 +1250,7 @@ void do_splash_screen_bottom_line(JsonObject& root, char * resultBuffer)
 		if (reply == WORKED_OK)
 		{
 			save_settings();
-			refresh_menu();		
+			refresh_menu();
 		}
 	}
 
@@ -1247,11 +1260,10 @@ void do_splash_screen_bottom_line(JsonObject& root, char * resultBuffer)
 #define COLOUR_NAME_LENGTH 10
 
 // {"v":1, "t" : "sensor01", "c" : "node", "o" : "pixel", "val":"red"}
-void do_pixel_colour(JsonObject& root, char * resultBuffer)
+void do_pixel_colour(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 	char colour_name[COLOUR_NAME_LENGTH];
-
 
 	if (reply == WORKED_OK)
 	{
@@ -1298,13 +1310,13 @@ void do_pixel_colour(JsonObject& root, char * resultBuffer)
 #define MAX_POWER_UP 60000
 
 // {"v":1, "t" : "sensor01", "c" : "node", "o" : "warmup", "val":30}
-void do_sensor_warm_up_time(JsonObject& root, char * resultBuffer)
+void do_sensor_warm_up_time(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -1325,13 +1337,13 @@ void do_sensor_warm_up_time(JsonObject& root, char * resultBuffer)
 	build_command_reply(reply, root, resultBuffer);
 }
 
-void do_sensor_status(JsonObject& root, char * resultBuffer)
+void do_sensor_status(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char * option = root["val"];
+		const char *option = root["val"];
 
 		if (!option)
 		{
@@ -1354,13 +1366,13 @@ void do_sensor_status(JsonObject& root, char * resultBuffer)
 
 // {"v":1, "t" : "Sensor01", "c" : "gps", "o" : "state", "val" : "on"}
 // {"v":1, "t" : "Sensor01", "c" : "gps", "o" : "state", "val" : "off"}
-void do_gps_state(JsonObject& root, char* resultBuffer)
+void do_gps_state(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char* option = root["val"];
+		const char *option = root["val"];
 		if (!option)
 		{
 			// no option - just a status request
@@ -1375,14 +1387,14 @@ void do_gps_state(JsonObject& root, char* resultBuffer)
 			return;
 		}
 
-		if (!root["val"].is<char*>())
+		if (!root["val"].is<char *>())
 		{
 			TRACELN("Value is missing or not a string");
 			reply = INVALID_LORA_STATUS_SETTING;
 		}
 		else
 		{
-			const char* option = root["val"];
+			const char *option = root["val"];
 			if (strcasecmp(option, "on") == 0)
 			{
 				settings.gpsOn = true;
@@ -1407,16 +1419,15 @@ void do_gps_state(JsonObject& root, char* resultBuffer)
 	build_command_reply(reply, root, resultBuffer);
 }
 
-
 // {"v":1, "t" : "Sensor01", "c" : "rtc", "o" : "state", "val" : "on"}
 // {"v":1, "t" : "Sensor01", "c" : "rtc", "o" : "state", "val" : "off"}
-void do_rtc_state(JsonObject& root, char* resultBuffer)
+void do_rtc_state(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char* option = root["val"];
+		const char *option = root["val"];
 		if (!option)
 		{
 			// no option - just a status request
@@ -1431,14 +1442,14 @@ void do_rtc_state(JsonObject& root, char* resultBuffer)
 			return;
 		}
 
-		if (!root["val"].is<char*>())
+		if (!root["val"].is<char *>())
 		{
 			TRACELN("Value is missing or not a string");
 			reply = INVALID_LORA_STATUS_SETTING;
 		}
 		else
 		{
-			const char* option = root["val"];
+			const char *option = root["val"];
 			if (strcasecmp(option, "on") == 0)
 			{
 				settings.rtcOn = true;
@@ -1463,16 +1474,15 @@ void do_rtc_state(JsonObject& root, char* resultBuffer)
 	build_command_reply(reply, root, resultBuffer);
 }
 
-
 // {"v":1, "t" : "Sensor01", "c" : "display", "o" : "state", "val" : "on"}
 // {"v":1, "t" : "Sensor01", "c" : "display", "o" : "state", "val" : "off"}
-void do_display_state(JsonObject& root, char* resultBuffer)
+void do_display_state(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
 	if (reply == WORKED_OK)
 	{
-		const char* option = root["val"];
+		const char *option = root["val"];
 		if (!option)
 		{
 			// no option - just a status request
@@ -1487,14 +1497,14 @@ void do_display_state(JsonObject& root, char* resultBuffer)
 			return;
 		}
 
-		if (!root["val"].is<char*>())
+		if (!root["val"].is<char *>())
 		{
 			TRACELN("Value is missing or not a string");
 			reply = INVALID_LORA_STATUS_SETTING;
 		}
 		else
 		{
-			const char* option = root["val"];
+			const char *option = root["val"];
 			if (strcasecmp(option, "on") == 0)
 			{
 				settings.displayOn = true;
@@ -1522,35 +1532,32 @@ void do_display_state(JsonObject& root, char* resultBuffer)
 OptionDecodeItems nodeOptionDecodeItems[] = {
 	{"ver", do_node_version},
 	{"getdevname", do_get_device_name},
-	{"reset", do_reset },
+	{"reset", do_reset},
 	{"clear", do_clear},
 	{"devname", do_device_name},
-	{"spltop", do_splash_screen_top_line },
-	{"splbtm", do_splash_screen_bottom_line },
-	{"pixel", do_pixel_colour },
-	{"gps", do_gps_state },
-	{"rtc", do_rtc_state },
-	{"display", do_display_state },
-	{"warmup", do_sensor_warm_up_time}
-};
+	{"spltop", do_splash_screen_top_line},
+	{"splbtm", do_splash_screen_bottom_line},
+	{"pixel", do_pixel_colour},
+	{"gps", do_gps_state},
+	{"rtc", do_rtc_state},
+	{"display", do_display_state},
+	{"warmup", do_sensor_warm_up_time}};
 
 struct CommandDecoder
 {
-	const char * commandName;
-	OptionDecodeItems * items;
+	const char *commandName;
+	OptionDecodeItems *items;
 	int noOfOptions;
 };
 
-
 struct CommandDecoder commandDecoder[] =
-{
-	{"node", nodeOptionDecodeItems, sizeof(nodeOptionDecodeItems) / sizeof(OptionDecodeItems)},
-	{"mqtt", mqttOptionDecodeItems, sizeof(mqttOptionDecodeItems) / sizeof(OptionDecodeItems)},
-	{"lora", loraOptionDecodeItems, sizeof(loraOptionDecodeItems) / sizeof(OptionDecodeItems)},
-	{"wifi", WiFiOptionDecodeItems, sizeof(WiFiOptionDecodeItems) / sizeof(OptionDecodeItems)}
-};
+	{
+		{"node", nodeOptionDecodeItems, sizeof(nodeOptionDecodeItems) / sizeof(OptionDecodeItems)},
+		{"mqtt", mqttOptionDecodeItems, sizeof(mqttOptionDecodeItems) / sizeof(OptionDecodeItems)},
+		{"lora", loraOptionDecodeItems, sizeof(loraOptionDecodeItems) / sizeof(OptionDecodeItems)},
+		{"wifi", WiFiOptionDecodeItems, sizeof(WiFiOptionDecodeItems) / sizeof(OptionDecodeItems)}};
 
-void actOnCommand(const char * command, const char * option, JsonObject& root, char * resultBuffer)
+void actOnCommand(const char *command, const char *option, JsonObject &root, char *resultBuffer)
 {
 	bool foundCommand = false;
 
@@ -1561,7 +1568,7 @@ void actOnCommand(const char * command, const char * option, JsonObject& root, c
 			TRACE("Performing command: ");
 			TRACELN(commandDecoder[commandNo].commandName);
 
-			OptionDecodeItems * items = commandDecoder[commandNo].items;
+			OptionDecodeItems *items = commandDecoder[commandNo].items;
 
 			for (int optionNo = 0; optionNo < commandDecoder[commandNo].noOfOptions; optionNo++)
 			{
@@ -1587,8 +1594,7 @@ void actOnCommand(const char * command, const char * option, JsonObject& root, c
 	}
 }
 
-
-void abort_json_command(int error, JsonObject& root, void(*deliverResult) (char * resultText))
+void abort_json_command(int error, JsonObject &root, void (*deliverResult)(char *resultText))
 {
 	build_command_reply(error, root, command_reply_buffer);
 	// append the version number to the invalid command message
@@ -1596,7 +1602,7 @@ void abort_json_command(int error, JsonObject& root, void(*deliverResult) (char 
 	deliverResult(command_reply_buffer);
 }
 
-void act_onJson_command(char * json, void(*deliverResult) (char * resultText))
+void act_onJson_command(char *json, void (*deliverResult)(char *resultText))
 {
 	command_reply_buffer[0] = 0;
 
@@ -1609,15 +1615,15 @@ void act_onJson_command(char * json, void(*deliverResult) (char * resultText))
 
 	jsonBuffer.clear();
 
-	JsonObject& root = jsonBuffer.parseObject(json);
+	JsonObject &root = jsonBuffer.parseObject(json);
 
-	if(!root.success())
+	if (!root.success())
 	{
 		TRACELN("JSON could not be parsed");
 		abort_json_command(JSON_COMMAND_COULD_NOT_BE_PARSED, root, deliverResult);
 		return;
 	}
-	
+
 	int v = root["v"];
 
 	if (v != settings.version)
@@ -1628,7 +1634,7 @@ void act_onJson_command(char * json, void(*deliverResult) (char * resultText))
 		return;
 	}
 
-	const char * command = root["c"];
+	const char *command = root["c"];
 
 	if (!command)
 	{
@@ -1640,7 +1646,7 @@ void act_onJson_command(char * json, void(*deliverResult) (char * resultText))
 	TRACE("Received command: ");
 	TRACELN(command);
 
-	const char * option = root["o"];
+	const char *option = root["o"];
 
 	if (!option)
 	{
@@ -1668,26 +1674,25 @@ boolean valid_stored_settings()
 
 static const u4_t abp_DEVADDR = 0x26011BEE; // <-- Change this address for every node!
 
-										// LoRaWAN NwkSKey, network session key
-										// Copy this from the Network Session Key entry on TTN properties for the 
-										// node. Use the msb ordering
-static const PROGMEM u1_t abp_NWKSKEY[16] = { 0x11, 0x74, 0x80, 0xD9, 0x07, 0x33, 0x1B, 0x07, 0x7C, 0x5D, 0xAE, 0x97, 0x77, 0xFF, 0xE4, 0x3C };
+// LoRaWAN NwkSKey, network session key
+// Copy this from the Network Session Key entry on TTN properties for the
+// node. Use the msb ordering
+static const PROGMEM u1_t abp_NWKSKEY[16] = {0x11, 0x74, 0x80, 0xD9, 0x07, 0x33, 0x1B, 0x07, 0x7C, 0x5D, 0xAE, 0x97, 0x77, 0xFF, 0xE4, 0x3C};
 
 // LoRaWAN AppSKey, application session key
-// Copy this from the App Session Key on TTN properties for the 
+// Copy this from the App Session Key on TTN properties for the
 // node. Use the msb ordering
-static const u1_t PROGMEM abp_APPSKEY[16] = { 0xAD, 0x77, 0x76, 0x8C, 0x29, 0x6F, 0x2C, 0xA5, 0xC4, 0xC0, 0x3E, 0x85, 0x86, 0x2A, 0xE6, 0x88 };
+static const u1_t PROGMEM abp_APPSKEY[16] = {0xAD, 0x77, 0x76, 0x8C, 0x29, 0x6F, 0x2C, 0xA5, 0xC4, 0xC0, 0x3E, 0x85, 0x86, 0x2A, 0xE6, 0x88};
 
-
-static const u1_t otaa_DEVEUI[8] = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-static const u1_t otaa_APPEUI[8] = { 0x03, 0x1D, 0x01, 0xD0, 0x7E, 0xD5, 0xB3, 0x70 };
+static const u1_t otaa_DEVEUI[8] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+static const u1_t otaa_APPEUI[8] = {0x03, 0x1D, 0x01, 0xD0, 0x7E, 0xD5, 0xB3, 0x70};
 
 // This key should be in big endian format (or, since it is not really a
 // number but a block of memory, endianness does not really apply). In
 // practice, a key taken from ttnctl can be copied as-is.
 // The key shown here is the semtech default key.
 static const u1_t otaa_APPKEY[16] =
-{ 0x59, 0x1A, 0x3B, 0xD4, 0x40, 0x74, 0x69, 0xB5, 0xDA, 0xC1, 0xEF, 0xAD, 0x9D, 0x82, 0x8F, 0x7D };
+	{0x59, 0x1A, 0x3B, 0xD4, 0x40, 0x74, 0x69, 0xB5, 0xDA, 0xC1, 0xEF, 0xAD, 0x9D, 0x82, 0x8F, 0x7D};
 
 void reset_settings()
 {
@@ -1758,16 +1763,15 @@ void reset_settings()
 	memcpy_P(settings.lora_otaa_APPKEY, otaa_APPKEY, sizeof(otaa_APPKEY));
 	memcpy_P(settings.lora_otaa_DEVEUI, otaa_DEVEUI, sizeof(otaa_DEVEUI));
 	memcpy_P(settings.lora_otaa_APPEUI, otaa_APPEUI, sizeof(otaa_APPEUI));
-
 }
 
-void serial_deliver_command_result(char * result)
+void serial_deliver_command_result(char *result)
 {
 	Serial.println(result);
 }
 
 #define SERIAL_BUFFER_SIZE 240
-#define SERIAL_BUFFER_LIMIT SERIAL_BUFFER_SIZE-1
+#define SERIAL_BUFFER_LIMIT SERIAL_BUFFER_SIZE - 1
 
 char serial_receive_buffer[SERIAL_BUFFER_SIZE];
 
@@ -1833,12 +1837,12 @@ void check_serial_buffer()
 
 #define BINARY_SET_UPDATE_INTERVAL 1
 
-int decodeLSBPair(u1_t* buffer)
+int decodeLSBPair(u1_t *buffer)
 {
 	return buffer[0] + (buffer[1] << 8);
 }
 
-void act_onBinary_command(u1_t* buffer, int length, char * displayBuffer, int displayBufferLength)
+void act_onBinary_command(u1_t *buffer, int length, char *displayBuffer, int displayBufferLength)
 {
 	Serial.print("Acting on: ");
 
@@ -1858,35 +1862,34 @@ void act_onBinary_command(u1_t* buffer, int length, char * displayBuffer, int di
 
 	switch (buffer[0])
 	{
-		case BINARY_SET_UPDATE_INTERVAL:
-			if (length == 3)
-			{
-				int interval = decodeLSBPair(buffer + 1);
+	case BINARY_SET_UPDATE_INTERVAL:
+		if (length == 3)
+		{
+			int interval = decodeLSBPair(buffer + 1);
 
-				if (interval >= MIN_LORA_GAP && interval <= MAX_LORA_GAP)
-				{
-					settings.seconds_per_lora_update = interval;
-					save_settings();
-					snprintf(displayBuffer, displayBufferLength, "Int: %d", interval);
-					setup_timing();
-				}
-				else
-				{
-					snprintf(displayBuffer, displayBufferLength, "Bad value: %d", interval);
-				}
+			if (interval >= MIN_LORA_GAP && interval <= MAX_LORA_GAP)
+			{
+				settings.seconds_per_lora_update = interval;
+				save_settings();
+				snprintf(displayBuffer, displayBufferLength, "Int: %d", interval);
+				setup_timing();
 			}
 			else
 			{
-				snprintf(displayBuffer, displayBufferLength, "Bad length");
+				snprintf(displayBuffer, displayBufferLength, "Bad value: %d", interval);
 			}
-			break;
-		default:
-			snprintf(displayBuffer, displayBufferLength, "Invalid command");
+		}
+		else
+		{
+			snprintf(displayBuffer, displayBufferLength, "Bad length");
+		}
+		break;
+	default:
+		snprintf(displayBuffer, displayBufferLength, "Invalid command");
 	}
 
 	Serial.println(displayBuffer);
 }
-
 
 void error_stop(String title, String text);
 

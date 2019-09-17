@@ -1,5 +1,12 @@
 
-enum MenuState { workingStateActive, mainMenuStateActive, messageDisplayStateActive, readingNumberStateActive, performingActionActive };
+enum MenuState
+{
+	workingStateActive,
+	mainMenuStateActive,
+	messageDisplayStateActive,
+	readingNumberStateActive,
+	performingActionActive
+};
 
 MenuState menuState;
 
@@ -7,9 +14,8 @@ struct Menu
 {
 	uint8_t active_menu_item;
 	String menuText;
-	void(*methods[5])();
+	void (*methods[5])();
 };
-
 
 void set_working_state()
 {
@@ -20,7 +26,7 @@ void set_working_state()
 
 #define MENU_STACK_SIZE 15
 
-Menu * menu_stack[MENU_STACK_SIZE];
+Menu *menu_stack[MENU_STACK_SIZE];
 
 // Stack top is the location of the top of the stack
 // If it is -1 this means that the stack is empty
@@ -28,28 +34,29 @@ Menu * menu_stack[MENU_STACK_SIZE];
 
 int8_t menu_stack_top = -1;
 
-void push_menu(Menu * menu)
+void push_menu(Menu *menu)
 {
 	TRACELN("Pushing menu");
 	menu_stack_top++;
 	menu_stack[menu_stack_top] = menu;
 }
 
-Menu * pop_menu()
+Menu *pop_menu()
 {
 	TRACELN("Popping menu");
 
-	if (menu_stack_top == -1) {
+	if (menu_stack_top == -1)
+	{
 		return NULL;
 	}
 
-	Menu * result = menu_stack[menu_stack_top];
+	Menu *result = menu_stack[menu_stack_top];
 
 	menu_stack_top--;
 	return result;
 }
 
-Menu * peek_menu_stack_top()
+Menu *peek_menu_stack_top()
 {
 	if (menu_stack_top == -1)
 		return NULL;
@@ -62,7 +69,7 @@ bool menu_stack_empty()
 	return menu_stack_top == -1;
 }
 
-void enter_menu(Menu * menu)
+void enter_menu(Menu *menu)
 {
 	// record the position in the current menu for return
 	if (!menu_stack_empty())
@@ -82,7 +89,7 @@ void exit_menu()
 
 	pop_menu();
 
-	Menu * next_menu = peek_menu_stack_top();
+	Menu *next_menu = peek_menu_stack_top();
 
 	if (next_menu == NULL)
 	{
@@ -96,9 +103,9 @@ void exit_menu()
 unsigned long delay_start_time;
 unsigned long delay_in_millis;
 
-void(*message_complete_callback)();
+void (*message_complete_callback)();
 
-void display_message_screen(String title, String text, int in_delay_in_millis, void(*callback)())
+void display_message_screen(String title, String text, int in_delay_in_millis, void (*callback)())
 {
 	message_complete_callback = callback;
 	set_message_display(title, text);
@@ -129,7 +136,7 @@ int number_being_input;
 int number_being_input_upper_limit;
 int number_being_input_lower_limit;
 
-void(*number_complete_callback)(int result);
+void (*number_complete_callback)(int result);
 
 void complete_number_input()
 {
@@ -161,7 +168,7 @@ void decrement_number_value()
 }
 
 void display_number_input(String in_number_input_prompt, int in_number_being_input,
-	int in_number_being_input_lower_limit, int in_number_being_input_upper_limit, void(*callback)(int result))
+						  int in_number_being_input_lower_limit, int in_number_being_input_upper_limit, void (*callback)(int result))
 {
 	number_complete_callback = callback;
 
@@ -179,13 +186,13 @@ void do_back()
 	exit_menu();
 }
 
-void get_number(String prompt, int start, int low, int high, void(*value_read)(int))
+void get_number(String prompt, int start, int low, int high, void (*value_read)(int))
 {
 	peek_menu_stack_top()->active_menu_item = get_selected_item();
 	display_number_input(prompt, start, low, high, value_read);
 }
 
-void display_message(String title, String message, int length, void(*completed)())
+void display_message(String title, String message, int length, void (*completed)())
 {
 	peek_menu_stack_top()->active_menu_item = get_selected_item();
 	display_message_screen(title, message, length, completed);
@@ -193,7 +200,7 @@ void display_message(String title, String message, int length, void(*completed)(
 
 void message_done()
 {
-	Menu * next_menu = peek_menu_stack_top();
+	Menu *next_menu = peek_menu_stack_top();
 	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
 	menuState = mainMenuStateActive;
 }
@@ -248,10 +255,10 @@ void zeroSeconds()
 	dump_time();
 }
 
-Menu timeMenu = { 0, "Set hours\nSet minutes\nZero seconds\nBack",{ setHours, setMinutes, zeroSeconds, do_back } };
+Menu timeMenu = {0, "Set hours\nSet minutes\nZero seconds\nBack", {setHours, setMinutes, zeroSeconds, do_back}};
 
-//                          J	F	M	A	M	J	J	A	S	O	N	D  
-int monthLengths[] = { 0,	31, 28, 31, 30, 31,	30,	31,	31,	30,	31,	30,	31 };
+//                          J	F	M	A	M	J	J	A	S	O	N	D
+int monthLengths[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 int getMonthLength(uint8_t month, uint16_t year)
 {
@@ -313,15 +320,13 @@ void doneSetYears(int readYears)
 	}
 }
 
-
 void setYears()
 {
 	TRACELN("Set years called");
 	get_number("Set year", pub_year, 2000, 3000, doneSetYears);
 }
 
-Menu dateMenu = { 0, "Set days\nSet months\nSet Years\nBack",{ setDays, setMonths, setYears, do_back } };
-
+Menu dateMenu = {0, "Set days\nSet months\nSet Years\nBack", {setDays, setMonths, setYears, do_back}};
 
 void setDate()
 {
@@ -331,7 +336,7 @@ void setDate()
 void lora_send_done()
 {
 	TRACELN("LoRa send done");
-	Menu * next_menu = peek_menu_stack_top();
+	Menu *next_menu = peek_menu_stack_top();
 	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
 	menuState = mainMenuStateActive;
 }
@@ -346,7 +351,7 @@ void lora_send()
 void mqtt_send_done()
 {
 	TRACE("MQTT send done");
-	Menu * next_menu = peek_menu_stack_top();
+	Menu *next_menu = peek_menu_stack_top();
 	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
 	menuState = mainMenuStateActive;
 }
@@ -358,7 +363,7 @@ void mqtt_send()
 	pub_mqtt_force_send = true;
 }
 
-Menu mainMenu = { 0, "LoRa Send\nMQTT Send\nDate\nTime\nBack",{ lora_send, mqtt_send, setDate, setTime, do_back } };
+Menu mainMenu = {0, "LoRa Send\nMQTT Send\nDate\nTime\nBack", {lora_send, mqtt_send, setDate, setTime, do_back}};
 
 void update_action(String title, String text)
 {
@@ -398,7 +403,7 @@ void end_action()
 	case mainMenuStateActive:
 		if (!menu_stack_empty())
 		{
-			Menu * menu = peek_menu_stack_top();
+			Menu *menu = peek_menu_stack_top();
 			set_menu_display(menu->menuText, menu->active_menu_item);
 		}
 		break;
@@ -465,7 +470,7 @@ void menu_select_pressed()
 	switch (menuState)
 	{
 	case workingStateActive:
-		// Going into menu mode at the top level - 
+		// Going into menu mode at the top level -
 		enter_menu(&mainMenu);
 		break;
 	case messageDisplayStateActive:
@@ -480,7 +485,7 @@ void menu_select_pressed()
 		uint8_t selected_item = get_selected_item();
 		TRACE("selected:");
 		TRACELN(selected_item);
-		Menu * menu = peek_menu_stack_top();
+		Menu *menu = peek_menu_stack_top();
 		TRACELN(menu->menuText);
 		menu->methods[selected_item]();
 		break;
@@ -492,12 +497,12 @@ void menu_select_pressed()
 // can download splash screen text that is displayed
 // in workingStateActive
 
-void refresh_menu ()
+void refresh_menu()
 {
 	switch (menuState)
 	{
 	case workingStateActive:
-		set_working_display(); 
+		set_working_display();
 		break;
 	case messageDisplayStateActive:
 		break;
@@ -532,4 +537,3 @@ void loop_menu()
 		break;
 	}
 }
-
