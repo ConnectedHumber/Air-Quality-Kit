@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name HighSideSwitch)(type Legacy)(uri ${KIPRJMOD}/Symbols/HighSideSwitch.lib)(options "")(descr ""))
+  (lib (name Heltec)(type Legacy)(uri ${KIPRJMOD}/Heltec_Models/Heltec.lib)(options "")(descr ""))
+)

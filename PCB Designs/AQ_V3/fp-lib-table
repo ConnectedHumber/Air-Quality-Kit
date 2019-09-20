@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name Heltec_Models)(type KiCad)(uri ${KIPRJMOD}/Heltec_Models)(options "")(descr ""))
+  (lib (name DIP1092W45P254L1016H508Q8)(type KiCad)(uri ${KIPRJMOD}/Footprints/DIP1092W45P254L1016H508Q8.pretty)(options "")(descr ""))
+  (lib (name SOT95P280X145-5N)(type KiCad)(uri ${KIPRJMOD}/Footprints/SOT95P280X145-5N.pretty)(options "")(descr ""))
+)
