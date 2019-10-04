@@ -1776,33 +1776,59 @@ void serial_deliver_command_result(char *result)
 char serial_receive_buffer[SERIAL_BUFFER_SIZE];
 
 int serial_receive_buffer_pos = 0;
+int open_bracket_count = 0;
 
 void reset_serial_buffer()
 {
+	open_bracket_count = 0;
 	serial_receive_buffer_pos = 0;
 }
 
 void act_on_serial_command()
 {
+	Serial.println(serial_receive_buffer);
 	act_onJson_command(serial_receive_buffer, serial_deliver_command_result);
 }
 
 void buffer_char(char ch)
 {
-	if ((serial_receive_buffer_pos > 0) &&
-		(ch == '\n' || ch == '\r' || ch == 0))
+	// Ignore control characters
+	if (ch == '\n' || ch == '\r' || ch == 0)
 	{
-		// terminate the received string
-		serial_receive_buffer[serial_receive_buffer_pos] = 0;
-		act_on_serial_command();
-		reset_serial_buffer();
+		return;
 	}
-	else
+
+	// Count icnoming start characters
+
+	if(ch == '{')
 	{
-		if (serial_receive_buffer_pos < SERIAL_BUFFER_SIZE)
+		open_bracket_count++;
+	}
+
+	if(open_bracket_count == 0)
+	{
+		// If we haven't started a command ignore characters
+		return;
+	}
+
+	// We are in the middle of a command - buffer the character
+	if (serial_receive_buffer_pos < SERIAL_BUFFER_SIZE)
+	{
+		serial_receive_buffer[serial_receive_buffer_pos] = ch;
+		serial_receive_buffer_pos++;
+	}
+
+	if(ch == '}')
+	{
+		// close off the bracket
+		open_bracket_count--;
+		if(open_bracket_count == 0)
 		{
-			serial_receive_buffer[serial_receive_buffer_pos] = ch;
-			serial_receive_buffer_pos++;
+			// This was the end of the command
+			// Terminate the string
+			serial_receive_buffer[serial_receive_buffer_pos] = 0;
+			act_on_serial_command();
+			reset_serial_buffer();
 		}
 	}
 }
