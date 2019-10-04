@@ -1770,7 +1770,7 @@ void serial_deliver_command_result(char *result)
 	Serial.println(result);
 }
 
-#define SERIAL_BUFFER_SIZE 240
+#define SERIAL_BUFFER_SIZE 1000
 #define SERIAL_BUFFER_LIMIT SERIAL_BUFFER_SIZE - 1
 
 char serial_receive_buffer[SERIAL_BUFFER_SIZE];

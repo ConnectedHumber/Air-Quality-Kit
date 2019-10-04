@@ -4,5 +4,5 @@
     "sketch": "SensorReader.ino",
     "programmer": "AVRISP mkII",
     "output": "../build",
-    "port": "COM9"
+    "port": "COM4"
 }
