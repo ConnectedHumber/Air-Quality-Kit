@@ -1833,7 +1833,7 @@ void buffer_char(char ch)
 	}
 }
 
-#define CHAR_FLUSH_START_TIMEOUT 1000
+#define CHAR_FLUSH_START_TIMEOUT 5000
 
 unsigned long character_timer_start;
 

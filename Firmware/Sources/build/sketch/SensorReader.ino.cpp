@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #line 1 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReader\\SensorReader.ino"
-#line 1 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReader\\SensorReader.ino"
 #include <MicroNMEA.h>
 
 #include <EEPROM.h>

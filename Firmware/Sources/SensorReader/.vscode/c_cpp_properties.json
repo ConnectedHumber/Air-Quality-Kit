@@ -5,7 +5,8 @@
             "includePath": [
                 "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\**",
                 "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.2\\**",
-                "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.3\\**"
+                "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.3\\**",
+                "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.4\\**"
             ],
             "forcedInclude": [],
             "intelliSenseMode": "msvc-x64",

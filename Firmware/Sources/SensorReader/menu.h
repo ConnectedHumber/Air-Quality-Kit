@@ -1,6 +1,7 @@
 
 enum MenuState
 {
+	screenOff,
 	workingStateActive,
 	mainMenuStateActive,
 	messageDisplayStateActive,
@@ -9,6 +10,9 @@ enum MenuState
 };
 
 MenuState menuState;
+
+unsigned long displayStartMillis;
+unsigned long displayTimeoutInMillis = 10000;
 
 struct Menu
 {
@@ -333,20 +337,6 @@ void setDate()
 	enter_menu(&dateMenu);
 }
 
-void lora_send_done()
-{
-	TRACELN("LoRa send done");
-	Menu *next_menu = peek_menu_stack_top();
-	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
-	menuState = mainMenuStateActive;
-}
-
-void lora_send()
-{
-	TRACELN("LoRa send called");
-	display_message("LoRa Send", "Sending", 2000, lora_send_done);
-	pub_lora_force_send = true;
-}
 
 void mqtt_send_done()
 {
@@ -363,7 +353,79 @@ void mqtt_send()
 	pub_mqtt_force_send = true;
 }
 
-Menu mainMenu = {0, "LoRa Send\nMQTT Send\nDate\nTime\nBack", {lora_send, mqtt_send, setDate, setTime, do_back}};
+void menuLoraOffDone()
+{
+	TRACELN("LoRa off done");
+	Menu *next_menu = peek_menu_stack_top();
+	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
+	menuState = mainMenuStateActive;
+}
+
+void menuLoraOff()
+{
+	TRACELN("LoRa off called");
+	display_message("LoRa", "Off", 2000, menuLoraOffDone);
+	settings.loraOn = false;
+	save_settings();
+}
+
+void menuLoraOnDone()
+{
+	TRACELN("LoRa on done");
+	Menu *next_menu = peek_menu_stack_top();
+	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
+	menuState = mainMenuStateActive;
+}
+
+void menuLoraOn()
+{
+	TRACELN("LoRa on called");
+	display_message("LoRa", "On", 2000, menuLoraOnDone);
+	settings.loraOn = true;
+	save_settings();
+}
+
+void menuLoraSendDone()
+{
+	TRACELN("LoRa send done");
+	Menu *next_menu = peek_menu_stack_top();
+	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
+	menuState = mainMenuStateActive;
+}
+
+void menuLoraSend()
+{
+	TRACELN("LoRa send called");
+	display_message("LoRa Send", "Sending", 2000, menuLoraSendDone);
+	pub_lora_force_send = true;
+}
+
+void menuLoraGapDone (int readGap)
+{
+	settings.seconds_per_lora_update = readGap;
+	save_settings();
+	display_message("Lora", "Gap set", 2000, message_done);
+}
+
+void menuLoraGap()
+{
+	TRACELN("Set Lora gap called");
+	get_number("Set gap", settings.seconds_per_lora_update, 60, 3600, menuLoraGapDone);
+}
+
+Menu loraMenu = {0, "Lora on\nLora off\nLora send\nSend Interval\nBack", {menuLoraOn, menuLoraOff, menuLoraSend, menuLoraGap, do_back}};
+
+void loraSetup()
+{
+	enter_menu(&loraMenu);
+}
+
+void mqtt_setup()
+{
+
+}
+
+Menu mainMenu = {0, "LoRa\nMQTT\nDate\nTime\nBack", {loraSetup, mqtt_setup, setDate, setTime, do_back}};
 
 void update_action(String title, String text)
 {
@@ -394,6 +456,8 @@ void end_action()
 
 	switch (stateBeforeAction)
 	{
+	case screenOff:
+		break;
 	case workingStateActive:
 		set_working_state();
 		break;
@@ -425,10 +489,82 @@ void error_stop(String title, String text)
 		delay(1);
 }
 
+MenuState menuStateAtTurnedOff;
+int menuItemSelectedAtTurnedOff;
+
+void turn_off_display()
+{
+	TRACELN("Display turning off");
+
+	set_clear_display();
+
+	menuStateAtTurnedOff = menuState;
+
+	switch (menuState)
+	{
+	case screenOff:
+		break;
+	case workingStateActive:
+		break;
+	case messageDisplayStateActive:
+		break;
+	case mainMenuStateActive:
+		menuItemSelectedAtTurnedOff = get_selected_item();
+		break;
+	case readingNumberStateActive:
+		break;
+	case performingActionActive:
+		break;
+	}
+
+	menuState = screenOff;
+}
+
+void turn_on_display()
+{
+	TRACELN("Display turning on");
+
+	menuState = menuStateAtTurnedOff ;
+
+	displayStartMillis = millis();
+
+	switch (menuState)
+	{
+	case workingStateActive:
+		set_working_state();
+		break;
+	case messageDisplayStateActive:
+		activate_message_display();
+		break;
+	case mainMenuStateActive:
+		if (!menu_stack_empty())
+		{
+			Menu *menu = peek_menu_stack_top();
+			set_menu_display(menu->menuText, menu->active_menu_item);
+			set_selected_item(menuItemSelectedAtTurnedOff);
+		}
+		break;
+	case readingNumberStateActive:
+		activate_number_input_display();
+		break;
+	case performingActionActive:
+		// this should never happen
+		break;
+	}
+}
+
+void keep_display_alive()
+{
+	displayStartMillis = millis();
+}
+
 void menu_up_pressed()
 {
 	switch (menuState)
 	{
+	case screenOff:
+		turn_on_display();
+		break;
 	case workingStateActive:
 		break;
 	case messageDisplayStateActive:
@@ -443,12 +579,16 @@ void menu_up_pressed()
 		// Up is presently disabled when performing an action
 		break;
 	}
+	keep_display_alive();
 }
 
 void menu_down_pressed()
 {
 	switch (menuState)
 	{
+	case screenOff:
+		turn_on_display();
+		break;
 	case workingStateActive:
 		break;
 	case messageDisplayStateActive:
@@ -463,12 +603,16 @@ void menu_down_pressed()
 		// Down is presently disabled when performing an action
 		break;
 	}
+	keep_display_alive();
 }
 
 void menu_select_pressed()
 {
 	switch (menuState)
 	{
+	case screenOff:
+		turn_on_display();
+		break;
 	case workingStateActive:
 		// Going into menu mode at the top level -
 		enter_menu(&mainMenu);
@@ -490,6 +634,7 @@ void menu_select_pressed()
 		menu->methods[selected_item]();
 		break;
 	}
+	keep_display_alive();
 }
 
 // called if any of the display options change
@@ -501,6 +646,8 @@ void refresh_menu()
 {
 	switch (menuState)
 	{
+	case screenOff:
+		break;
 	case workingStateActive:
 		set_working_display();
 		break;
@@ -517,13 +664,25 @@ void refresh_menu()
 
 void setup_menu()
 {
+	displayStartMillis = millis();
+
 	set_working_state();
 }
 
 void loop_menu()
 {
+	if (menuState!=screenOff)
+	{
+		if ((millis() - displayStartMillis) > displayTimeoutInMillis)
+		{
+			turn_off_display();
+		}
+	}
+
 	switch (menuState)
 	{
+	case screenOff:
+		break;
 	case workingStateActive:
 		break;
 	case messageDisplayStateActive:

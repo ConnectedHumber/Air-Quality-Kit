@@ -1,7 +1,7 @@
 // This example just provide basic function test;
 // For more informations, please vist www.heltec.cn or mail to support@heltec.cn
 
-#include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
+#include <Wire.h>	// Only needed for Arduino 1.6.5 and earlier
 #include "SSD1306.h" // alias for #include "SSD1306Wire.h"`
 
 #include "OLEDDisplayUi.h"
@@ -15,24 +15,22 @@
 // later version of display constructor nominates a pin for reset which must be added to the
 // constructor call
 
-SSD1306  display(0x3c, 4, 15, 16);
+SSD1306 display(0x3c, 4, 15, 16);
 
 OLEDDisplayUi ui(&display);
-
 
 // from timing.h
 unsigned long time_to_next_update();
 
-
-void clockOverlay(OLEDDisplay *display, OLEDDisplayUiState* state) {
+void clockOverlay(OLEDDisplay *display, OLEDDisplayUiState *state)
+{
 	char time_buffer[100];
 
 	display->setTextAlignment(TEXT_ALIGN_RIGHT);
 
-	if(!settings.displayOn)
-	{ 
-		int time_to_update = (int)(time_to_next_update()/1000);
-
+	if (!settings.displayOn)
+	{
+		int time_to_update = (int)(time_to_next_update() / 1000);
 
 		switch (timing_state)
 		{
@@ -61,7 +59,8 @@ void clockOverlay(OLEDDisplay *display, OLEDDisplayUiState* state) {
 	display->drawString(128, 0, time_buffer);
 }
 
-void drawSplashScreen(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawSplashScreen(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+{
 	display->setTextAlignment(TEXT_ALIGN_CENTER);
 
 	display->setFont(ArialMT_Plain_16);
@@ -71,7 +70,8 @@ void drawSplashScreen(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x
 	display->drawString(64 + x, 30 + y, settings.splash_screen_bottom_line);
 }
 
-void drawAirQuality(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawAirQuality(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+{
 	char number_buffer[100];
 
 	display->setTextAlignment(TEXT_ALIGN_LEFT);
@@ -82,10 +82,10 @@ void drawAirQuality(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, 
 
 	sprintf(number_buffer, "PM25:  %.1f", pub_disp_ppm_25);
 	display->drawString(0 + x, 30 + y, number_buffer);
-
 }
 
-void drawTemp(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawTemp(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+{
 	char number_buffer[100];
 
 	display->setTextAlignment(TEXT_ALIGN_LEFT);
@@ -99,10 +99,10 @@ void drawTemp(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_
 
 	sprintf(number_buffer, "Humidity:  %.1f", pub_humidity);
 	display->drawString(0 + x, 36 + y, number_buffer);
-
 }
 
-void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+{
 	char number_buffer[100];
 
 	display->setTextAlignment(TEXT_ALIGN_LEFT);
@@ -116,7 +116,7 @@ void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x,
 }
 
 #define MAX_LINE_LENGTH 40
-#define MAX_LINE_LIMIT MAX_LINE_LENGTH-1
+#define MAX_LINE_LIMIT MAX_LINE_LENGTH - 1
 #define NO_OF_LINES 5
 
 char active_menu[NO_OF_LINES][MAX_LINE_LENGTH];
@@ -124,7 +124,8 @@ char active_menu[NO_OF_LINES][MAX_LINE_LENGTH];
 uint8_t active_menu_item = 0;
 uint8_t no_of_menu_items = 0;
 
-void drawMenuFrame(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawMenuFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+{
 
 	uint8_t lineHeight = 12;
 	uint8_t linePos = 0;
@@ -189,14 +190,14 @@ void build_menu(String menu_text)
 // This array keeps function pointers to all frames
 // frames are the single views that slide in
 
-FrameCallback workingFrames[] = { drawSplashScreen, drawAirQuality, drawTemp, drawDiagnostics };
-FrameCallback workingFramesNoSplash[] = { drawAirQuality, drawTemp, drawDiagnostics };
+FrameCallback workingFrames[] = {drawSplashScreen, drawAirQuality, drawTemp, drawDiagnostics};
+FrameCallback workingFramesNoSplash[] = {drawAirQuality, drawTemp, drawDiagnostics};
 
 // how many frames are there?
 int workingFrameCount = 4;
 
 // Overlays are statically drawn on top of a frame eg. a clock
-OverlayCallback workingOverlays[] = { clockOverlay };
+OverlayCallback workingOverlays[] = {clockOverlay};
 int workingOverlaysCount = 1;
 
 void set_working_display()
@@ -234,10 +235,13 @@ void set_working_display()
 	ui.enableAutoTransition();
 }
 
+
+
 String message_display_text;
 String message_display_title;
 
-void drawMessageFrame(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawMessageFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+{
 	display->setTextAlignment(TEXT_ALIGN_CENTER);
 
 	display->setFont(ArialMT_Plain_16);
@@ -247,14 +251,13 @@ void drawMessageFrame(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x
 	display->drawStringMaxWidth(64 + x, 20 + y, 128, message_display_text);
 }
 
-
-FrameCallback messageFrames[] = { drawMessageFrame };
+FrameCallback messageFrames[] = {drawMessageFrame};
 
 // how many frames are there?
 int messageFrameCount = 1;
 
 // Overlays are statically drawn on top of a frame eg. a clock
-OverlayCallback messageOverlays[] = { clockOverlay };
+OverlayCallback messageOverlays[] = {clockOverlay};
 int messageOverlayCount = 0;
 
 void activate_message_display()
@@ -271,7 +274,6 @@ void activate_message_display()
 	ui.setOverlays(messageOverlays, messageOverlayCount);
 }
 
-
 void set_message_display(String title, String text)
 {
 	TRACELN("Set message display");
@@ -281,13 +283,11 @@ void set_message_display(String title, String text)
 	activate_message_display();
 }
 
-
-
-
 String action_display_text;
 String action_display_title;
 
-void drawActionFrame(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawActionFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+{
 	display->setTextAlignment(TEXT_ALIGN_CENTER);
 
 	display->setFont(ArialMT_Plain_16);
@@ -297,14 +297,13 @@ void drawActionFrame(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x,
 	display->drawStringMaxWidth(64 + x, 20 + y, 128, action_display_text);
 }
 
-
-FrameCallback actionFrames[] = { drawActionFrame };
+FrameCallback actionFrames[] = {drawActionFrame};
 
 // how many frames are there?
 int actionFrameCount = 1;
 
 // Overlays are statically drawn on top of a frame eg. a clock
-OverlayCallback actionOverlays[] = { clockOverlay };
+OverlayCallback actionOverlays[] = {clockOverlay};
 int actionOverlayCount = 0;
 
 void set_action_display(String title, String text)
@@ -323,11 +322,11 @@ void set_action_display(String title, String text)
 	ui.setOverlays(actionOverlays, actionOverlayCount);
 }
 
-
 int display_number_being_input;
 String number_input_prompt;
 
-void drawNumberInputFrame(OLEDDisplay *display, OLEDDisplayUiState* state, int16_t x, int16_t y) {
+void drawNumberInputFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+{
 
 	display->setTextAlignment(TEXT_ALIGN_CENTER);
 
@@ -346,13 +345,13 @@ void set_display_number_being_input(int new_value)
 	display_number_being_input = new_value;
 }
 
-FrameCallback numberInputFrames[] = { drawNumberInputFrame };
+FrameCallback numberInputFrames[] = {drawNumberInputFrame};
 
 // how many frames are there?
 int numberInputFrameCount = 1;
 
 // Overlays are statically drawn on top of a frame eg. a clock
-OverlayCallback numberInputOverlays[] = { clockOverlay };
+OverlayCallback numberInputOverlays[] = {clockOverlay};
 int numberInputOverlayCount = 0;
 
 void activate_number_input_display()
@@ -375,19 +374,19 @@ void set_number_input_display(String in_number_input_prompt, int in_number_being
 	activate_number_input_display();
 }
 
-FrameCallback menuFrames[] = { drawMenuFrame };
+FrameCallback menuFrames[] = {drawMenuFrame};
 
 // how many frames are there?
 int menuFrameCount = 1;
 
 // Overlays are statically drawn on top of a frame eg. a clock
-OverlayCallback menuOverlays[] = { clockOverlay };
+OverlayCallback menuOverlays[] = {clockOverlay};
 int menuOverlayCount = 0;
 
 // Used to connect the menu to the LCD
 
-// Displays the menu text and sets the cursor positon to the given 
-// item. 
+// Displays the menu text and sets the cursor positon to the given
+// item.
 
 void set_menu_display(String menu_text, uint64_t pos_in_menu)
 {
@@ -403,7 +402,6 @@ void set_menu_display(String menu_text, uint64_t pos_in_menu)
 	// Add overlays
 	ui.setOverlays(menuOverlays, menuOverlayCount);
 }
-
 
 void move_selector_up()
 {
@@ -434,7 +432,46 @@ int get_selected_item()
 	return active_menu_item;
 }
 
-void setup_lcd() {
+bool set_selected_item(int item)
+{
+	if(item < 0)
+		return false;
+
+	if (item >= no_of_menu_items)
+		return false;
+
+	active_menu_item = item;
+
+	return true;
+}
+
+void drawClearFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
+{
+}
+
+FrameCallback clearFrames[] = {drawClearFrame};
+
+int clearFrameCount = 1;
+
+OverlayCallback clearOverlays[] = {clockOverlay};
+
+int clearOverlayCount = 0;
+
+//at the moment the cleared frame shows nothing
+void set_clear_display()
+{
+	ui.disableAllIndicators();
+	ui.disableAutoTransition();
+
+	// Add frames
+	ui.setFrames(clearFrames, clearFrameCount);
+
+	// Add overlays
+	ui.setOverlays(clearOverlays, clearOverlayCount);
+}
+
+void setup_lcd()
+{
 	TRACELN("Setting up LCD");
 
 	// The ESP is capable of rendering 60fps in 80Mhz mode
@@ -448,13 +485,12 @@ void setup_lcd() {
 	ui.init();
 
 	//display.flipScreenVertically();
-
 }
 
 bool first_time_lcd_loop = true;
 
-void loop_lcd() {
-
+void loop_lcd()
+{
 	if (first_time_lcd_loop)
 	{
 		set_working_display();
@@ -463,7 +499,8 @@ void loop_lcd() {
 
 	int remainingTimeBudget = ui.update();
 
-	if (remainingTimeBudget > 0) {
+	if (remainingTimeBudget > 0)
+	{
 		// You can do some work here
 		// Don't do stuff if you are below your
 		// time budget.
