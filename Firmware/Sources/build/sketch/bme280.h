@@ -124,6 +124,7 @@ void loop_bme280()
       pub_pressure = bme.readPressure() / 100.0F;
       pub_humidity = bme.readHumidity();
       pub_bme_values_ready = true;
+      pub_bme_values_reading_count++;
     }
     break;
   }

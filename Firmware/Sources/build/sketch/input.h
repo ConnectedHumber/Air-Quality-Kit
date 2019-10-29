@@ -6,19 +6,19 @@
 void up_pressed()
 {
 	TRACELN("Up Pressed");
-	menu_up_pressed();
+	menuUpButtonPresssed();
 }
 
 void down_pressed()
 {
 	TRACELN("Down Pressed");
-	menu_down_pressed();
+	menuDownButtonPressed();
 }
 
 void select_pressed()
 {
 	TRACELN("Select Pressed");
-	menu_select_pressed();
+	menuSelectButtonPressed();
 }
 
 void up_released()
@@ -38,7 +38,7 @@ void select_released()
 
 #define AUTO_REPEAT_GAP 300
 #define AUTO_REPEAT_SPEEDUP 10
-#define AUTO_REPEAT_SPEED_MIN 50
+#define AUTO_REPEAT_SPEED_MIN 10
 
 struct Button {
 	void(*pressed_handler)();

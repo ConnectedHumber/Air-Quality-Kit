@@ -46,7 +46,7 @@ int find_wifi_setting(String ssidName)
 
 void start_wifi_scan()
 {
-	Serial.println("Startign WiFi scan");
+	Serial.println("Starting WiFi scan");
 	Serial.println("Setting STA mode");
 	WiFi.mode(WIFI_MODE_STA);
 	delay(500);
@@ -62,7 +62,7 @@ void start_wifi_scan()
 
 	Serial.println("scan action ended");
 
-	start_action("WiFi", "Scanning");
+	startPopUpMessage("WiFi", "Scanning");
 	wifiState = WiFiScanning;
 	wifi_connect_count++;
 }
@@ -99,7 +99,7 @@ void loop_wifi()
 			{
 				WiFi.begin(settings.wifiSettings[setting_number].wifiSsid, 
 					settings.wifiSettings[setting_number].wifiPassword);
-				update_action(settings.wifiSettings[setting_number].wifiSsid, 
+				updatePopupMessage(settings.wifiSettings[setting_number].wifiSsid, 
 					"Connecting");
 				wifiState = WiFiConnecting;
 				break;
@@ -109,7 +109,7 @@ void loop_wifi()
 		if (wifiState != WiFiConnecting)
 		{
 			// didn't find a matching network
-			update_action("WiFi", "No networks");
+			updatePopupMessage("WiFi", "No networks");
 			wifi_timer_start = millis();
 			wifiState = WiFiConnectFailed;
 		}
@@ -120,7 +120,7 @@ void loop_wifi()
 
 		if (WiFi.status() == WL_CONNECTED)
 		{
-			update_action("WiFi", "Connected OK");
+			updatePopupMessage("WiFi", "Connected OK");
 			wifiState = ShowingWifiConnected;
 			wifi_timer_start = millis();
 		}
@@ -128,7 +128,7 @@ void loop_wifi()
 		if (elapsed_time > WIFI_START_TIMEOUT)
 		{
 			wifi_timer_start = millis();
-			update_action("WiFi", "Connect failed");
+			updatePopupMessage("WiFi", "Connect failed");
 			wifiState = WiFiConnectFailed;
 		}
 
@@ -137,7 +137,6 @@ void loop_wifi()
 	case ShowingWifiConnected:
 		if (elapsed_time > WIFI_DISPLAY_TIMEOUT)
 		{
-			end_action();
 			wifiState = WiFiConnected;
 		}
 		break;
@@ -147,7 +146,6 @@ void loop_wifi()
 		{
 			wifi_timer_start = millis();
 			wifiState = WiFiNotConnected;
-			end_action();
 		}
 		break;
 
@@ -156,7 +154,7 @@ void loop_wifi()
 		if (WiFi.status() != WL_CONNECTED)
 		{
 			wifi_timer_start = millis();
-			start_action("WiFi", "Failed");
+			startPopUpMessage("WiFi", "Failed");
 			wifiState = ShowingWiFiFailed;
 		}
 		break;
@@ -179,3 +177,40 @@ void loop_wifi()
 	}
 }
 
+void getWiFiStatusString(char * buffer, int bufferLength)
+{
+	switch (wifiState)
+	{
+	case WiFiStarting:
+		snprintf(buffer, bufferLength, "WiFi Starting");
+		break;
+
+	case WiFiScanning:
+		snprintf(buffer, bufferLength, "WiFi scanning");
+		break;
+
+	case WiFiConnecting:
+		snprintf(buffer, bufferLength, "WiFi connecting");
+		break;
+
+	case ShowingWifiConnected:
+		snprintf(buffer, bufferLength, "WiFi connected");
+		break;
+
+	case WiFiConnectFailed:
+		snprintf(buffer, bufferLength, "WiFi connect failed");
+		break;
+
+	case WiFiConnected:
+		snprintf(buffer, bufferLength, "WiFi connected");
+		break;
+
+	case ShowingWiFiFailed:
+		snprintf(buffer, bufferLength, "WiFi failed");
+		break;
+
+	case WiFiNotConnected:
+		snprintf(buffer, bufferLength, "WiFi not connected");
+		break;
+	}
+}

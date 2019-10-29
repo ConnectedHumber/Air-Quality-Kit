@@ -173,6 +173,8 @@ void dump_settings()
 	TRACELN(settings.version);
 	TRACE("Device name: ");
 	TRACELN(settings.deviceNane);
+	TRACE("WiFi on: ");
+	TRACELN(settings.wiFiOn);
 	TRACE("MQTT server: ");
 	TRACELN(settings.mqttServer);
 	TRACE("MQTT port: ");
@@ -477,7 +479,7 @@ void do_mqtt_state(JsonObject &root, char *resultBuffer)
 			if (strcasecmp(option, "on") == 0)
 			{
 				// now we are transmitting - turn off the display
-				settings.displayOn = false;
+				settings.loggingActive = false;
 				settings.mqttOn = true;
 			}
 			else
@@ -816,7 +818,7 @@ void do_lora_state(JsonObject &root, char *resultBuffer)
 			{
 				settings.loraOn = true;
 				// now we are transmitting - turn off the display
-				settings.displayOn = false;
+				settings.loggingActive = false;
 			}
 			else
 			{
@@ -1028,6 +1030,8 @@ void do_wifi_on(JsonObject &root, char *resultBuffer)
 	if (reply == WORKED_OK)
 	{
 		TRACELN("Starting WiFi");
+		settings.wiFiOn = true;
+		save_settings();
 		start_wifi();
 	}
 	build_command_reply(reply, root, resultBuffer);
@@ -1041,6 +1045,8 @@ void do_wifi_off(JsonObject &root, char *resultBuffer)
 	if (reply == WORKED_OK)
 	{
 		TRACELN("Stopping WiFi");
+		settings.wiFiOn = false;
+		save_settings();
 		// not sure how to do this just yet...
 	}
 	build_command_reply(reply, root, resultBuffer);
@@ -1203,7 +1209,7 @@ void do_device_name(JsonObject &root, char *resultBuffer)
 // Allows for changes in the splash screen to be reflected instantly
 // on arrival.
 
-void refresh_menu();
+void refreshDisplay();
 
 // {"v":1, "t" : "sensor01", "c" : "node", "o" : "spltop", "val":"Connected"}
 void do_splash_screen_top_line(JsonObject &root, char *resultBuffer)
@@ -1224,7 +1230,7 @@ void do_splash_screen_top_line(JsonObject &root, char *resultBuffer)
 		if (reply == WORKED_OK)
 		{
 			save_settings();
-			refresh_menu();
+			refreshDisplay();
 		}
 	}
 
@@ -1250,7 +1256,7 @@ void do_splash_screen_bottom_line(JsonObject &root, char *resultBuffer)
 		if (reply == WORKED_OK)
 		{
 			save_settings();
-			refresh_menu();
+			refreshDisplay();
 		}
 	}
 
@@ -1271,7 +1277,7 @@ void do_pixel_colour(JsonObject &root, char *resultBuffer)
 		if (reply == WORKED_OK)
 		{
 			save_settings();
-			refresh_menu();
+			refreshDisplay();
 		}
 	}
 
@@ -1474,9 +1480,9 @@ void do_rtc_state(JsonObject &root, char *resultBuffer)
 	build_command_reply(reply, root, resultBuffer);
 }
 
-// {"v":1, "t" : "Sensor01", "c" : "display", "o" : "state", "val" : "on"}
-// {"v":1, "t" : "Sensor01", "c" : "display", "o" : "state", "val" : "off"}
-void do_display_state(JsonObject &root, char *resultBuffer)
+// {"v":1, "t" : "Sensor01", "c" : "logging", "o" : "state", "val" : "on"}
+// {"v":1, "t" : "Sensor01", "c" : "logging", "o" : "state", "val" : "off"}
+void do_logging_state(JsonObject &root, char *resultBuffer)
 {
 	int reply = checkTargetDeviceName(root);
 
@@ -1486,7 +1492,7 @@ void do_display_state(JsonObject &root, char *resultBuffer)
 		if (!option)
 		{
 			// no option - just a status request
-			if (settings.displayOn)
+			if (settings.loggingActive)
 			{
 				build_text_value_command_reply(WORKED_OK, "on", root, resultBuffer);
 			}
@@ -1507,13 +1513,13 @@ void do_display_state(JsonObject &root, char *resultBuffer)
 			const char *option = root["val"];
 			if (strcasecmp(option, "on") == 0)
 			{
-				settings.displayOn = true;
+				
 			}
 			else
 			{
 				if (strcasecmp(option, "off") == 0)
 				{
-					settings.displayOn = false;
+					settings.loggingActive = false;
 				}
 				else
 				{
@@ -1540,7 +1546,7 @@ OptionDecodeItems nodeOptionDecodeItems[] = {
 	{"pixel", do_pixel_colour},
 	{"gps", do_gps_state},
 	{"rtc", do_rtc_state},
-	{"display", do_display_state},
+	{"logging", do_logging_state},
 	{"warmup", do_sensor_warm_up_time}};
 
 struct CommandDecoder
@@ -1705,7 +1711,7 @@ void reset_settings()
 	settings.wiFiOn = false;
 	settings.rtcOn = false;
 	settings.gpsOn = false;
-	settings.displayOn = true;
+	settings.loggingActive = true;
 
 	strcpy(settings.deviceNane, "sensor01");
 
@@ -1917,13 +1923,13 @@ void act_onBinary_command(u1_t *buffer, int length, char *displayBuffer, int dis
 	Serial.println(displayBuffer);
 }
 
-void error_stop(String title, String text);
+void errorStop(String title, String text);
 
 void setup_commands()
 {
 	if (!EEPROM.begin(EEPROM_SIZE))
 	{
-		error_stop("Failure", "EEPROM faulty");
+		errorStop("Failure", "EEPROM faulty");
 	}
 
 	load_settings();

@@ -21,6 +21,7 @@ OLEDDisplayUi ui(&display);
 
 // from timing.h
 unsigned long time_to_next_update();
+bool updates_active();
 
 void clockOverlay(OLEDDisplay *display, OLEDDisplayUiState *state)
 {
@@ -28,22 +29,22 @@ void clockOverlay(OLEDDisplay *display, OLEDDisplayUiState *state)
 
 	display->setTextAlignment(TEXT_ALIGN_RIGHT);
 
-	if (!settings.displayOn)
+	if (updates_active())
 	{
-		int time_to_update = (int)(time_to_next_update() / 1000);
+		int time_to_update_secs = (int)(time_to_next_update() / 1000);
 
 		switch (timing_state)
 		{
 		case sensorOff:
-			sprintf(time_buffer, "O %04d", time_to_update);
+			sprintf(time_buffer, "O %04d", time_to_update_secs);
 			break;
 
 		case sensorWarmingUp:
-			sprintf(time_buffer, "W %04d", time_to_update);
+			sprintf(time_buffer, "W %04d", time_to_update_secs);
 			break;
 
 		case sensorGettingReading:
-			sprintf(time_buffer, "R %04d", time_to_update);
+			sprintf(time_buffer, "R %04d", time_to_update_secs);
 			break;
 		}
 	}
@@ -101,18 +102,53 @@ void drawTemp(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_
 	display->drawString(0 + x, 36 + y, number_buffer);
 }
 
+// from WiFiConnection.h
+void getWiFiStatusString(char * buffer, int bufferLength);
+// from MQTT.h
+void getMQTTStatusString(char * buffer, int bufferLength);
+
 void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
 {
-	char number_buffer[100];
+	char status_buffer[100];
 
 	display->setTextAlignment(TEXT_ALIGN_LEFT);
 
-	display->setFont(ArialMT_Plain_16);
+	display->setFont(ArialMT_Plain_10);
 
-	display->drawString(0 + x, 10 + y, LoraStatusBuffer);
+	if(settings.wiFiOn)
+		getWiFiStatusString(status_buffer, 100);
+	else
+	{
+		sprintf(status_buffer,"WiFi Off");
+	}
+	
+	display->drawString(0 + x, 0 + y, status_buffer);
 
-	sprintf(number_buffer, "LoRa sent:%d", loraSentCount);
-	display->drawString(0 + x, 30 + y, number_buffer);
+	if(settings.mqttOn)
+		getMQTTStatusString(status_buffer, 100);
+	else
+	{
+		sprintf(status_buffer,"MQTT Off");
+	}
+	
+	display->drawString(0 + x, 10 + y, status_buffer);
+
+	if(settings.loraOn)
+	sprintf(status_buffer, "LoRa sent: %d", loraSentCount);
+	else
+	{
+		sprintf(status_buffer,"LoRa Off");
+	}
+
+	display->drawString(0 + x, 20 + y, status_buffer);
+
+	sprintf(status_buffer, "MQTT gap: %d", settings.seconds_per_mqtt_update);
+
+	display->drawString(0 + x, 30 + y, status_buffer);
+
+	sprintf(status_buffer, "LoRa gap: %d", settings.seconds_per_lora_update);
+
+	display->drawString(0 + x, 40 + y, status_buffer);
 }
 
 #define MAX_LINE_LENGTH 40
@@ -200,7 +236,7 @@ int workingFrameCount = 4;
 OverlayCallback workingOverlays[] = {clockOverlay};
 int workingOverlaysCount = 1;
 
-void set_working_display()
+void setWorkingDisplay()
 {
 	// Customize the active and inactive symbol
 	ui.setActiveSymbol(activeSymbol);
@@ -306,12 +342,8 @@ int actionFrameCount = 1;
 OverlayCallback actionOverlays[] = {clockOverlay};
 int actionOverlayCount = 0;
 
-void set_action_display(String title, String text)
+void activate_action_display()
 {
-	TRACELN("Set message display");
-	action_display_title = title;
-	action_display_text = text;
-
 	ui.disableAllIndicators();
 	ui.disableAutoTransition();
 
@@ -320,6 +352,15 @@ void set_action_display(String title, String text)
 
 	// Add overlays
 	ui.setOverlays(actionOverlays, actionOverlayCount);
+}
+
+void setPopupMessage(String title, String text)
+{
+	TRACELN("Set message display");
+	action_display_title = title;
+	action_display_text = text;
+
+	activate_action_display();
 }
 
 int display_number_being_input;
@@ -388,7 +429,7 @@ int menuOverlayCount = 0;
 // Displays the menu text and sets the cursor positon to the given
 // item.
 
-void set_menu_display(String menu_text, uint64_t pos_in_menu)
+void setMenuDisplay(String menu_text, uint64_t pos_in_menu)
 {
 	build_menu(menu_text);
 	active_menu_item = pos_in_menu;
@@ -427,7 +468,7 @@ void move_selector_down()
 	}
 }
 
-int get_selected_item()
+int getSelectedItem()
 {
 	return active_menu_item;
 }
@@ -458,7 +499,7 @@ OverlayCallback clearOverlays[] = {clockOverlay};
 int clearOverlayCount = 0;
 
 //at the moment the cleared frame shows nothing
-void set_clear_display()
+void setClearDisplayPage()
 {
 	ui.disableAllIndicators();
 	ui.disableAutoTransition();
@@ -479,7 +520,7 @@ void setup_lcd()
 	// run it in 160Mhz mode or just set it to 30 fps
 	ui.setTargetFPS(60);
 
-	set_working_display();
+	setWorkingDisplay();
 
 	// Initialising the UI will init the display too.
 	ui.init();
@@ -493,7 +534,7 @@ void loop_lcd()
 {
 	if (first_time_lcd_loop)
 	{
-		set_working_display();
+		setWorkingDisplay();
 		first_time_lcd_loop = false;
 	}
 

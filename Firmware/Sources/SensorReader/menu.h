@@ -1,265 +1,282 @@
 
 enum MenuState
 {
+	// screen is turned off - nothing is displayed 
 	screenOff,
-	workingStateActive,
-	mainMenuStateActive,
-	messageDisplayStateActive,
-	readingNumberStateActive,
-	performingActionActive
+	// have a special state for the situation when an action is started and the screen is off
+	// this is to allow us to properly handle the situation when the screen is turned back on
+	// again when an action is being displayed
+	runningDisplayActive,
+	// screen is showing a mnenu of some kind
+	menuDisplay,
+	// screen is showing a message as a result of a menu action
+	// usually the message confirms that an action has been performed 
+	menuMessage,
+	// screen is reading a numeric value from the user
+	readingNumber,
+	// an action is a pop up message that can be displayed at any time and will
+	// appear on top of the existing display
+	// The action will time out after a set time and the original display reappear
+	popUpDisplaying
 };
 
 MenuState menuState;
 
-unsigned long displayStartMillis;
-unsigned long displayTimeoutInMillis = 10000;
+unsigned long millisecsAtLastUserInput;
+unsigned long displayTimeoutInMillis = 100000;
 
 struct Menu
 {
-	uint8_t active_menu_item;
+	uint8_t activeMenuItem;
 	String menuText;
 	void (*methods[5])();
 };
 
-void set_working_state()
+void setRunningDisplay()
 {
-	TRACELN("Setting working state active");
-	menuState = workingStateActive;
-	set_working_display();
+	TRACELN("Setting running display active");
+	menuState = runningDisplayActive;
+	setWorkingDisplay();
 }
 
 #define MENU_STACK_SIZE 15
 
-Menu *menu_stack[MENU_STACK_SIZE];
+Menu *menuStack[MENU_STACK_SIZE];
 
 // Stack top is the location of the top of the stack
 // If it is -1 this means that the stack is empty
 // Increment the stack top BEFORE adding anything to the stack
 
-int8_t menu_stack_top = -1;
+int8_t menuStackTop = -1;
 
-void push_menu(Menu *menu)
+void pushMenu(Menu *menu)
 {
 	TRACELN("Pushing menu");
-	menu_stack_top++;
-	menu_stack[menu_stack_top] = menu;
+	menuStackTop++;
+	menuStack[menuStackTop] = menu;
 }
 
-Menu *pop_menu()
+Menu *popMenu()
 {
 	TRACELN("Popping menu");
 
-	if (menu_stack_top == -1)
+	if (menuStackTop == -1)
 	{
 		return NULL;
 	}
 
-	Menu *result = menu_stack[menu_stack_top];
+	Menu *result = menuStack[menuStackTop];
 
-	menu_stack_top--;
+	menuStackTop--;
 	return result;
 }
 
-Menu *peek_menu_stack_top()
+Menu *peekMenuStackTop()
 {
-	if (menu_stack_top == -1)
+	if (menuStackTop == -1)
 		return NULL;
 
-	return menu_stack[menu_stack_top];
+	return menuStack[menuStackTop];
 }
 
-bool menu_stack_empty()
+bool menuStackIsEmpty()
 {
-	return menu_stack_top == -1;
+	return menuStackTop == -1;
 }
 
-void enter_menu(Menu *menu)
-{
-	// record the position in the current menu for return
-	if (!menu_stack_empty())
-		peek_menu_stack_top()->active_menu_item = get_selected_item();
-
-	push_menu(menu);
-
-	set_menu_display(menu->menuText, menu->active_menu_item);
-
-	menuState = mainMenuStateActive;
-}
-
-void exit_menu()
+void enterAMenu(Menu *menu)
 {
 	// record the position in the current menu for return
-	peek_menu_stack_top()->active_menu_item = get_selected_item();
+	if (!menuStackIsEmpty())
+		peekMenuStackTop()->activeMenuItem = getSelectedItem();
 
-	pop_menu();
+	pushMenu(menu);
 
-	Menu *next_menu = peek_menu_stack_top();
+	setMenuDisplay(menu->menuText, menu->activeMenuItem);
 
-	if (next_menu == NULL)
+	menuState = menuDisplay;
+}
+
+void exitFromMenu()
+{
+	// record the position in the current menu for return
+	peekMenuStackTop()->activeMenuItem = getSelectedItem();
+
+	popMenu();
+
+	Menu *nextMenu = peekMenuStackTop();
+
+	if (nextMenu == NULL)
 	{
-		set_working_state();
+		setRunningDisplay();
 		return;
 	}
 
-	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
+	setMenuDisplay(nextMenu->menuText, nextMenu->activeMenuItem);
 }
 
-unsigned long delay_start_time;
-unsigned long delay_in_millis;
+unsigned long messageDisplayStartTime;
+unsigned long messageDisplayTimeInMillis;
 
-void (*message_complete_callback)();
+unsigned long popUpDisplayStartTime;
+unsigned long popUpDisplayTimeInMillis = 1000;
 
-void display_message_screen(String title, String text, int in_delay_in_millis, void (*callback)())
+void (*messageDisplayCompleteCallback)();
+
+void beginDisplayingAMessage(String title, String text, int messageDelayInMillis, void (*callback)())
 {
-	message_complete_callback = callback;
+	messageDisplayCompleteCallback = callback;
 	set_message_display(title, text);
-	menuState = messageDisplayStateActive;
-	delay_in_millis = in_delay_in_millis;
-	delay_start_time = millis();
+	menuState = menuMessage;
+	messageDisplayTimeInMillis = messageDelayInMillis;
+	messageDisplayStartTime = millis();
 }
 
-void timeout_message()
+void endTheMessageDisplay()
 {
-	message_complete_callback();
+	messageDisplayCompleteCallback();
 }
 
-void check_message_timeout()
+void checkMessageTimeout()
 {
 	ulong time = millis();
 
-	ulong diff = ulongDiff(time, delay_start_time);
+	ulong diff = ulongDiff(time, messageDisplayStartTime);
 
-	if (diff > delay_in_millis)
+	if (diff > messageDisplayTimeInMillis)
 	{
 		// timer has expired
-		timeout_message();
+		endTheMessageDisplay();
 	}
 }
 
-int number_being_input;
-int number_being_input_upper_limit;
-int number_being_input_lower_limit;
+int numberBeingInput;
+int numberBeingInputUpperLimit;
+int numberBeingInputLowerLimit;
 
-void (*number_complete_callback)(int result);
+void (*numberInputCompleteCallback)(int result);
 
-void complete_number_input()
+void completeNumberInput()
 {
-	number_complete_callback(number_being_input);
+	numberInputCompleteCallback(numberBeingInput);
 }
 
-void increment_number_value()
+void incrementNumberValue()
 {
 	TRACELN("Increment");
-	number_being_input++;
-	if (number_being_input > number_being_input_upper_limit)
+	numberBeingInput++;
+	if (numberBeingInput > numberBeingInputUpperLimit)
 	{
-		number_being_input = number_being_input_lower_limit;
+		numberBeingInput = numberBeingInputLowerLimit;
 	}
-	TRACELN(number_being_input);
-	set_display_number_being_input(number_being_input);
+	TRACELN(numberBeingInput);
+	set_display_number_being_input(numberBeingInput);
 }
 
-void decrement_number_value()
+void decrementNumberValue()
 {
 	TRACELN("Decrement");
-	number_being_input--;
-	if (number_being_input < number_being_input_lower_limit)
+	numberBeingInput--;
+	if (numberBeingInput < numberBeingInputLowerLimit)
 	{
-		number_being_input = number_being_input_upper_limit;
+		numberBeingInput = numberBeingInputUpperLimit;
 	}
-	TRACELN(number_being_input);
-	set_display_number_being_input(number_being_input);
+	TRACELN(numberBeingInput);
+	set_display_number_being_input(numberBeingInput);
 }
 
-void display_number_input(String in_number_input_prompt, int in_number_being_input,
-						  int in_number_being_input_lower_limit, int in_number_being_input_upper_limit, void (*callback)(int result))
+void beginNumberInput(String numberInputPrompt, int initialNumberValue,
+						  int lowerLimit, int upperLimit, void (*callback)(int result))
 {
-	number_complete_callback = callback;
+	numberInputCompleteCallback = callback;
 
-	set_number_input_display(in_number_input_prompt, in_number_being_input);
+	set_number_input_display(numberInputPrompt, initialNumberValue);
 
-	number_being_input = in_number_being_input;
-	number_being_input_upper_limit = in_number_being_input_upper_limit;
-	number_being_input_lower_limit = in_number_being_input_lower_limit;
-	menuState = readingNumberStateActive;
+	numberBeingInput = initialNumberValue;
+	numberBeingInputUpperLimit = upperLimit;
+	numberBeingInputLowerLimit = lowerLimit;
+	menuState = readingNumber;
 }
 
-void do_back()
+void doBackFromMenu()
 {
 	TRACELN("Back called");
-	exit_menu();
+	exitFromMenu();
 }
 
-void get_number(String prompt, int start, int low, int high, void (*value_read)(int))
+void getNumber(String prompt, int start, int low, int high, void (*value_read)(int))
 {
-	peek_menu_stack_top()->active_menu_item = get_selected_item();
-	display_number_input(prompt, start, low, high, value_read);
+	peekMenuStackTop()->activeMenuItem = getSelectedItem();
+	beginNumberInput(prompt, start, low, high, value_read);
 }
 
-void display_message(String title, String message, int length, void (*completed)())
+void displayMessage(String title, String message, int length, void (*completed)())
 {
-	peek_menu_stack_top()->active_menu_item = get_selected_item();
-	display_message_screen(title, message, length, completed);
+	// store the currectly selected menu item so that it is restored after the n
+	// message has been displayed
+	peekMenuStackTop()->activeMenuItem = getSelectedItem();
+	beginDisplayingAMessage(title, message, length, completed);
 }
 
-void message_done()
+void messageDisplayComplete()
 {
-	Menu *next_menu = peek_menu_stack_top();
-	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
-	menuState = mainMenuStateActive;
+	// restore the menu and the position in it
+	Menu *next_menu = peekMenuStackTop();
+	setMenuDisplay(next_menu->menuText, next_menu->activeMenuItem);
+	menuState = menuDisplay;
 }
 
-void dump_time()
+void dumpTime()
 {
 	char time_buffer[100];
 	read_time();
 	sprintf(time_buffer, "%02d:%02d:%02d", pub_hour, pub_minute, pub_second);
-	display_message("Time", time_buffer, 2000, message_done);
+	displayMessage("Time", time_buffer, 2000, messageDisplayComplete);
 }
 
-void dump_date()
+void dumpDate()
 {
 
 	char date_buffer[100];
 	read_time();
 	sprintf(date_buffer, "%d/%d/%d", pub_day, pub_month, pub_year);
-	display_message("Date", date_buffer, 2000, message_done);
+	displayMessage("Date", date_buffer, 2000, messageDisplayComplete);
 }
 
 void doneSetHours(int readHours)
 {
 	read_time();
 	set_time(readHours, pub_minute, pub_second, pub_day, pub_month, pub_year);
-	dump_time();
+	dumpTime();
 }
 
 void setHours()
 {
 	TRACELN("Set hours called");
-	get_number("Set hours", pub_hour, 0, 23, doneSetHours);
+	getNumber("Set hours", pub_hour, 0, 23, doneSetHours);
 }
 
 void doneSetMinutes(int readMins)
 {
 	read_time();
 	set_time(pub_hour, readMins, pub_second, pub_day, pub_month, pub_year);
-	dump_time();
+	dumpTime();
 }
 
 void setMinutes()
 {
 	TRACELN("Set minutes called");
-	get_number("Set minutes", pub_minute, 0, 59, doneSetMinutes);
+	getNumber("Set minutes", pub_minute, 0, 59, doneSetMinutes);
 }
 
 void zeroSeconds()
 {
 	read_time();
 	set_time(pub_hour, pub_minute, 0, pub_day, pub_month, pub_year);
-	dump_time();
+	dumpTime();
 }
 
-Menu timeMenu = {0, "Set hours\nSet minutes\nZero seconds\nBack", {setHours, setMinutes, zeroSeconds, do_back}};
+Menu timeMenu = {0, "Set hours\nSet minutes\nZero seconds\nBack", {setHours, setMinutes, zeroSeconds, doBackFromMenu}};
 
 //                          J	F	M	A	M	J	J	A	S	O	N	D
 int monthLengths[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -275,215 +292,273 @@ int getMonthLength(uint8_t month, uint16_t year)
 void setTime()
 {
 	TRACELN("Set date time called");
-	enter_menu(&timeMenu);
+	enterAMenu(&timeMenu);
 }
 
 void doneSetDays(int readDays)
 {
 	read_time();
 	set_time(pub_hour, pub_minute, pub_second, readDays, pub_month, pub_year);
-	dump_date();
+	dumpDate();
 }
 
 void setDays()
 {
 	TRACELN("Set days called");
 	int monthLength = getMonthLength(pub_month, pub_year);
-	get_number("Set days", pub_day, 1, monthLength, doneSetDays);
+	getNumber("Set days", pub_day, 1, monthLength, doneSetDays);
 }
 
 void doneSetMonths(int readMonth)
 {
 	if (pub_day > getMonthLength(readMonth, pub_year))
 	{
-		display_message("Invalid Month", "Day not valid for this month", 2000, message_done);
+		displayMessage("Invalid Month", "Day not valid for this month", 2000, messageDisplayComplete);
 	}
 	else
 	{
 		set_time(pub_hour, pub_minute, pub_second, pub_day, readMonth, pub_year);
-		dump_date();
+		dumpDate();
 	}
 }
 
 void setMonths()
 {
 	TRACELN("Set months called");
-	get_number("Set month", pub_month, 1, 12, doneSetMonths);
+	getNumber("Set month", pub_month, 1, 12, doneSetMonths);
 }
 
 void doneSetYears(int readYears)
 {
 	if (pub_day > getMonthLength(pub_month, readYears))
 	{
-		display_message("Invalid year", "Day not valid for this month", 2000, message_done);
+		displayMessage("Invalid year", "Day not valid for this month", 2000, messageDisplayComplete);
 	}
 	else
 	{
 		set_time(pub_hour, pub_minute, pub_second, pub_day, pub_month, readYears);
-		dump_date();
+		dumpDate();
 	}
 }
 
 void setYears()
 {
 	TRACELN("Set years called");
-	get_number("Set year", pub_year, 2000, 3000, doneSetYears);
+	getNumber("Set year", pub_year, 2000, 3000, doneSetYears);
 }
 
-Menu dateMenu = {0, "Set days\nSet months\nSet Years\nBack", {setDays, setMonths, setYears, do_back}};
+Menu dateMenu = {0, "Set days\nSet months\nSet Years\nBack", {setDays, setMonths, setYears, doBackFromMenu}};
 
 void setDate()
 {
-	enter_menu(&dateMenu);
+	enterAMenu(&dateMenu);
 }
 
-
-void mqtt_send_done()
-{
-	TRACE("MQTT send done");
-	Menu *next_menu = peek_menu_stack_top();
-	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
-	menuState = mainMenuStateActive;
-}
-
-void mqtt_send()
-{
-	TRACELN("MQTT send");
-	display_message("MQTT Send", "Sending", 2000, mqtt_send_done);
-	pub_mqtt_force_send = true;
-}
-
-void menuLoraOffDone()
-{
-	TRACELN("LoRa off done");
-	Menu *next_menu = peek_menu_stack_top();
-	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
-	menuState = mainMenuStateActive;
-}
 
 void menuLoraOff()
 {
 	TRACELN("LoRa off called");
-	display_message("LoRa", "Off", 2000, menuLoraOffDone);
+	displayMessage("LoRa", "Off", 2000, messageDisplayComplete);
 	settings.loraOn = false;
 	save_settings();
-}
-
-void menuLoraOnDone()
-{
-	TRACELN("LoRa on done");
-	Menu *next_menu = peek_menu_stack_top();
-	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
-	menuState = mainMenuStateActive;
 }
 
 void menuLoraOn()
 {
 	TRACELN("LoRa on called");
-	display_message("LoRa", "On", 2000, menuLoraOnDone);
+	displayMessage("LoRa", "On", 2000, messageDisplayComplete);
 	settings.loraOn = true;
 	save_settings();
-}
-
-void menuLoraSendDone()
-{
-	TRACELN("LoRa send done");
-	Menu *next_menu = peek_menu_stack_top();
-	set_menu_display(next_menu->menuText, next_menu->active_menu_item);
-	menuState = mainMenuStateActive;
 }
 
 void menuLoraSend()
 {
 	TRACELN("LoRa send called");
-	display_message("LoRa Send", "Sending", 2000, menuLoraSendDone);
+	displayMessage("LoRa Send", "Sending", 2000, messageDisplayComplete);
 	pub_lora_force_send = true;
 }
 
 void menuLoraGapDone (int readGap)
 {
+	displayMessage("Lora", "Gap set", 2000, messageDisplayComplete);
 	settings.seconds_per_lora_update = readGap;
 	save_settings();
-	display_message("Lora", "Gap set", 2000, message_done);
 }
 
 void menuLoraGap()
 {
 	TRACELN("Set Lora gap called");
-	get_number("Set gap", settings.seconds_per_lora_update, 60, 3600, menuLoraGapDone);
+	getNumber("Set gap", settings.seconds_per_lora_update, 60, 3600, menuLoraGapDone);
 }
 
-Menu loraMenu = {0, "Lora on\nLora off\nLora send\nSend Interval\nBack", {menuLoraOn, menuLoraOff, menuLoraSend, menuLoraGap, do_back}};
+Menu loraMenu = {0, "Turn Lora on\nTurn Lora off\nForce Lora send\nSet send Interval\nBack", {menuLoraOn, menuLoraOff, menuLoraSend, menuLoraGap, doBackFromMenu}};
 
 void loraSetup()
 {
-	enter_menu(&loraMenu);
+	enterAMenu(&loraMenu);
 }
+
+void menuMQTTOff()
+{
+	TRACELN("MQTT off called");
+	displayMessage("MQTT", "Off", 2000, messageDisplayComplete);
+	settings.mqttOn = false;
+	save_settings();
+}
+
+void menuMQTTOn()
+{
+	TRACELN("MQTT on called");
+	displayMessage("MQTT", "On", 2000, messageDisplayComplete);
+	settings.mqttOn = true;
+	save_settings();
+}
+
+void mqtt_send()
+{
+	TRACELN("MQTT send");
+	displayMessage("MQTT Send", "Sending", 2000, messageDisplayComplete);
+	pub_mqtt_force_send = true;
+}
+
+void menuMQTTGapDone (int readGap)
+{
+	settings.seconds_per_mqtt_update = readGap;
+	save_settings();
+	displayMessage("MQTT", "Gap set", 2000, messageDisplayComplete);
+}
+
+void menuMQTTGap()
+{
+	TRACELN("Set Lora gap called");
+	getNumber("Set gap", settings.seconds_per_mqtt_update, 60, 3600, menuMQTTGapDone);
+}
+
+
+Menu mqttMenu = {0, "Turn MQTT on\nTurn MQTT off\nForce MQTT send\nSet send Interval\nBack", {menuMQTTOn, menuMQTTOff, mqtt_send, menuMQTTGap, doBackFromMenu}};
 
 void mqtt_setup()
 {
-
+	enterAMenu(&mqttMenu);
 }
 
-Menu mainMenu = {0, "LoRa\nMQTT\nDate\nTime\nBack", {loraSetup, mqtt_setup, setDate, setTime, do_back}};
+// from timing.handle
+void disable_serial_dump ();
+void enable_serial_dump ();
 
-void update_action(String title, String text)
+void menuLoggingOff()
 {
-	set_action_display(title, text);
+	TRACELN("Logging off called");
+	displayMessage("Logging", "Off", 2000, messageDisplayComplete);
+	disable_serial_dump ();
+}
+
+void menuLoggingOn()
+{
+	TRACELN("Logging on called");
+	displayMessage("Logging", "On", 2000, messageDisplayComplete);
+	enable_serial_dump ();
+}
+
+Menu logingMenu = {0, "Logging on\nLogging off\nBack", {menuLoggingOn, menuLoggingOff, doBackFromMenu}};
+
+void loggingSetup()
+{
+	enterAMenu(&logingMenu);
+}
+
+
+Menu mainMenu = {0, "Logging\nLoRa\nMQTT\nBack", {loggingSetup, loraSetup, mqtt_setup, doBackFromMenu}};
+
+void updatePopupMessage(String title, String text)
+{
+	setPopupMessage(title, text);
 }
 
 MenuState stateBeforeAction;
 
-void start_action(String title, String text)
+// actions are "pop up" items that are displayed on top of the existing screen
+// they are displayed for a set time and then clear, restoring the display underneath
+// they are asynchronous (can happen at any time)
+// when the screen is turned off they must not be displayed
+
+void startPopUpMessage(String title, String text)
 {
 	TRACELN("Start action");
-	if (menuState == performingActionActive)
+
+	switch (menuState)
 	{
+	case screenOff:
+		// do nothing
+		break;
+
+	case runningDisplayActive:
+	case menuMessage:
+	case menuDisplay:
+	case readingNumber:
+		// these states can be interrupted by an action display
+		// record the previous state, display the action and then 
+		// change to the performing action state
+		stateBeforeAction = menuState;
+		setPopupMessage(title, text);
+		menuState = popUpDisplaying;
+		popUpDisplayStartTime = millis();
+		break;
+
+	case popUpDisplaying:
 		// If we try to start an action in the middle of one
-		// just update the action
-		update_action(title, text);
-		return;
+		// just update the action on the screen
+		updatePopupMessage(title, text);
+		popUpDisplayStartTime = millis();
+		break;
 	}
-	stateBeforeAction = menuState;
-	set_action_display(title, text);
-	menuState = performingActionActive;
 }
 
-void end_action()
+// called to tear down the existing popup and return to the previous screen display state
+
+void endPopupDisplay()
 {
-	TRACELN("End action");
+	TRACE("End pop up: ");
 	TRACELN(stateBeforeAction);
 
 	switch (stateBeforeAction)
 	{
 	case screenOff:
+		// this should not happen because when we start an action we are 
+		// moved into screenOffActionActive
 		break;
-	case workingStateActive:
-		set_working_state();
+
+	case runningDisplayActive:
+		setRunningDisplay();
 		break;
-	case messageDisplayStateActive:
+
+	case menuMessage:
 		activate_message_display();
 		break;
-	case mainMenuStateActive:
-		if (!menu_stack_empty())
+
+	case menuDisplay:
+		if (!menuStackIsEmpty())
 		{
-			Menu *menu = peek_menu_stack_top();
-			set_menu_display(menu->menuText, menu->active_menu_item);
+			Menu *menu = peekMenuStackTop();
+			setMenuDisplay(menu->menuText, menu->activeMenuItem);
 		}
 		break;
-	case readingNumberStateActive:
+
+	case readingNumber:
 		activate_number_input_display();
 		break;
-	case performingActionActive:
+
+	case popUpDisplaying:
 		// this should never happen
 		break;
 	}
+
 	menuState = stateBeforeAction;
 }
 
-void error_stop(String title, String text)
+void errorStop(String title, String text)
 {
-	start_action(title, text);
+	startPopUpMessage(title, text);
 	loop_lcd();
 	while (true)
 		delay(1);
@@ -492,149 +567,163 @@ void error_stop(String title, String text)
 MenuState menuStateAtTurnedOff;
 int menuItemSelectedAtTurnedOff;
 
-void turn_off_display()
+void turnOffDisplay()
 {
 	TRACELN("Display turning off");
 
-	set_clear_display();
+	setClearDisplayPage();
 
 	menuStateAtTurnedOff = menuState;
 
 	switch (menuState)
 	{
+		// we don't need to do anything special for these states
 	case screenOff:
+	case runningDisplayActive:
+	case menuMessage:
+	case readingNumber:
+	case popUpDisplaying:
 		break;
-	case workingStateActive:
-		break;
-	case messageDisplayStateActive:
-		break;
-	case mainMenuStateActive:
-		menuItemSelectedAtTurnedOff = get_selected_item();
-		break;
-	case readingNumberStateActive:
-		break;
-	case performingActionActive:
+
+	case menuDisplay:
+		// make a note of the menu items so that you can restore that
+		// position when the screen is restored
+		menuItemSelectedAtTurnedOff = getSelectedItem();
 		break;
 	}
 
+	// set the screen state to off
 	menuState = screenOff;
 }
 
-void turn_on_display()
+void turnOnDisplay()
 {
 	TRACELN("Display turning on");
 
+	// first we need to sort out the current state
+	// this will be either screenOff or screenOffActionActive
+
 	menuState = menuStateAtTurnedOff ;
 
-	displayStartMillis = millis();
+	millisecsAtLastUserInput = millis();
 
 	switch (menuState)
 	{
-	case workingStateActive:
-		set_working_state();
+	case screenOff:
 		break;
-	case messageDisplayStateActive:
+
+	case runningDisplayActive:
+		setRunningDisplay();
+		break;
+
+	case menuMessage:
+		// restart the message display delay so that we can
+		// read the message when the display is reactivated
+		messageDisplayStartTime = millis();
 		activate_message_display();
 		break;
-	case mainMenuStateActive:
-		if (!menu_stack_empty())
+
+	case menuDisplay:
+		if (!menuStackIsEmpty())
 		{
-			Menu *menu = peek_menu_stack_top();
-			set_menu_display(menu->menuText, menu->active_menu_item);
+			Menu *menu = peekMenuStackTop();
+			setMenuDisplay(menu->menuText, menu->activeMenuItem);
 			set_selected_item(menuItemSelectedAtTurnedOff);
 		}
 		break;
-	case readingNumberStateActive:
+
+	case readingNumber:
 		activate_number_input_display();
 		break;
-	case performingActionActive:
-		// this should never happen
+
+	case popUpDisplaying:
+		activate_action_display();
 		break;
 	}
 }
 
-void keep_display_alive()
+void keepDisplayAlive()
 {
-	displayStartMillis = millis();
+	millisecsAtLastUserInput = millis();
 }
 
-void menu_up_pressed()
+void menuUpButtonPresssed()
 {
 	switch (menuState)
 	{
 	case screenOff:
-		turn_on_display();
+		turnOnDisplay();
 		break;
-	case workingStateActive:
+	case runningDisplayActive:
 		break;
-	case messageDisplayStateActive:
+	case menuMessage:
 		break;
-	case mainMenuStateActive:
+	case menuDisplay:
 		move_selector_up();
 		break;
-	case readingNumberStateActive:
-		increment_number_value();
+	case readingNumber:
+		incrementNumberValue();
 		break;
-	case performingActionActive:
+	case popUpDisplaying:
 		// Up is presently disabled when performing an action
 		break;
 	}
-	keep_display_alive();
+	keepDisplayAlive();
 }
 
-void menu_down_pressed()
+void menuDownButtonPressed()
 {
 	switch (menuState)
 	{
 	case screenOff:
-		turn_on_display();
+		turnOnDisplay();
 		break;
-	case workingStateActive:
+	case runningDisplayActive:
 		break;
-	case messageDisplayStateActive:
+	case menuMessage:
 		break;
-	case mainMenuStateActive:
+	case menuDisplay:
 		move_selector_down();
 		break;
-	case readingNumberStateActive:
-		decrement_number_value();
+	case readingNumber:
+		decrementNumberValue();
 		break;
-	case performingActionActive:
+	case popUpDisplaying:
 		// Down is presently disabled when performing an action
 		break;
 	}
-	keep_display_alive();
+	keepDisplayAlive();
 }
 
-void menu_select_pressed()
+void menuSelectButtonPressed()
 {
 	switch (menuState)
 	{
 	case screenOff:
-		turn_on_display();
+		turnOnDisplay();
 		break;
-	case workingStateActive:
+	case runningDisplayActive:
 		// Going into menu mode at the top level -
-		enter_menu(&mainMenu);
+		enterAMenu(&mainMenu);
 		break;
-	case messageDisplayStateActive:
+	case menuMessage:
 		break;
-	case readingNumberStateActive:
-		complete_number_input();
+	case readingNumber:
+		completeNumberInput();
 		break;
-	case performingActionActive:
+	case popUpDisplaying:
 		// Enter is presently disabled when performing an action
 		break;
-	case mainMenuStateActive:
-		uint8_t selected_item = get_selected_item();
+	case menuDisplay:
+		uint8_t selected_item = getSelectedItem();
 		TRACE("selected:");
 		TRACELN(selected_item);
-		Menu *menu = peek_menu_stack_top();
+		Menu *menu = peekMenuStackTop();
 		TRACELN(menu->menuText);
 		menu->methods[selected_item]();
 		break;
 	}
-	keep_display_alive();
+	keepDisplayAlive();
 }
 
 // called if any of the display options change
@@ -642,40 +731,53 @@ void menu_select_pressed()
 // can download splash screen text that is displayed
 // in workingStateActive
 
-void refresh_menu()
+void refreshDisplay()
 {
 	switch (menuState)
 	{
 	case screenOff:
 		break;
-	case workingStateActive:
-		set_working_display();
+	case runningDisplayActive:
+		setWorkingDisplay();
 		break;
-	case messageDisplayStateActive:
+	case menuMessage:
 		break;
-	case mainMenuStateActive:
+	case menuDisplay:
 		break;
-	case readingNumberStateActive:
+	case readingNumber:
 		break;
-	case performingActionActive:
+	case popUpDisplaying:
 		break;
+	}
+}
+
+void checkPopUpTimeout()
+{
+	ulong time = millis();
+
+	ulong diff = ulongDiff(time, popUpDisplayStartTime);
+
+	if (diff > popUpDisplayTimeInMillis)
+	{
+		// popup has expired
+		endPopupDisplay();
 	}
 }
 
 void setup_menu()
 {
-	displayStartMillis = millis();
+	millisecsAtLastUserInput = millis();
 
-	set_working_state();
+	setRunningDisplay();
 }
 
 void loop_menu()
 {
 	if (menuState!=screenOff)
 	{
-		if ((millis() - displayStartMillis) > displayTimeoutInMillis)
+		if ((millis() - millisecsAtLastUserInput) > displayTimeoutInMillis)
 		{
-			turn_off_display();
+			turnOffDisplay();
 		}
 	}
 
@@ -683,16 +785,17 @@ void loop_menu()
 	{
 	case screenOff:
 		break;
-	case workingStateActive:
+	case runningDisplayActive:
 		break;
-	case messageDisplayStateActive:
-		check_message_timeout();
+	case menuMessage:
+		checkMessageTimeout();
 		break;
-	case mainMenuStateActive:
+	case menuDisplay:
 		break;
-	case readingNumberStateActive:
+	case readingNumber:
 		break;
-	case performingActionActive:
+	case popUpDisplaying:
+		checkPopUpTimeout();
 		break;
 	}
 }

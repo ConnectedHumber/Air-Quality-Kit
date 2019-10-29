@@ -25,7 +25,6 @@ bool mqtt_interval_has_expired()
 	return false;
 }
 
-
 bool lora_interval_has_expired()
 {
 	unsigned long time_in_millis = millis();
@@ -38,7 +37,6 @@ bool lora_interval_has_expired()
 	}
 	return false;
 }
-
 
 unsigned long time_to_next_mqtt_update()
 {
@@ -70,12 +68,19 @@ unsigned long time_to_next_lora_update()
 		return ULONG_MAX;
 }
 
+bool updates_active()
+{
+	if(settings.loraOn) return true;
+	if(settings.mqttOn) return true;
+
+	return false;
+}
+
 unsigned long time_to_next_update()
 {
 	unsigned long mqtt = time_to_next_mqtt_update();
 	unsigned long lora = time_to_next_lora_update();
 
-	if(settings.loraOn)
 	if (mqtt < lora)
 		return mqtt;
 	else
@@ -173,7 +178,7 @@ bool can_power_off_sensor()
 {
 	// can never power off the sensor if the display is on
 
-	if (settings.displayOn)
+	if (settings.loggingActive)
 		return false;
 
 	long milliseconds_for_sensor_warmup = settings.seconds_sensor_warmup * 1000;
@@ -188,10 +193,6 @@ bool can_power_off_sensor()
 
 bool can_start_reading()
 {
-	// never send readings if we are just displaying values
-
-	if (settings.displayOn)
-		return false;
 
 	// take two readings a second
 	long milliseconds_for_averaging = (NO_OF_AVERAGES / 2) * 1000;
@@ -276,6 +277,37 @@ void start_sensor()
 	}
 }
 
+unsigned long dump_air_values_reading_count = 0;
+unsigned long dump_bme_values_reading_count = 0;
+
+void enable_serial_dump ()
+{
+	settings.loggingActive = true;
+	save_settings();
+}
+
+void disable_serial_dump()
+{
+	settings.loggingActive = false;
+	save_settings();
+}
+
+void do_serial_dump()
+{
+	if(!settings.loggingActive) return;
+
+	char number_buffer[100];
+
+	if((dump_air_values_reading_count != pub_air_values_reading_count) &&
+		(dump_bme_values_reading_count != pub_bme_values_reading_count)) 
+	{
+		sprintf(number_buffer, "%.1f,%.1f,%.1f,%.1f,%.1f", pub_disp_ppm_10, pub_disp_ppm_25, pub_temp, pub_pressure, pub_humidity);
+		Serial.println(number_buffer);
+		dump_air_values_reading_count = pub_air_values_reading_count;
+		dump_bme_values_reading_count = pub_bme_values_reading_count;
+	}
+}
+
 void setup_timing()
 {
 	unsigned long time_in_millis = millis();
@@ -287,6 +319,9 @@ void setup_timing()
 
 void loop_timing()
 {
+
+	do_serial_dump();
+
 	switch (timing_state)
 	{
 	case sensorOff:

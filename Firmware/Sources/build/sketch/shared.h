@@ -22,6 +22,7 @@ Average pub_pm10Average(NO_OF_AVERAGES);
 
 // set to true when the next set of values are ready
 boolean pub_air_values_ready;
+unsigned long pub_air_values_reading_count = 0;
 
 // from timing.h
 enum timingStates { sensorWarmingUp, sensorGettingReading, sensorOff } timing_state;
@@ -32,6 +33,7 @@ float pub_pressure;
 float pub_humidity;
 // millis value at last update of temp, pressure and humidity values
 boolean pub_bme_values_ready;
+unsigned long pub_bme_values_reading_count = 0;
 
 // From rtc.h
 uint8_t pub_hour, pub_minute, pub_second, pub_day_of_week;
@@ -115,7 +117,7 @@ struct Device_Settings
 	bool gpsOn;
 	bool mqttOn;
 	bool loraOn;
-	bool displayOn;
+	bool loggingActive;
 
 	WiFi_Setting wifiSettings[NO_OF_WIFI_SETTINGS];
 	bool wiFiOn;

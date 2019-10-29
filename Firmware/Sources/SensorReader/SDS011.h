@@ -36,6 +36,8 @@ void process_readings(float ppm25, float ppm10)
 	pub_disp_ppm_10 = ppm10;
 	pub_disp_ppm_25 = ppm25;
 
+	pub_air_values_reading_count++;
+
 	// Only update the reading value if we are processing
 
 	if (timing_state == sensorGettingReading)
@@ -78,14 +80,14 @@ uint8_t get_checksum(uint8_t * byte_buffer, int byte_buffer_length)
 {
 	uint8_t check_sum = 0;
 
-	TRACE("Check:");
+	// TRACE("Check:");
 	for (int i = 2; i < byte_buffer_length; i++)
 	{
-		TRACE_HEX(byte_buffer[i]);
-		TRACE(" ");
+		// TRACE_HEX(byte_buffer[i]);
+		// TRACE(" ");
 		check_sum = check_sum + byte_buffer[i];
 	}
-	TRACELN();
+	// TRACELN();
 	return check_sum;
 }
 
@@ -95,10 +97,10 @@ bool check_checksum()
 
 	uint8_t check_sum = get_checksum(message_text, checksum_pos);
 
-	TRACE("Checksum:");
-	TRACE_HEXLN(check_sum);
-	TRACE("Received Checksum:");
-	TRACE_HEXLN(message_text[checksum_pos]);
+	// TRACE("Checksum:");
+	// TRACE_HEXLN(check_sum);
+	// TRACE("Received Checksum:");
+	// TRACE_HEXLN(message_text[checksum_pos]);
 
 	return check_sum == message_text[checksum_pos];
 }
@@ -306,15 +308,15 @@ void send_block(uint8_t * block_base, int block_length)
 	int checksum_pos = block_length - 2;
 	uint8_t checksum = get_checksum(reporting_mode_command, checksum_pos);
 
-	TRACE("Calculated checksum:");
-	TRACE_HEX(checksum);
+	// TRACE("Calculated checksum:");
+	// TRACE_HEX(checksum);
 
 	reporting_mode_command[checksum_pos] = checksum;
 	for (int i = 0; i < block_length; i++)
 	{
 
-		TRACE("Writing byte:");
-		TRACE_HEXLN(reporting_mode_command[i]);
+		// TRACE("Writing byte:");
+		// TRACE_HEXLN(reporting_mode_command[i]);
 
 		SDSSensorSerial.write(reporting_mode_command[i]);
 	}

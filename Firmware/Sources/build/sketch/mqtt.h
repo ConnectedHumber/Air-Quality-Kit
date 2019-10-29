@@ -30,6 +30,7 @@ boolean send_buffer_to_mqtt( char * buffer)
 	{
 		mqtt_message_count++;
 		TRACELN("MQTT sent");
+		startPopUpMessage("MQTT", "Message sent");
 	}
 	else {
 		TRACELN("MQTT send failed");
@@ -153,7 +154,7 @@ void mqtt_connect_failed()
 		"Connect Failed: %d",
 		mqttPubSubClient->state());
 
-	update_action(settings.mqttName, mqtt_send_buffer);
+	updatePopupMessage(settings.mqttName, mqtt_send_buffer);
 	mqttState = ShowingConnectToMQTTServerFailed;
 }
 
@@ -161,7 +162,7 @@ void mqtt_connected()
 {
 	TRACELN("MQTT connected");
 	mqtt_timer_start = millis();
-	update_action(settings.mqttName, "Connected OK");
+	updatePopupMessage(settings.mqttName, "MQTT OK");
 	mqttPubSubClient->subscribe(settings.mqttSubscribeTopic);
 	mqttState = ShowingConnectedToMQTTServer;
 }
@@ -188,7 +189,7 @@ void loop_mqtt()
 		if (wifiState == WiFiConnected)
 		{
 			// Start the MQTT connection running
-			start_action(settings.mqttName, "Connecting to MQTT");
+			startPopUpMessage(settings.mqttName, "Connecting to MQTT");
 			attempt_mqtt_connect();
 		}
 		break;
@@ -202,7 +203,6 @@ void loop_mqtt()
 
 		if (elapsed_time > MQTT_DISPLAY_TIMEOUT)
 		{
-			end_action();
 			mqttState = ConnectedToMQTTServer;
 		}
 		mqttPubSubClient->loop();
@@ -213,7 +213,6 @@ void loop_mqtt()
 
 		if (elapsed_time > MQTT_DISPLAY_TIMEOUT)
 		{
-			end_action();
 			mqtt_timer_start = millis();
 			mqttState = ConnectToMQTTServerFailed;
 		}
@@ -248,3 +247,32 @@ void loop_mqtt()
 	}
 }
 
+void getMQTTStatusString(char * buffer, int bufferLength)
+{
+	switch (mqttState)
+	{
+	case AwaitingWiFi:
+		snprintf(buffer, bufferLength, "MQTT awaiting WiFi");
+		break;
+
+	case ConnectingToMQTTServer:
+		snprintf(buffer, bufferLength, "MQTT connecting");
+		break;
+
+	case ShowingConnectedToMQTTServer:
+		snprintf(buffer, bufferLength, "MQTT connected");
+		break;
+
+	case ShowingConnectToMQTTServerFailed:
+		snprintf(buffer, bufferLength, "MQTT connect failed");
+		break;
+
+	case ConnectedToMQTTServer:
+		snprintf(buffer, bufferLength, "MQTT connected");
+		break;
+
+	case ConnectToMQTTServerFailed:
+		snprintf(buffer, bufferLength, "MQTT connect failed");
+		break;
+	}
+}

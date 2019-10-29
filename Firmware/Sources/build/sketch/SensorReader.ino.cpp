@@ -59,6 +59,8 @@ void loop();
 void setup() {
 	// put your setup code here, to run once:
 	Serial.begin(115200);
+	Serial.println("Starting...");
+
 
 	// turn on the 3.3 volt rail
 	// drop it to reset any I2C devices
@@ -68,8 +70,6 @@ void setup() {
 	delay(500);
 	digitalWrite(21, HIGH);
 	delay(500);
-
-	Serial.println("Starting...");
 
 	uint64_t chipid = ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
 	Serial.printf("ESP32 Chip ID = %04X", (uint16_t)(chipid >> 32));//print High 2 bytes
