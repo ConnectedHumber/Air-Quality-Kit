@@ -102,7 +102,7 @@ void loop_wifi()
 			{
 				WiFi.begin(settings.wifiSettings[setting_number].wifiSsid, 
 					settings.wifiSettings[setting_number].wifiPassword);
-				updatePopupMessage(settings.wifiSettings[setting_number].wifiSsid, 
+				startPopUpMessage(settings.wifiSettings[setting_number].wifiSsid, 
 					"Connecting");
 				wifiState = WiFiConnecting;
 				break;
@@ -112,7 +112,7 @@ void loop_wifi()
 		if (wifiState != WiFiConnecting)
 		{
 			// didn't find a matching network
-			updatePopupMessage("WiFi", "No networks");
+			startPopUpMessage("WiFi", "No networks");
 			wifi_timer_start = millis();
 			wifiState = WiFiConnectFailed;
 		}
@@ -123,7 +123,7 @@ void loop_wifi()
 
 		if (WiFi.status() == WL_CONNECTED)
 		{
-			updatePopupMessage("WiFi", "Connected OK");
+			startPopUpMessage("WiFi", "Connected OK");
 			wifiState = ShowingWifiConnected;
 			wifi_timer_start = millis();
 		}
@@ -131,7 +131,7 @@ void loop_wifi()
 		if (elapsed_time > WIFI_START_TIMEOUT)
 		{
 			wifi_timer_start = millis();
-			updatePopupMessage("WiFi", "Connect failed");
+			startPopUpMessage("WiFi", "Connect failed");
 			wifiState = WiFiConnectFailed;
 		}
 

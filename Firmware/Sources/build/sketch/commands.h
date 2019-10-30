@@ -1775,7 +1775,7 @@ void reset_settings()
 #endif
 
 	settings.seconds_per_lora_update = 60;
-	settings.seconds_per_mqtt_update = 10;
+	settings.seconds_per_mqtt_update = 60;
 	settings.seconds_per_mqtt_retry = 1;
 	settings.seconds_sensor_warmup = 30;
 

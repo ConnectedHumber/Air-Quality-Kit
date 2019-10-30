@@ -154,7 +154,7 @@ void mqtt_connect_failed()
 		"Connect Failed: %d",
 		mqttPubSubClient->state());
 
-	updatePopupMessage(settings.mqttName, mqtt_send_buffer);
+	startPopUpMessage(settings.mqttName, mqtt_send_buffer);
 	mqttState = ShowingConnectToMQTTServerFailed;
 }
 
@@ -162,7 +162,7 @@ void mqtt_connected()
 {
 	TRACELN("MQTT connected");
 	mqtt_timer_start = millis();
-	updatePopupMessage(settings.mqttName, "MQTT OK");
+	startPopUpMessage(settings.mqttName, "MQTT OK");
 	mqttPubSubClient->subscribe(settings.mqttSubscribeTopic);
 	mqttState = ShowingConnectedToMQTTServer;
 }
