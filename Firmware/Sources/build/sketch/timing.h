@@ -11,6 +11,8 @@ unsigned long lora_reading_retry_interval_in_millis;
 unsigned long lora_reading_interval_in_millis;
 unsigned long milliseconds_at_last_lora_update;
 
+
+
 // return true if it is time for an update
 bool mqtt_interval_has_expired()
 {
@@ -178,7 +180,7 @@ bool can_power_off_sensor()
 {
 	// can never power off the sensor if the display is on
 
-	if (settings.loggingActive)
+	if (settings.logging != loggingOff)
 		return false;
 
 	long milliseconds_for_sensor_warmup = settings.seconds_sensor_warmup * 1000;
@@ -280,29 +282,47 @@ void start_sensor()
 unsigned long dump_air_values_reading_count = 0;
 unsigned long dump_bme_values_reading_count = 0;
 
-void enable_serial_dump ()
+void print_dump_values()
 {
-	settings.loggingActive = true;
-	save_settings();
-}
+	char number_buffer[100];
 
-void disable_serial_dump()
-{
-	settings.loggingActive = false;
-	save_settings();
+	switch(settings.logging)
+	{
+		case loggingOff:
+		return;
+
+		case loggingParticles:
+		sprintf(number_buffer, "%.1f,%.1f", pub_disp_ppm_10, pub_disp_ppm_25);
+		break;
+
+		case loggingTemp:
+		sprintf(number_buffer, "%.1f", pub_temp);
+		break;
+
+		case loggingPressure:
+		sprintf(number_buffer, "%.1f",pub_pressure);
+		break;
+
+		case loggingHumidity:
+		sprintf(number_buffer, "%.1f",pub_humidity);
+		break;
+
+		case loggingAll:
+		sprintf(number_buffer, "%.1f,%.1f,%.1f,%.1f,%.1f", pub_disp_ppm_10, pub_disp_ppm_25, pub_temp, pub_pressure, pub_humidity);
+		break;
+	}
+
+	Serial.println(number_buffer);
 }
 
 void do_serial_dump()
 {
-	if(!settings.loggingActive) return;
-
-	char number_buffer[100];
+	if(settings.logging == loggingOff) return;
 
 	if((dump_air_values_reading_count != pub_air_values_reading_count) &&
 		(dump_bme_values_reading_count != pub_bme_values_reading_count)) 
 	{
-		sprintf(number_buffer, "%.1f,%.1f,%.1f,%.1f,%.1f", pub_disp_ppm_10, pub_disp_ppm_25, pub_temp, pub_pressure, pub_humidity);
-		Serial.println(number_buffer);
+		print_dump_values();		
 		dump_air_values_reading_count = pub_air_values_reading_count;
 		dump_bme_values_reading_count = pub_bme_values_reading_count;
 	}

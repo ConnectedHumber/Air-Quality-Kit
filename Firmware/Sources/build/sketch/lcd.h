@@ -271,8 +271,6 @@ void setWorkingDisplay()
 	ui.enableAutoTransition();
 }
 
-
-
 String message_display_text;
 String message_display_title;
 
@@ -413,6 +411,53 @@ void set_number_input_display(String in_number_input_prompt, int in_number_being
 	number_input_prompt = in_number_input_prompt;
 	display_number_being_input = in_number_being_input;
 	activate_number_input_display();
+}
+
+String currentStringSelection;
+String stringSelectionPrompt;
+
+void drawStringSelectionFrame(OLEDDisplay* display, OLEDDisplayUiState* state, int16_t x, int16_t y)
+{
+
+	display->setTextAlignment(TEXT_ALIGN_CENTER);
+
+	display->setFont(ArialMT_Plain_16);
+	display->drawString(64 + x, 0 + y, stringSelectionPrompt);
+	display->drawString(64 + x, 30 + y, currentStringSelection);
+}
+
+void setStringSelection(String newValue)
+{
+	currentStringSelection = newValue;
+}
+
+FrameCallback stringSelectionFrames[] = { drawStringSelectionFrame };
+
+// how many frames are there?
+int stringSelectionFrameCount = 1;
+
+// Overlays are statically drawn on top of a frame eg. a clock
+OverlayCallback stringSelectionOverlays[] = { clockOverlay };
+int stringSelectionOverlayCount = 0;
+
+void activeStringSelectionDisplay()
+{
+	ui.disableAllIndicators();
+	ui.disableAutoTransition();
+
+	// Add frames
+	ui.setFrames(stringSelectionFrames, stringSelectionFrameCount);
+
+	// Add overlays
+	ui.setOverlays(stringSelectionOverlays, stringSelectionOverlayCount);
+}
+
+void setStringSelectionDisplay(String inStringSelectionPrompt, String inCurrentStringSelection)
+{
+	TRACELN("Set number input display");
+	currentStringSelection = inCurrentStringSelection;
+	stringSelectionPrompt = inStringSelectionPrompt;
+	activeStringSelectionDisplay();
 }
 
 FrameCallback menuFrames[] = {drawMenuFrame};

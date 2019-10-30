@@ -107,6 +107,17 @@ struct WiFi_Setting
 
 #define NO_OF_WIFI_SETTINGS 5
 
+enum Logging_State {
+	loggingOff=0,
+	loggingParticles=1,
+	loggingTemp=2,
+	loggingPressure=3,
+	loggingHumidity=4,
+	loggingAll=5
+};
+
+String loggingStateNames [] = { "off", "particles", "temp", "pressure", "humidity", "all"};
+
 struct Device_Settings
 {
 	int version;
@@ -117,7 +128,7 @@ struct Device_Settings
 	bool gpsOn;
 	bool mqttOn;
 	bool loraOn;
-	bool loggingActive;
+	Logging_State logging;
 
 	WiFi_Setting wifiSettings[NO_OF_WIFI_SETTINGS];
 	bool wiFiOn;

@@ -32,7 +32,10 @@ void setup_timing();
 #define INVALID_WIFI_SETTING_NUMBER 24
 #define INVALID_GPS_STATUS_SETTING 25
 #define INVALID_RTC_STATUS_SETTING 26
-#define INVALID_DISPLAY_STATUS_SETTING 27
+#define MISSING_LOGGING_OPTION_VALUE 27
+#define INVALID_LOGGING_OPTION_VALUE 28
+
+#define INVALID_LOGGING_OPTION 28
 
 #define REPLY_ELEMENT_SIZE 100
 #define COMMAND_REPLY_BUFFER_SIZE 240
@@ -479,7 +482,6 @@ void do_mqtt_state(JsonObject &root, char *resultBuffer)
 			if (strcasecmp(option, "on") == 0)
 			{
 				// now we are transmitting - turn off the display
-				settings.loggingActive = false;
 				settings.mqttOn = true;
 			}
 			else
@@ -817,8 +819,6 @@ void do_lora_state(JsonObject &root, char *resultBuffer)
 			if (strcasecmp(option, "on") == 0)
 			{
 				settings.loraOn = true;
-				// now we are transmitting - turn off the display
-				settings.loggingActive = false;
 			}
 			else
 			{
@@ -1492,38 +1492,60 @@ void do_logging_state(JsonObject &root, char *resultBuffer)
 		if (!option)
 		{
 			// no option - just a status request
-			if (settings.loggingActive)
-			{
-				build_text_value_command_reply(WORKED_OK, "on", root, resultBuffer);
-			}
-			else
-			{
-				build_text_value_command_reply(WORKED_OK, "off", root, resultBuffer);
-			}
+			build_text_value_command_reply(WORKED_OK, loggingStateNames[settings.logging], root, resultBuffer);
 			return;
 		}
 
 		if (!root["val"].is<char *>())
 		{
 			TRACELN("Value is missing or not a string");
-			reply = INVALID_LORA_STATUS_SETTING;
+			reply = MISSING_LOGGING_OPTION_VALUE;
 		}
 		else
 		{
 			const char *option = root["val"];
-			if (strcasecmp(option, "on") == 0)
+
+			if (strcasecmp(option, "off") == 0)
 			{
-				
+				settings.logging = loggingOff;
 			}
 			else
 			{
-				if (strcasecmp(option, "off") == 0)
+				if (strcasecmp(option, "particles") == 0)
 				{
-					settings.loggingActive = false;
+					settings.logging = loggingParticles;
 				}
 				else
 				{
-					reply = INVALID_DISPLAY_STATUS_SETTING;
+					if (strcasecmp(option, "temp") == 0)
+					{
+						settings.logging = loggingTemp;
+					}
+					else
+					{
+						if (strcasecmp(option, "pressure") == 0)
+						{
+							settings.logging = loggingPressure;
+						}
+						else
+						{
+							if (strcasecmp(option, "humidity") == 0)
+							{
+								settings.logging = loggingHumidity;
+							}
+							else 
+							{
+								if (strcasecmp(option, "all") == 0)
+								{
+									settings.logging = loggingAll;
+								}
+								else
+								{
+									reply = INVALID_LOGGING_OPTION_VALUE;
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -1711,7 +1733,7 @@ void reset_settings()
 	settings.wiFiOn = false;
 	settings.rtcOn = false;
 	settings.gpsOn = false;
-	settings.loggingActive = true;
+	settings.logging = loggingOff;
 
 	strcpy(settings.deviceNane, "sensor01");
 
@@ -1753,7 +1775,7 @@ void reset_settings()
 #endif
 
 	settings.seconds_per_lora_update = 60;
-	settings.seconds_per_mqtt_update = 10;
+	settings.seconds_per_mqtt_update = 60;
 	settings.seconds_per_mqtt_retry = 1;
 	settings.seconds_sensor_warmup = 30;
 

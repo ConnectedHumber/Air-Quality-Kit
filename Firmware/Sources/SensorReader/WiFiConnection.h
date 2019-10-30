@@ -46,21 +46,17 @@ int find_wifi_setting(String ssidName)
 
 void start_wifi_scan()
 {
-	Serial.println("Starting WiFi scan");
-	Serial.println("Setting STA mode");
+	startPopUpMessage("WiFi", "Resetting");
 	WiFi.mode(WIFI_MODE_STA);
 	delay(500);
 
 	WiFi.disconnect();
 
 	delay(500);
-	Serial.println("Scanning networks");
 
 	WiFi.scanNetworks(true); // perform an asynchronous scan
 
 	delay(500);
-
-	Serial.println("scan action ended");
 
 	startPopUpMessage("WiFi", "Scanning");
 	wifiState = WiFiScanning;
@@ -88,6 +84,13 @@ void loop_wifi()
 
 		if (no_of_networks == WIFI_SCAN_RUNNING)
 			break;
+
+		if(no_of_networks == WIFI_SCAN_FAILED)
+		{
+			Serial.println("Reset due to WiFi lockup");
+			delay(200);
+			ESP.restart();
+		}
 
 		TRACE("Networks found: ");
 		TRACELN(no_of_networks);

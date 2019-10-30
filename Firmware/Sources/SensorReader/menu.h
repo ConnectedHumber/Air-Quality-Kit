@@ -14,6 +14,8 @@ enum MenuState
 	menuMessage,
 	// screen is reading a numeric value from the user
 	readingNumber,
+	// screen is selecting a string from a number of input strings
+	stringSelection,
 	// an action is a pop up message that can be displayed at any time and will
 	// appear on top of the existing display
 	// The action will time out after a set time and the original display reappear
@@ -198,16 +200,140 @@ void beginNumberInput(String numberInputPrompt, int initialNumberValue,
 	menuState = readingNumber;
 }
 
-void doBackFromMenu()
-{
-	TRACELN("Back called");
-	exitFromMenu();
-}
-
 void getNumber(String prompt, int start, int low, int high, void (*value_read)(int))
 {
 	peekMenuStackTop()->activeMenuItem = getSelectedItem();
 	beginNumberInput(prompt, start, low, high, value_read);
+}
+
+#define INDIVIDUAL_SELECTION_STRING_MAX_LENGTH 10
+
+String selectFromStringPrompt;
+String stringSelections;
+
+int currentlySelectedStringNumber;
+int numberOfStringOptions;
+char currentlySelectedString[INDIVIDUAL_SELECTION_STRING_MAX_LENGTH+1];
+
+void setNoOfOptions()
+{
+	int pos = 0;
+	numberOfStringOptions = 0;
+	while (stringSelections[pos] != 0)
+	{
+		if (stringSelections[pos] == '\n')
+		{
+			numberOfStringOptions++;
+		}
+		pos++;
+	}
+	numberOfStringOptions++;
+}
+
+void setSelectedOptionFromNumber()
+{
+	int pos = 0;
+	int selectionNo = currentlySelectedStringNumber;
+
+	while (selectionNo > 0)
+	{
+		// wrap round if we hit the end of the string
+		if (stringSelections[pos] == 0)
+		{
+			// counts as a line end
+			selectionNo--;
+			// wrap round to the start
+			pos = 0;
+		}
+		else
+		{
+			if (stringSelections[pos] == '\n')
+			{
+				selectionNo--;
+			}
+			pos++;
+		}
+
+		if (selectionNo == 0)
+		{
+			break;
+		}
+	}
+
+	// when we get here we are pointing at the first
+	// character in the selected item
+
+	int outputPos = 0;
+
+	while ((outputPos < INDIVIDUAL_SELECTION_STRING_MAX_LENGTH) &&
+		(stringSelections[pos] != 0) &&
+		(stringSelections[pos] != '\n'))
+	{
+		currentlySelectedString[outputPos++] = stringSelections[pos++];
+	}
+
+
+	currentlySelectedString[outputPos] = 0;
+}
+
+void advanceToNextStringSelection()
+{
+	TRACELN("Advance to next string selection");
+	currentlySelectedStringNumber++;
+	if (currentlySelectedStringNumber == numberOfStringOptions)
+	{
+		currentlySelectedStringNumber = 0;
+	}
+	setSelectedOptionFromNumber();
+	setStringSelection(currentlySelectedString);
+}
+
+void moveToPreviousStringSelection()
+{
+	TRACELN("Move to previous string selection");
+	currentlySelectedStringNumber--;
+	if (currentlySelectedStringNumber < 0 )
+	{
+		currentlySelectedStringNumber = numberOfStringOptions-1;
+	}
+	setSelectedOptionFromNumber();
+	setStringSelection(currentlySelectedString);
+}
+
+void (*stringSelectionCompleteCallback)(int result);
+
+void completeStringSelection()
+{
+	stringSelectionCompleteCallback(currentlySelectedStringNumber);
+}
+
+void beginSelectFromString(String inSelectFromStringPrompt, int initialSelectionValue, 
+	String inStringSelections, void (*callback)(int result))
+{
+	selectFromStringPrompt = inSelectFromStringPrompt;
+	currentlySelectedStringNumber = initialSelectionValue;
+	stringSelections = inStringSelections;
+	stringSelectionCompleteCallback = callback;
+
+	setSelectedOptionFromNumber();
+
+	setNoOfOptions();
+
+	setStringSelectionDisplay(selectFromStringPrompt, currentlySelectedString);
+
+	menuState = stringSelection;
+}
+
+void getSelectionFromString(String prompt, int start, String options, void (*value_read)(int))
+{
+	peekMenuStackTop()->activeMenuItem = getSelectedItem();
+	beginSelectFromString(prompt, start, options, value_read);
+}
+
+void doBackFromMenu()
+{
+	TRACELN("Back called");
+	exitFromMenu();
 }
 
 void displayMessage(String title, String message, int length, void (*completed)())
@@ -446,21 +572,22 @@ void mqtt_setup()
 void disable_serial_dump ();
 void enable_serial_dump ();
 
-void menuLoggingOff()
+void menuLoggingStateSelected(int stateValue)
 {
-	TRACELN("Logging off called");
-	displayMessage("Logging", "Off", 2000, messageDisplayComplete);
-	disable_serial_dump ();
+	char buffer[100];
+	sprintf(buffer, "State %s", loggingStateNames[stateValue]);
+	displayMessage("Logging", buffer, 2000, messageDisplayComplete);
+	settings.logging = (Logging_State) stateValue;
+	save_settings();
 }
 
-void menuLoggingOn()
+void selectLoggingState()
 {
-	TRACELN("Logging on called");
-	displayMessage("Logging", "On", 2000, messageDisplayComplete);
-	enable_serial_dump ();
+	TRACELN("Set logging state called");
+	getSelectionFromString("Set Logging", settings.logging, "off\nparticles\ntemp\npressure\nhumidity\nall",menuLoggingStateSelected);
 }
 
-Menu logingMenu = {0, "Logging on\nLogging off\nBack", {menuLoggingOn, menuLoggingOff, doBackFromMenu}};
+Menu logingMenu = {0, "State\nBack", {selectLoggingState, doBackFromMenu}};
 
 void loggingSetup()
 {
@@ -496,6 +623,7 @@ void startPopUpMessage(String title, String text)
 	case menuMessage:
 	case menuDisplay:
 	case readingNumber:
+	case stringSelection:
 		// these states can be interrupted by an action display
 		// record the previous state, display the action and then 
 		// change to the performing action state
@@ -582,6 +710,7 @@ void turnOffDisplay()
 	case runningDisplayActive:
 	case menuMessage:
 	case readingNumber:
+	case stringSelection:
 	case popUpDisplaying:
 		break;
 
@@ -636,6 +765,10 @@ void turnOnDisplay()
 		activate_number_input_display();
 		break;
 
+	case stringSelection:
+		activeStringSelectionDisplay();
+		break;
+
 	case popUpDisplaying:
 		activate_action_display();
 		break;
@@ -664,6 +797,9 @@ void menuUpButtonPresssed()
 	case readingNumber:
 		incrementNumberValue();
 		break;
+	case stringSelection:
+		moveToPreviousStringSelection();
+		break;
 	case popUpDisplaying:
 		// Up is presently disabled when performing an action
 		break;
@@ -688,6 +824,9 @@ void menuDownButtonPressed()
 	case readingNumber:
 		decrementNumberValue();
 		break;
+	case stringSelection:
+		advanceToNextStringSelection();
+		break;
 	case popUpDisplaying:
 		// Down is presently disabled when performing an action
 		break;
@@ -710,6 +849,9 @@ void menuSelectButtonPressed()
 		break;
 	case readingNumber:
 		completeNumberInput();
+		break;
+	case stringSelection:
+		completeStringSelection();
 		break;
 	case popUpDisplaying:
 		// Enter is presently disabled when performing an action
@@ -745,6 +887,8 @@ void refreshDisplay()
 	case menuDisplay:
 		break;
 	case readingNumber:
+		break;
+	case stringSelection:
 		break;
 	case popUpDisplaying:
 		break;
@@ -793,6 +937,8 @@ void loop_menu()
 	case menuDisplay:
 		break;
 	case readingNumber:
+		break;
+	case stringSelection:
 		break;
 	case popUpDisplaying:
 		checkPopUpTimeout();
