@@ -274,6 +274,7 @@ void start_sensor()
 {
 	for (int i = 0; i < 5; i++)
 	{
+		Serial.println("start..");
 		set_sensor_working(true);
 		delay(500);
 	}
@@ -335,6 +336,8 @@ void setup_timing()
 	milliseconds_at_last_mqtt_update = time_in_millis - mqtt_reading_interval_in_millis;
 	lora_reading_interval_in_millis = settings.seconds_per_lora_update * 1000;
 	milliseconds_at_last_lora_update = time_in_millis - lora_reading_interval_in_millis;
+	timing_state = sensorOff;
+	start_sensor();
 }
 
 void loop_timing()

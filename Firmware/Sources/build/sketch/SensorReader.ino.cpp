@@ -53,7 +53,7 @@ boolean send_to_mqtt();
 
 #line 52 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReader\\SensorReader.ino"
 void setup();
-#line 86 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReader\\SensorReader.ino"
+#line 85 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReader\\SensorReader.ino"
 void loop();
 #line 52 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReader\\SensorReader.ino"
 void setup() {
@@ -81,7 +81,6 @@ void setup() {
 	if(settings.rtcOn) setup_rtc();
 	setup_menu();
 	setup_commands();
-	start_sensor();
 	setup_timing();
 	if(settings.loraOn) setup_lora();
 	if(settings.wiFiOn) setup_wifi();

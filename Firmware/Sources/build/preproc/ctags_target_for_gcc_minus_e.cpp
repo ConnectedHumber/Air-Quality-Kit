@@ -66,7 +66,6 @@ void setup() {
  if(settings.rtcOn) setup_rtc();
  setup_menu();
  setup_commands();
- start_sensor();
  setup_timing();
  if(settings.loraOn) setup_lora();
  if(settings.wiFiOn) setup_wifi();
