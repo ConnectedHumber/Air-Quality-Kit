@@ -587,7 +587,18 @@ void selectLoggingState()
 	getSelectionFromString("Set Logging", settings.logging, "off\nparticles\ntemp\npressure\nhumidity\nall",menuLoggingStateSelected);
 }
 
-Menu logingMenu = {0, "State\nBack", {selectLoggingState, doBackFromMenu}};
+// from timing.h
+void deepSleepProcessor(int timeInSeconds);
+void startPopUpMessage(String title, String text);
+
+void sleepProcessor()
+{
+	startPopUpMessage("Sleep", "Going to sleep");
+	delay(1000);
+	deepSleepProcessor(30);
+}
+
+Menu logingMenu = {0, "State\nSleep\nBack", {selectLoggingState, sleepProcessor, doBackFromMenu}};
 
 void loggingSetup()
 {

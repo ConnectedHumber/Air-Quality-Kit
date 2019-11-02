@@ -329,6 +329,29 @@ void do_serial_dump()
 	}
 }
 
+#define uS_TO_S_FACTOR 1000000  //Conversion factor for micro seconds to seconds
+#define TIME_TO_SLEEP  5        //Time ESP32 will go to sleep (in seconds)
+
+RTC_DATA_ATTR int bootCount = 0;
+RTC_DATA_ATTR int sleepTime = 0;
+
+void deepSleepProcessor(int timeInSeconds)
+{
+	Serial.println("Setup ESP32 to sleep for " + String(timeInSeconds) +
+	" Seconds");
+
+	sleepTime = timeInSeconds;
+
+//	rtc_gpio_pullup_en((gpio_num_t )23);
+
+//	esp_sleep_enable_ext0_wakeup((gpio_num_t )23, HIGH);
+
+	esp_sleep_enable_timer_wakeup(timeInSeconds * uS_TO_S_FACTOR);
+
+	//Go to sleep now
+	esp_deep_sleep_start();
+}
+
 void setup_timing()
 {
 	unsigned long time_in_millis = millis();

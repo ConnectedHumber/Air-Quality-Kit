@@ -391,6 +391,7 @@ void set_sensor_working(bool working)
 		reporting_mode_command[4] = 1;
 	else
 		reporting_mode_command[4] = 0;
+	Serial.println("working command being sent");
 	send_block(reporting_mode_command, sizeof(reporting_mode_command) / sizeof(uint8_t));
 }
 
