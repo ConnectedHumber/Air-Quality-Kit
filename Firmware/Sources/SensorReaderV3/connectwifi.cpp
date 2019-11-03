@@ -1,6 +1,8 @@
 #pragma once
 
 #include "connectwifi.h"
+
+#include "debug.h"
 #include "settings.h"
 
 // Note that if we add new WiFi passwords into the settings
@@ -47,7 +49,7 @@ int startWifi(struct process * wifiProcess)
 {
 	if (!settings.wiFiOn)
 	{
-		Serial.println("WiFi switched off");
+		TRACELN("WiFi switched off");
 		wifiProcess->status = WIFI_TURNED_OFF;
 		return WIFI_TURNED_OFF;
 	}
@@ -56,13 +58,13 @@ int startWifi(struct process * wifiProcess)
 
 	lastWiFiConnectAtteptMillis = millis();
 	int setting_number;
-	Serial.println("Starting WiFi");
+	TRACELN("Starting WiFi");
 
 	// stop the device from being an access point when you don't want it 
 
 	if (firstRun)
 	{
-		Serial.println("First run");
+		TRACELN("First run");
 		WiFi.mode(WIFI_OFF);
 		delay(500);
 		WiFi.mode(WIFI_STA);
@@ -74,57 +76,57 @@ int startWifi(struct process * wifiProcess)
 
 	if (noOfNetworks == 0)
 	{
-		Serial.println("No networks");
+		TRACELN("No networks");
 		wifiProcess->status = WIFI_ERROR_NO_NETWORKS_FOUND;
 		WiFi.scanDelete();
 		return WIFI_ERROR_NO_NETWORKS_FOUND;
 	}
 
-	Serial.println("Networks found");
+	TRACELN("Networks found");
 
 	for (int i = 0; i < noOfNetworks; ++i) {
 		setting_number = findWifiSetting(WiFi.SSID(i));
 		if (setting_number != WIFI_SETTING_NOT_FOUND)
 		{
 			snprintf(wifiActiveAPName, WIFI_SSID_LENGTH, "%s", wifiSettings[setting_number].wifiSsid);
-			Serial.print("Connecting to ");
-			Serial.println(wifiActiveAPName);
+			TRACE("Connecting to ");
+			TRACELN(wifiActiveAPName);
 			WiFi.begin(wifiSettings[setting_number].wifiSsid,
 				wifiSettings[setting_number].wifiPassword);
 			unsigned long connectStartTime = millis();
 
 			while (WiFi.status() != WL_CONNECTED)
 			{
-				Serial.print(".");
+				TRACE(".");
 				delay(500);
 				if (ulongDiff(millis(), connectStartTime) > WIFI_CONNECT_TIMEOUT_MILLIS)
 				{
 //					WiFi.disconnect();
 					wifiProcess->status = WIFI_ERROR_CONNECT_TIMEOUT;
-					Serial.println("Timeout");
+					TRACELN("Timeout");
 					return WIFI_ERROR_CONNECT_TIMEOUT;
 				}
 			}
 
-			Serial.println("Deleting scan");
+			TRACELN("Deleting scan");
 			WiFi.scanDelete();
 
 			wifiError = WiFi.status();
 
 			if (wifiError == WL_CONNECTED)
 			{
-				Serial.println("Wifi OK");
+				TRACELN("Wifi OK");
 				wifiProcess->status = WIFI_OK;
 				return WIFI_OK;
 			}
 
-			Serial.print("Fail status:");
-			Serial.println(wifiError, HEX);
+			TRACE("Fail status:");
+			TRACE_HEXLN(wifiError);
 			wifiProcess->status = WIFI_ERROR_CONNECT_FAILED;
 			return WIFI_ERROR_CONNECT_FAILED;
 		}
 	}
-	Serial.print("No matching networks");
+	TRACELN("No matching networks");
 	wifiProcess->status = WIFI_ERROR_NO_MATCHING_NETWORKS;
 	return WIFI_ERROR_NO_MATCHING_NETWORKS;
 }
@@ -140,29 +142,29 @@ void displayWiFiStatus(int status)
 	switch (status)
 	{
 	case WL_IDLE_STATUS:
-		Serial.print("Idle");
+		TRACE("Idle");
 		break;
 	case WL_NO_SSID_AVAIL:
-		Serial.print("No SSID");
+		TRACE("No SSID");
 		break;
 	case WL_SCAN_COMPLETED:
-		Serial.print("Scan completed");
+		TRACE("Scan completed");
 		break;
 	case WL_CONNECTED:
-		Serial.print("Connected");
+		TRACE("Connected");
 		break;
 	case WL_CONNECT_FAILED:
-		Serial.print("Connect failed");
+		TRACE("Connect failed");
 		break;
 	case WL_CONNECTION_LOST:
-		Serial.print("Connection lost");
+		TRACE("Connection lost");
 		break;
 	case WL_DISCONNECTED:
-		Serial.print("Disconnected");
+		TRACE("Disconnected");
 		break;
 	default:
-		Serial.print("WiFi status value: ");
-		Serial.print(status);
+		TRACE("WiFi status value: ");
+		TRACE(status);
 		break;
 	}
 }

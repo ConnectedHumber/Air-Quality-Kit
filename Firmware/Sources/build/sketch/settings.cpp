@@ -270,7 +270,6 @@ boolean validateColour(void * dest, const char * newValueStr)
 	return true;
 }
 
-
 void setDefaultAirqLowLimit(void * dest)
 {
 	int * destInt = (int *)dest;
@@ -282,7 +281,6 @@ void setDefaultAirqLowWarnLimit(void * dest)
 	int * destInt = (int *)dest;
 	*destInt = 40;
 }
-
 
 void setDefaultAirqMidWarnLimit(void * dest)
 {
@@ -376,6 +374,50 @@ void setDefaultNoOfPixels(void * dest)
 	*destInt = 12;
 }
 
+boolean validateSplashScreen(void * dest, const char * newValueStr)
+{
+	return (validateString((char *)dest, newValueStr, SPLASH_LINE_LENGTH));
+}
+
+void setDefaultSplashTopLine(void * dest)
+{
+	snprintf((char *)dest, SPLASH_LINE_LENGTH, "Connected");
+}
+
+void setDefaultSplashBottomLine(void * dest)
+{
+	snprintf((char *)dest, SPLASH_LINE_LENGTH, "Connected");
+}
+
+boolean validateLoggingState(void * dest, const char * newValueStr)
+{
+	int value;
+
+	if (sscanf(newValueStr, "%d", &value) != 1)
+	{
+		return false;
+	}
+
+	if(value < 0)
+	{
+		return false;
+	}
+
+	if(value > 5)
+	{
+		return false;
+	}
+
+	*(Logging_State *)dest = (Logging_State) value;
+	return true;
+}
+
+void setDefaultLoggingState(void * dest)
+{
+	*(Logging_State *)dest = loggingOff;
+}
+
+
 struct SettingItem hardwareSettingItems[] =
 {
 	"AirQ Sensor type (0 = not fitted 1=SDS011, 2=ZPH01)", "airqsensortype", &settings.airqSensorType, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirQSensorType, validateInt,
@@ -417,8 +459,16 @@ struct SettingItem quickSettingItems[] =
 	"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo
 };
 
+struct SettingItem displaySettingItems[] =
+{
+	"Splash screen top line", "splashTop", settings.splash_screen_top_line, SPLASH_LINE_LENGTH, text, setDefaultSplashTopLine, validateSplashScreen,
+	"Splash screen bottom line", "splashBtm", settings.splash_screen_bottom_line, SPLASH_LINE_LENGTH, text, setDefaultSplashBottomLine, validateSplashScreen,
+	"Logging (0=off,1=air,2=temp,3=pres,4=hum,5=all)", "logging", &settings.logging, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoggingState, validateLoggingState
+};
+
 SettingItemCollection allSettings[] = {
 	{"Quick", "Just the settings to get you started", quickSettingItems, sizeof(quickSettingItems) / sizeof(SettingItem) },
+	{"Output", "Display and logging settings", displaySettingItems, sizeof(displaySettingItems) / sizeof(SettingItem) },
 	{"Wifi", "Set the SSID and password for wifi connections", wifiSettingItems, sizeof(wifiSettingItems) / sizeof(SettingItem) },
 	{"MQTT", "Set the device, user, site, password and topic for MQTT", mqtttSettingItems, sizeof(mqtttSettingItems) / sizeof(SettingItem) },
 	{"Pixel", "Set the pixel colours and display levels", pixelSettingItems, sizeof(pixelSettingItems) / sizeof(SettingItem)},

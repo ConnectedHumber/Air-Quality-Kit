@@ -34,6 +34,10 @@ int startBme280(struct sensor * bme280Sensor)
 	return BME280_NOT_CONNECTED;
 }
 
+void startBME280Reading(struct sensor * bme280Sensor)
+{
+}
+
 int updateBME280Reading(struct sensor * bme280Sensor)
 {
 	if (bme280Sensor->status == SENSOR_OK)
@@ -45,6 +49,7 @@ int updateBME280Reading(struct sensor * bme280Sensor)
 		bme280activeReading->humidity = bme.readHumidity();
 		bme280activeReading->pressure = bme.readPressure() / 100.0F;
 		bme280Sensor->millisAtLastReading = millis();
+		bme280Sensor->readingNumber++;
 	}
 
 	return bme280Sensor->status;

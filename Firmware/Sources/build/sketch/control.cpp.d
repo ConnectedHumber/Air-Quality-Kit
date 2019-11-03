@@ -1,5 +1,6 @@
 c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\control.cpp.o: \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\control.cpp \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\debug.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\control.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\mqtt.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\processes.h \
@@ -189,4 +190,5 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\cont
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\pixels.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\inputswitch.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\sensors.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h

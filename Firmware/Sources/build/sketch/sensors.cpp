@@ -6,10 +6,10 @@
 #include "pixels.h"
 #include "settings.h"
 
-struct sensor gpsSensor = { "GPS", 0,  startGps, updateGpsReading, addGpsReading, gpsStatusMessage, -1, false, NULL, 0 };
-struct sensor bme280Sensor = { "BME280", 0, startBme280, updateBME280Reading, addBME280Reading, bme280StatusMessage, -1, false, NULL, 0 };
-struct sensor airqSensor = { "Air quality", 0,  startAirq, updateAirqReading, addAirqReading, airqStatusMessage, -1, false, NULL, 0 };
-struct sensor clockSensor = { "Clock", 0,  startClock, updateClockReading, addClockReading, clockStatusMessage, -1, false, NULL, 0 };
+struct sensor gpsSensor = { "GPS", 0, 0, 0, startGps, updateGpsReading, startGPSReading, addGpsReading, gpsStatusMessage, -1, false, NULL, 0 };
+struct sensor bme280Sensor = { "BME280", 0, 0, 0, startBme280, updateBME280Reading, startBME280Reading, addBME280Reading, bme280StatusMessage, -1, false, NULL, 0 };
+struct sensor airqSensor = { "Air quality", 0, 0, 0, startAirq, updateAirqReading, startAirqReading, addAirqReading, airqStatusMessage, -1, false, NULL, 0 };
+struct sensor clockSensor = { "Clock", 0, 0, 0, startClock, updateClockReading, startClockReading, addClockReading, clockStatusMessage, -1, false, NULL, 0 };
 
 struct sensor * sensorList[] =
 {
@@ -70,6 +70,17 @@ void dumpSensorStatus()
 		Serial.print(sensorList[i]->activeTime);
 		Serial.print("  Millis since last reading: ");
 		Serial.println(ulongDiff(currentMillis, sensorList[i]->millisAtLastReading));
+	}
+}
+
+void startSensorsReading()
+{
+	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor *); i++)
+	{
+		if (sensorList[i]->beingUpdated)
+		{
+			sensorList[i]->startReading(sensorList[i]);
+		}
 	}
 }
 

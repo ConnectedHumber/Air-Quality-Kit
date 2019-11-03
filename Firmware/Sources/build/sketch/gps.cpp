@@ -57,6 +57,10 @@ int startGps(struct sensor * gpsSensor)
 	return gpsSensor->status;
 }
 
+void startGPSReading(struct sensor * gpsSensor)
+{
+}
+
 int updateGpsReading(struct sensor * gpsSensor)
 {
 	struct gpsReading * activeGPSReading;
@@ -101,12 +105,13 @@ int updateGpsReading(struct sensor * gpsSensor)
 		{
 			activeGPSReading->lattitude = nmea.getLatitude() / 1000000.0;
 			activeGPSReading->longitude = nmea.getLongitude() / 1000000.0;
-			activeGPSReading->lastGPSreadingMillis = updateMillis;
+			gpsSensor->millisAtLastReading = updateMillis;
+			gpsSensor->readingNumber++;
 			gpsSensor->status = SENSOR_OK;
 		}
 	}
 
-	unsigned long millisSinceGPSupate = ulongDiff(updateMillis, activeGPSReading->lastGPSreadingMillis);
+	unsigned long millisSinceGPSupate = ulongDiff(updateMillis, gpsSensor->millisAtLastReading);
 		
 	if (millisSinceGPSupate > GPS_READING_LIFETIME_MSECS)
 	{
@@ -122,7 +127,7 @@ int addGpsReading(struct sensor * gpsSensor, char * jsonBuffer, int jsonBufferSi
 	activeGPSReading =
 		(struct gpsReading *) gpsSensor->activeReading;
 
-	if (ulongDiff(millis(), activeGPSReading->lastGPSreadingMillis) < GPS_READING_LIFETIME_MSECS)
+	if (ulongDiff(millis(), gpsSensor->millisAtLastReading) < GPS_READING_LIFETIME_MSECS)
 	{
 		snprintf(jsonBuffer, jsonBufferSize, "%s,\"Lat\" : %.6f, \"Long\" : %.6f,",
 			jsonBuffer,
@@ -141,7 +146,7 @@ void gpsStatusMessage(struct sensor * gpsSensor, char * buffer, int bufferLength
 	switch (gpsSensor->status)
 	{
 	case SENSOR_OK:
-		if (ulongDiff(millis(), activeGPSReading->lastGPSreadingMillis) < GPS_READING_LIFETIME_MSECS)
+		if (ulongDiff(millis(), gpsSensor->millisAtLastReading) < GPS_READING_LIFETIME_MSECS)
 			snprintf(buffer, bufferLength, "GPS sensor OK Lat: %.6f Long: %.6f Fix valid",
 				activeGPSReading->lattitude, activeGPSReading->longitude);
 		else

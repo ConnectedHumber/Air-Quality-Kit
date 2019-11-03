@@ -33,6 +33,7 @@ struct bme280Reading {
 
 int startBme280(struct sensor * bme280Sensor);
 int updateBME280Reading(struct sensor * bme280Sensor);
+void startBME280Reading(struct sensor * bme280Sensor);
 int addBME280Reading(struct sensor * bme280Sensor, char * jsonBuffer, int jsonBufferSize);
 void bme280StatusMessage(struct sensor * bme280sensor, char * buffer, int bufferLength);
 

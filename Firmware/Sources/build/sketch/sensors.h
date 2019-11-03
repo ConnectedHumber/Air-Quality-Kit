@@ -9,8 +9,11 @@ struct sensor
 {
 	char * sensorName;
 	unsigned long millisAtLastReading;
+	int readingNumber;
+	int lastTransmittedReadingNumber;
 	int(*startSensor)(struct sensor *);
 	int(*updateSensor)(struct sensor *);
+	void(*startReading)(struct sensor *);
 	int(*addReading)(struct sensor *, char * jsonBuffer, int jsonBufferSize);
 	void(*getStatusMessage)(struct sensor *, char * buffer, int bufferLength);
 	int status;      // zero means OK - any other value is an error state
@@ -21,9 +24,16 @@ struct sensor
 
 struct sensor * findSensorByName(char * name);
 
+extern struct sensor gpsSensor;
+extern struct sensor bme280Sensor;
+extern struct sensor airqSensor;
+extern struct sensor clockSensor;
+
 void startSensors();
 
 void dumpSensorStatus();
+
+void startSensorsReading();
 
 void updateSensors();
 

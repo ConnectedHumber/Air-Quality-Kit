@@ -11,7 +11,6 @@
 #define GPS_SERIAL_DATA_TIMEOUT_MILLIS 500
 
 struct gpsReading {
-	unsigned long lastGPSreadingMillis;
 	double lattitude;
 	double longitude;
 };
@@ -19,5 +18,6 @@ struct gpsReading {
 int startGps(struct sensor * gpsSensor);
 int updateGpsReading(struct sensor * gpsSensor);
 int addGpsReading(struct sensor * gpsSensor, char * jsonBuffer, int jsonBufferSize);
+void startGPSReading(struct sensor * gpsSensor);
 void gpsStatusMessage(struct sensor * gpsSensor, char * buffer, int bufferLength);
 

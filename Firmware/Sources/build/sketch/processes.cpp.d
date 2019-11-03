@@ -191,4 +191,5 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\proc
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\mqtt.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\otaupdate.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\webserver.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h

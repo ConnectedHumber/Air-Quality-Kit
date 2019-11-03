@@ -44,7 +44,7 @@ void setup() {
 	Serial.begin(115200);
 	delay(500);
 	setupSettings();
-	Serial.printf("\n\nMonitair node %s\nVersion %d.%d\n\n", settings.deviceName, 
+	Serial.printf("\nConnected Humber Sensor %s\nVersion %d.%d\n\n", settings.deviceName, 
 		MAJOR_VERSION, MINOR_VERSION);
 
 	startDevice();

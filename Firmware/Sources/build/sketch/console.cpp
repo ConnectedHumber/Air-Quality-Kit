@@ -91,7 +91,7 @@ void doHelp(char * commandLine)
 		"You can assing a new value to a setting, for example:\n\n"
 		"     devname=Rob\n\n"
 		"- would set the name of the device to Rob.\n\n"
-		"To see a list of all the setting names use the command dump.\n"
+		"To see a list of all the setting names use the command settings.\n"
 		"This displays all the settings, their values and names.\n"
 	);
 }

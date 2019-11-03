@@ -75,6 +75,16 @@
     "Includepath": null
   },
   {
+    "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\OLEDDisplay.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\OLEDDisplayUi.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
     "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\airquality.cpp",
     "Include": "",
     "Includepath": null
@@ -125,6 +135,16 @@
     "Includepath": null
   },
   {
+    "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\lcd.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\lora.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
     "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\mqtt.cpp",
     "Include": "",
     "Includepath": null
@@ -156,6 +176,11 @@
   },
   {
     "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\settings.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\timing.cpp",
     "Include": "",
     "Includepath": null
   },

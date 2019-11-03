@@ -33,6 +33,13 @@ struct airqSensorStartSequence airqStartSequences[] =
 };
 
 
+void resetAverages(airqualityReading * reading)
+{
+	reading->pm10AvgTotal = 0;
+	reading->pm25AvgTotal = 0;
+	reading->averageCount = 0;
+}
+
 void updateAverages(airqualityReading * reading)
 {
 
@@ -46,9 +53,8 @@ void updateAverages(airqualityReading * reading)
 		reading->pm10Average = reading->pm10AvgTotal / settings.airqNoOfAverages;
 		reading->pm25Average = reading->pm25AvgTotal / settings.airqNoOfAverages;
 		reading->lastAirqAverageMillis = millis();
-		reading->pm10AvgTotal = 0;
-		reading->pm25AvgTotal = 0;
-		reading->averageCount = 0;
+		reading->airAverageReadingCount++;
+		resetAverages(reading);
 	}
 }
 
@@ -266,8 +272,6 @@ unsigned int pms5003RecChecksum;
 
 boolean pumppms5003Byte(airqualityReading * result, byte pms5003Value)
 {
-
-
 	switch (pms5003Len) {
 	case (0): if (pms5003Value != 0x42) { pms5003Len = -1; }; pms5003CalcChecksum = 0x42; break;
 	case (1): if (pms5003Value != 0x4d) { pms5003Len = -1; }; pms5003CalcChecksum += pms5003Value;  break;
@@ -326,8 +330,10 @@ boolean pumppms5003Byte(airqualityReading * result, byte pms5003Value)
 	return false;
 }
 
-
-
+void set_sensor_working(bool working)
+{
+	// TODO: add sensor switching code
+}
 
 int updateAirqReading(struct sensor * airqSensor)
 {
@@ -364,6 +370,7 @@ int updateAirqReading(struct sensor * airqSensor)
 
 			case AIRQ_NO_READING_DECODED:
 			case SENSOR_OK:
+
 				ch = airqSensorSerial->read();
 
 				switch (settings.airqSensorType)
@@ -383,6 +390,7 @@ int updateAirqReading(struct sensor * airqSensor)
 				{
 					airqSensor->status = SENSOR_OK;
 					airqSensor->millisAtLastReading = millis();
+					airqSensor->readingNumber++;
 				}
 				break;
 
@@ -396,6 +404,11 @@ int updateAirqReading(struct sensor * airqSensor)
 	return airqSensor->status;
 }
 
+void startAirqReading(struct sensor * airqSensor)
+{
+    airqualityReading *airq = (airqualityReading *) airqSensor->activeReading;
+    resetAverages(airq);
+}
 
 int addAirqReading(struct sensor * airqSensor, char * jsonBuffer, int jsonBufferSize)
 {
@@ -413,13 +426,13 @@ int addAirqReading(struct sensor * airqSensor, char * jsonBuffer, int jsonBuffer
 		case PMS5003_SENSOR: 
 			snprintf(jsonBuffer, jsonBufferSize, "%s,\"PM10\":%.2f,\"PM25\":%.2f",
 				jsonBuffer,
-				airqualityActiveReading->pm10, airqualityActiveReading->pm25);
+				airqualityActiveReading->pm10Average, airqualityActiveReading->pm25Average);
 			return SENSOR_OK;
 
 		case ZPH01_SENSOR:
 			snprintf(jsonBuffer, jsonBufferSize, "%s,\"PM25\":%.2f",
 				jsonBuffer,
-				airqualityActiveReading->pm25);
+				airqualityActiveReading->pm25Average);
 			return SENSOR_OK;
 		}
 	}

@@ -2,8 +2,10 @@
 
 #include <Arduino.h>
 
-#define MAJOR_VERSION 1
-#define MINOR_VERSION 5
+#include "timing.h"
+
+#define MAJOR_VERSION 3
+#define MINOR_VERSION 0
 
 // Sensor settings
 #define UNKNOWN_SENSOR 0
@@ -24,6 +26,8 @@
 #define YESNO_INPUT_LENGTH 0
 #define ONOFF_INPUT_LENGTH 0
 #define SETTING_ERROR_MESSAGE_LENGTH 120
+
+#define SPLASH_LINE_LENGTH 15
 
 #define MAX_SETTING_LENGTH 300
 
@@ -83,6 +87,10 @@ struct Device_Settings
 	int seconds_per_mqtt_retry;
 	boolean mqtt_enabled;
 
+	// TODO: add complete LoRa settings here
+	boolean loraOn;
+	int seconds_per_lora_update;
+
 	// Hardware settings
 
 	int airqSensorType;
@@ -112,10 +120,14 @@ struct Device_Settings
 	int airqHighAlertLimit;
 	int airqNoOfAverages;
 
+	Logging_State logging;
 
 	int pixelRed;
 	int pixelGreen;
 	int pixelBlue;
+
+	char splash_screen_top_line[SPLASH_LINE_LENGTH];
+	char splash_screen_bottom_line[SPLASH_LINE_LENGTH];
 
 	byte checkByte2;
 };

@@ -116,6 +116,10 @@ int updateClockReading(struct sensor * clockSensor)
 	return clockSensor->status;
 }
 
+void startClockReading(struct sensor * clockSensor)
+{
+}
+
 int addClockReading(struct sensor * clockSensor, char * jsonBuffer, int jsonBufferSize)
 {
 	if (clockSensor->status == SENSOR_OK)

@@ -3,6 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
+                "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\Adafruit_BME280_Library",
+                "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\Adafruit_Sensor",
                 "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\MicroNMEA-master\\src",
                 "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\Adafruit_NeoPixel",
                 "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\NeoPixelBus_by_Makuna\\src",
