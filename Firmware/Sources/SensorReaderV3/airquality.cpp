@@ -8,11 +8,9 @@
 
 #include <HardwareSerial.h>
 
-HardwareSerial AirQ_Serial(1);
-
 #define AIRQ_SERIAL_DATA_TIMEOUT_MILLIS 2000
 
-HardwareSerial * airqSensorSerial = &AirQ_Serial;
+HardwareSerial * airqSensorSerial = NULL;
 
 unsigned long lastAirqSerialDataReceived;
 
@@ -135,7 +133,9 @@ int startAirq(struct sensor * airqSensor)
 	// Open the serial port
 	if (airqSensorSerial == NULL)
 	{
-		airqSensorSerial->begin(9600);
+		airqSensorSerial = new HardwareSerial(1);
+
+		airqSensorSerial->begin(9600, SERIAL_8N1, 17, 13);  // badud, mode, rx, tx
 	}
 
 	int sensorType;

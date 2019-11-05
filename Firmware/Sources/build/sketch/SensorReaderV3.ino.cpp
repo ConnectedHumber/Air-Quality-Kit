@@ -56,7 +56,6 @@ void loop()
 {
 	updateProcesses();
 	updateSensors();
-	sendSensorReadings();
 	delay(1);
 }
 

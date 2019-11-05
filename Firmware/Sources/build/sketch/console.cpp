@@ -60,8 +60,9 @@ void doClear(char * commandLine)
 
 void doForceSend(char * commandLine)
 {
-	forceMQTTSend();
+	force_mqtt_send();
 }
+
 struct command userCommands[] =
 {
 	{"help", "show all the commands", doHelp},

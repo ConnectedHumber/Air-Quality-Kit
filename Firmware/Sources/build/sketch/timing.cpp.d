@@ -196,4 +196,5 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timi
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
  C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Sensor/Adafruit_Sensor.h \
- C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library/Adafruit_BME280.h
+ C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library/Adafruit_BME280.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora.h

@@ -13,6 +13,7 @@
 #include "debug.h"
 #include "settings.h"
 #include "lora.h"
+#include "processes.h"
 
 //OLED pins to ESP32 GPIOs via this connecthin:
 //OLED_SDA -- GPIO4
@@ -107,11 +108,6 @@ void drawTemp(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_
     display->drawString(0 + x, 36 + y, number_buffer);
 }
 
-// from WiFiConnection.h
-void getWiFiStatusString(char *buffer, int bufferLength);
-// from MQTT.h
-void getMQTTStatusString(char *buffer, int bufferLength);
-
 void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
 {
     char status_buffer[100];
@@ -120,21 +116,11 @@ void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x,
 
     display->setFont(ArialMT_Plain_10);
 
-    if (settings.wiFiOn)
-        getWiFiStatusString(status_buffer, 100);
-    else
-    {
-        sprintf(status_buffer, "WiFi Off");
-    }
+    WiFiProcessDescriptor.getStatusMessage(&WiFiProcessDescriptor, status_buffer,100);
 
     display->drawString(0 + x, 0 + y, status_buffer);
 
-    if (settings.mqtt_enabled)
-        getMQTTStatusString(status_buffer, 100);
-    else
-    {
-        sprintf(status_buffer, "MQTT Off");
-    }
+    MQTTProcessDescriptor.getStatusMessage(&MQTTProcessDescriptor, status_buffer,100);
 
     display->drawString(0 + x, 10 + y, status_buffer);
 
@@ -561,7 +547,7 @@ void setClearDisplayPage()
     ui.setOverlays(clearOverlays, clearOverlayCount);
 }
 
-void setup_lcd()
+int startLCD(struct process * lcdProcess)
 {
     TRACELN("Setting up LCD");
 
@@ -576,11 +562,12 @@ void setup_lcd()
     ui.init();
 
     //display.flipScreenVertically();
+	return PROCESS_OK;
 }
 
 bool first_time_lcd_loop = true;
 
-void loop_lcd()
+int updateLCD(struct process * lcdProcess)
 {
     if (first_time_lcd_loop)
     {
@@ -597,4 +584,16 @@ void loop_lcd()
         // time budget.
         delay(remainingTimeBudget);
     }
+	return PROCESS_OK;
 }
+
+int stopLCD(struct process * lcdProcess)
+{
+	return PROCESS_OK;
+}
+
+void LCDStatusMessage(struct process * timingProcess, char * buffer, int bufferLength)
+{
+    snprintf(buffer, bufferLength, "LCD OK");
+}
+

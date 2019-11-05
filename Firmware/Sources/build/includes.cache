@@ -130,6 +130,11 @@
     "Includepath": null
   },
   {
+    "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\inputkeys.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
     "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\inputswitch.cpp",
     "Include": "",
     "Includepath": null
@@ -141,6 +146,16 @@
   },
   {
     "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\lora.cpp",
+    "Include": "lmic.h",
+    "Includepath": "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\arduino-lmic-master\\src"
+  },
+  {
+    "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\lora.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\build\\sketch\\menu.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -316,6 +331,41 @@
   },
   {
     "Sourcefile": "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\1.0.4\\libraries\\WiFiClientSecure\\src\\ssl_client.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\arduino-lmic-master\\src\\aes\\ideetron\\AES-128_V10.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\arduino-lmic-master\\src\\aes\\lmic.c",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\arduino-lmic-master\\src\\aes\\other.c",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\arduino-lmic-master\\src\\hal\\hal.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\arduino-lmic-master\\src\\lmic\\lmic.c",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\arduino-lmic-master\\src\\lmic\\oslmic.c",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\Rob\\Documents\\Arduino\\libraries\\arduino-lmic-master\\src\\lmic\\radio.c",
     "Include": "",
     "Includepath": null
   },

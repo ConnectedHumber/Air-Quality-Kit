@@ -14,6 +14,14 @@ int getSelectedItem();
 bool set_selected_item(int item);
 void setClearDisplayPage();
 
-void setup_lcd();
+int startLCD(struct process * lcdProcess);
 
-void loop_lcd();
+int updateLCD(struct process * lcdProcess);
+
+int stopLCD(struct process * lcdProcess);
+
+void LCDStatusMessage(struct process * timingProcess, char * buffer, int bufferLength);
+
+void activate_message_display();
+void activate_action_display();
+

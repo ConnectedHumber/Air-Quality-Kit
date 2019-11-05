@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 
+#include "utils.h"
 #include "timing.h"
 
 #define MAJOR_VERSION 3
@@ -35,6 +36,9 @@
 #define SETTINGS_EEPROM_OFFSET 0
 #define CHECK_BYTE_O1 0xAA
 #define CHECK_BYTE_O2 0x55
+
+#define LORA_KEY_LENGTH 16
+#define LORA_EUI_LENGTH 8
 
 struct Device_Settings
 {
@@ -89,7 +93,17 @@ struct Device_Settings
 
 	// TODO: add complete LoRa settings here
 	boolean loraOn;
+	boolean loraAbp;
+
 	int seconds_per_lora_update;
+
+	u4_t lora_abp_DEVADDR;
+	u1_t lora_abp_NWKSKEY[LORA_KEY_LENGTH];
+	u1_t lora_abp_APPSKEY[LORA_KEY_LENGTH];
+
+	u1_t lora_otaa_APPKEY[LORA_KEY_LENGTH];
+	u1_t lora_otaa_DEVEUI[LORA_EUI_LENGTH];
+	u1_t lora_otaa_APPEUI[LORA_EUI_LENGTH];
 
 	// Hardware settings
 
@@ -134,7 +148,7 @@ struct Device_Settings
 
 extern struct Device_Settings settings;
 
-enum Setting_Type { text, password, integerValue, doubleValue, onOff, yesNo };
+enum Setting_Type { text, password, integerValue, doubleValue, loraKey, loraID, onOff, yesNo };
 
 struct SettingItem {
 	char * prompt;

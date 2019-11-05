@@ -204,7 +204,7 @@ void wifiStatusMessage(struct process * wifiProcess, char * buffer, int bufferLe
 	switch (wifiProcess->status)
 	{
 	case WIFI_OK:
-		snprintf(buffer, bufferLength, "%s connected ip address: %s", wifiActiveAPName, WiFi.localIP().toString().c_str());
+		snprintf(buffer, bufferLength, "%s: %s", wifiActiveAPName, WiFi.localIP().toString().c_str());
 		break;
 	case WIFI_TURNED_OFF:
 		snprintf(buffer, bufferLength, "Wifi OFF");

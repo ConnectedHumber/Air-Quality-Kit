@@ -1,5 +1,9 @@
 #include <EEPROM.h>
+#include <Arduino.h>
+#include "string.h"
+#include "errors.h"
 #include "settings.h"
+#include "debug.h"
 
 struct Device_Settings settings;
 
@@ -96,12 +100,199 @@ boolean validateDouble(void * dest, const char * newValueStr)
 	return false;
 }
 
+void dump_hex(uint8_t *pos, int length)
+{
+	while (length > 0)
+	{
+		// handle leading zeroes
+		if (*pos < 0x10)
+		{
+			TRACE("0");
+		}
+		TRACE_HEX(*pos);
+		pos++;
+		length--;
+	}
+	TRACELN();
+}
+
+char hex_digit(int val)
+{
+	if (val < 10)
+	{
+		return '0' + val;
+	}
+	else
+	{
+		return 'A' + (val - 10);
+	}
+}
+
+void dumpHexString(char *dest, uint8_t *pos, int length)
+{
+	while (length > 0)
+	{
+		// handle leading zeroes
+
+		*dest = hex_digit(*pos / 16);
+		dest++;
+		*dest = hex_digit(*pos % 16);
+		dest++;
+		pos++;
+		length--;
+	}
+	*dest = 0;
+}
+
+void dumpUnsignedLong(char *dest, uint32_t value)
+{
+	// Write backwards to put least significant values in
+	// the right place
+
+	// move to the end of the string
+	int pos = 8;
+	// put the terminator in position
+	dest[pos] = 0;
+	pos--;
+
+	while (pos > 0)
+	{
+		byte b = value & 0xff;
+		dest[pos] = hex_digit(b % 16);
+		pos--;
+		dest[pos] = hex_digit(b / 16);
+		pos--;
+		value = value >> 8;
+	}
+}
+
+int hexFromChar(char c, int *dest)
+{
+	if (c >= '0' && c <= '9')
+	{
+		*dest = (int)(c - '0');
+		return WORKED_OK;
+	}
+	else
+	{
+		if (c >= 'A' && c <= 'F')
+		{
+			*dest = (int)(c - 'A' + 10);
+			return WORKED_OK;
+		}
+		else
+		{
+			if (c >= 'a' && c <= 'f')
+			{
+				*dest = (int)(c - 'a' + 10);
+				return WORKED_OK;
+			}
+		}
+	}
+	return INVALID_HEX_DIGIT_IN_VALUE;
+}
+
+#define MAX_DECODE_BUFFER_LENGTH 20
+
+int decodeHexValueIntoBytes(uint8_t *dest, const char *newVal, int length)
+{
+	if (length > MAX_DECODE_BUFFER_LENGTH)
+	{
+		TRACELN("Incoming hex value will not fit in the buffer");
+		return INCOMING_HEX_VALUE_TOO_BIG_FOR_BUFFER;
+	}
+
+	// Each hex value is in two bytes - make sure the incoming text is the right length
+
+	int inputLength = strlen(newVal);
+
+	if ( inputLength!= length * 2)
+	{
+		TRACELN("Incoming hex value is the wrong length");
+		return INCOMING_HEX_VALUE_IS_THE_WRONG_LENGTH;
+	}
+
+	int pos = 0;
+
+	u1_t buffer[MAX_DECODE_BUFFER_LENGTH];
+	u1_t *bpos = buffer;
+
+	while (pos < inputLength)
+	{
+		int d1, d2, reply;
+
+		reply = hexFromChar(newVal[pos], &d1);
+		if (reply != WORKED_OK)
+			return reply;
+		pos++;
+		reply = hexFromChar(newVal[pos], &d2);
+		if (reply != WORKED_OK)
+			return reply;
+		pos++;
+
+		*bpos = (u1_t)(d1 * 16 + d2);
+		bpos++;
+	}
+
+	// If we get here the buffer has been filled OK
+
+	memcpy_P(dest, buffer, length);
+	return WORKED_OK;
+}
+
+int decodeHexValueIntoUnsignedLong(u4_t *dest, const char *newVal)
+{
+
+	int inputLength = strlen(newVal);
+
+	if (inputLength != 8)
+	{
+		TRACELN("Incoming hex value is the wrong length");
+		return INCOMING_HEX_VALUE_IS_THE_WRONG_LENGTH;
+	}
+
+	int pos = 0;
+
+	u4_t result = 0;
+
+	while (pos < inputLength)
+	{
+		int d1, d2, reply;
+
+		reply = hexFromChar(newVal[pos], &d1);
+		if (reply != WORKED_OK)
+			return reply;
+		pos++;
+		reply = hexFromChar(newVal[pos], &d2);
+		if (reply != WORKED_OK)
+			return reply;
+		pos++;
+
+		u4_t v = d1 * 16 + d2;
+		result = result * 256 + v;
+	}
+
+	// If we get here the value has been received OK
+
+	*dest = result;
+	return WORKED_OK;
+}
+
+boolean validateLoRAKey (void * dest, const char * newValueStr)
+{
+	return decodeHexValueIntoBytes((uint8_t *)dest, newValueStr, LORA_KEY_LENGTH) == WORKED_OK;
+}
+
+boolean validateLoRaID (void * dest, const char * newValueStr)
+{
+	return decodeHexValueIntoUnsignedLong((u4_t *) dest, newValueStr) == WORKED_OK;
+}
+
 void setDefaultDevname(void * dest)
 {
 	char * destStr = (char *)dest;
 	snprintf(destStr, DEVICE_NAME_LENGTH, "CHASW-%06x-1", ESP.getEfuseMac());
 }
-
 
 boolean validateDevName(void * dest, const char * newValueStr)
 {
@@ -118,6 +309,8 @@ boolean validateWifiPWD(void * dest, const char * newValueStr)
 	return (validateString((char *)dest, newValueStr, WIFI_PASSWORD_LENGTH));
 }
 
+
+
 struct SettingItem wifiSettingItems[] =
 {
 	"Device name", "devname", settings.deviceName, DEVICE_NAME_LENGTH, text, setDefaultDevname, validateDevName,
@@ -131,7 +324,7 @@ struct SettingItem wifiSettingItems[] =
 	"WiFiPassword4", "wifipwd4", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
 	"WiFiSSID5", "wifissid5", settings.wifi5SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
 	"WiFiPassword5", "wifipwd5", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-	"WiFi On", "wifion", &settings.wiFiOn, ONOFF_INPUT_LENGTH, onOff, setTrue, validateOnOff
+	"WiFi On", "wifion", &settings.wiFiOn, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff
 };
 
 boolean validateServerName(void * dest, const char * newValueStr)
@@ -221,9 +414,9 @@ void setDefaultMQTTsecsPerRetry(void * dest)
 struct SettingItem mqtttSettingItems[] =
 {
 	"MQTT Host", "mqtthost", settings.mqttServer, SERVER_NAME_LENGTH, text, setDefaultMQTThost, validateServerName,
-	"MQTT port number", "mqttport", &settings.mqttPort, NUMBER_INPUT_LENGTH, integerValue,setDefaultMQTTport,validateInt,
-	"MQTT secure sockets (on or off)", "mqttsecure", &settings.mqttSecureSockets, ONOFF_INPUT_LENGTH, onOff,setFalse, validateOnOff,
-	"MQTT Active", "mqttactive", &settings.mqtt_enabled, ONOFF_INPUT_LENGTH, onOff, setTrue,validateOnOff,
+	"MQTT Port number", "mqttport", &settings.mqttPort, NUMBER_INPUT_LENGTH, integerValue,setDefaultMQTTport,validateInt,
+	"MQTT Secure sockets (on or off)", "mqttsecure", &settings.mqttSecureSockets, ONOFF_INPUT_LENGTH, onOff,setFalse, validateOnOff,
+	"MQTT Active (yes or no)", "mqttactive", &settings.mqtt_enabled, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
 	"MQTT UserName", "mqttuser", settings.mqttUser, MQTT_USER_NAME_LENGTH, text, setDefaultMQTTusername,validateMQTTusername,
 	"MQTT Password", "mqttpwd", settings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString,validateMQTTPWD,
 	"MQTT Publish topic", "mqttpub", settings.mqttPublishTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTpublishTopic,validateMQTTtopic,
@@ -231,6 +424,38 @@ struct SettingItem mqtttSettingItems[] =
 	"MQTT Reporting topic", "mqttreport", settings.mqttReportTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTreportTopic,validateMQTTtopic,
 	"MQTT Seconds per update", "mqttsecsperupdate", &settings.mqttSecsPerUpdate, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerUpdate, validateInt,
 	"MQTT Seconds per retry", "mqttsecsperretry", &settings.seconds_per_mqtt_retry, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerRetry, validateInt
+};
+
+void setDefaultLoRasecsPerUpdate(void * dest)
+{
+	int * destInt = (int *)dest;
+	*destInt = 360;
+}
+
+void setDefaultLoRaAbpAppKey(void * dest)
+{
+	validateLoRAKey(dest, "B04C8C1286439B81F1AAA2D04FEA1B31");
+}
+
+void setDefaultLoRaAbpNwkKey(void * dest)
+{
+	validateLoRAKey(dest, "27315ED03ED864DA00B0744DB3715D28");
+}
+
+void setDefaultLoRaAbpDevAddrKey(void * dest)
+{
+	validateLoRaID(dest, "26011DAB");
+}
+
+
+struct SettingItem loraSettingItems[] =
+{
+	"LoRa Active (yes or no)", "loraactive", &settings.loraOn, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
+	"LoRa Seconds per update", "lorasecsperupdate", &settings.seconds_per_lora_update, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoRasecsPerUpdate, validateInt,
+	"LoRa Using ABP (yes or no)", "lorausingabp", &settings.loraAbp, YESNO_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
+	"Lora ABP App Key", "loraabpappkey", &settings.lora_abp_APPSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpAppKey, validateLoRAKey,
+	"Lora ABP Nwk Key", "loraabpnwkkey", &settings.lora_abp_NWKSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpNwkKey, validateLoRAKey,
+	"Lora ABP Dev. addr", "loraabpdevaddr", &settings.lora_abp_DEVADDR, LORA_EUI_LENGTH, loraID, setDefaultLoRaAbpDevAddrKey, validateLoRaID 
 };
 
 void setDefaultPixelRed(void * dest)
@@ -386,7 +611,7 @@ void setDefaultSplashTopLine(void * dest)
 
 void setDefaultSplashBottomLine(void * dest)
 {
-	snprintf((char *)dest, SPLASH_LINE_LENGTH, "Connected");
+	snprintf((char *)dest, SPLASH_LINE_LENGTH, "Humber");
 }
 
 boolean validateLoggingState(void * dest, const char * newValueStr)
@@ -423,12 +648,12 @@ struct SettingItem hardwareSettingItems[] =
 	"AirQ Sensor type (0 = not fitted 1=SDS011, 2=ZPH01)", "airqsensortype", &settings.airqSensorType, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirQSensorType, validateInt,
 	"AirQ Seconds for sensor warmup", "airqsensorwarmup", &settings.airqSecnondsSensorWarmupTime, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirQWarmupTime, validateInt,
 	"AirQ RX Pin", "airqrxpinno", &settings.airqRXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqRXpin, validateInt,
-	"BME 280 fitted", "bme280fitted", &settings.bme280Fitted, ONOFF_INPUT_LENGTH, yesNo, setTrue,validateYesNo,
-	"Power Control fitted", "powercontrolfitted", &settings.powerControlFitted, ONOFF_INPUT_LENGTH, yesNo, setTrue,validateYesNo,
+	"BME 280 fitted (yes or no)", "bme280fitted", &settings.bme280Fitted, ONOFF_INPUT_LENGTH, yesNo, setTrue,validateYesNo,
+	"Power Control fitted (yes or no)", "powercontrolfitted", &settings.powerControlFitted, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
 	"Power Control Pin", "powercontrolpin", &settings.powerControlPin, NUMBER_INPUT_LENGTH, integerValue, setDefaultPowerControlPinNo, validateInt,
 	"Control Input Pin", "controlinputpin", &settings.controlInputPin, NUMBER_INPUT_LENGTH, integerValue, setDefaultControlInputPin, validateInt,
 	"Control Input Active Low", "controlinputlow", &settings.controlInputPinActiveLow, ONOFF_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
-	"GPS fitted", "gpsfitted", &settings.gpsFitted, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
+	"GPS fitted (yes or no)", "gpsfitted", &settings.gpsFitted, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
 	"GPS RX Pin", "gpsrxpin", &settings.gpsRXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultGpsPinNo, validateInt,
 	"Number of pixels (0 for pixels not fitted)", "noofpixels", &settings.noOfPixels, NUMBER_INPUT_LENGTH, integerValue, setDefaultNoOfPixels, validateInt,
 	"Pixel Control Pin", "pixelcontrolpin", &settings.pixelControlPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultPixelControlPinNo, validateInt,
@@ -471,6 +696,7 @@ SettingItemCollection allSettings[] = {
 	{"Output", "Display and logging settings", displaySettingItems, sizeof(displaySettingItems) / sizeof(SettingItem) },
 	{"Wifi", "Set the SSID and password for wifi connections", wifiSettingItems, sizeof(wifiSettingItems) / sizeof(SettingItem) },
 	{"MQTT", "Set the device, user, site, password and topic for MQTT", mqtttSettingItems, sizeof(mqtttSettingItems) / sizeof(SettingItem) },
+	{"LoRa", "Set the authentication and data rate for LoRa", loraSettingItems, sizeof(loraSettingItems) / sizeof(SettingItem) },
 	{"Pixel", "Set the pixel colours and display levels", pixelSettingItems, sizeof(pixelSettingItems) / sizeof(SettingItem)},
 	{"Hardware", "Set the hardware pins and configuration", hardwareSettingItems, sizeof(hardwareSettingItems) / sizeof(SettingItem)},
 	{"Location", "Set the fixed location of the device", locationSettingItems, sizeof(locationSettingItems) / sizeof(SettingItem)}
@@ -497,6 +723,9 @@ void printSetting(SettingItem * item)
 	int * intValuePointer;
 	boolean * boolValuePointer;
 	double * doubleValuePointer;
+	u4_t * loraIDValuePointer;
+
+	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
 
 	Serial.printf("    %s [%s]: ", item->prompt, item->formName);
 
@@ -520,6 +749,17 @@ void printSetting(SettingItem * item)
 	case doubleValue:
 		doubleValuePointer = (double *)item->value;
 		Serial.println(*doubleValuePointer);
+		break;
+
+	case loraKey:
+		dumpHexString(loraKeyBuffer, (uint8_t *) item->value, LORA_KEY_LENGTH );
+		Serial.println(loraKeyBuffer);
+		break;
+	
+	case loraID:
+		loraIDValuePointer = (u4_t *) item->value;
+		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer) ;
+		Serial.println(loraKeyBuffer);
 		break;
 
 	case onOff:
@@ -551,11 +791,12 @@ void printSetting(SettingItem * item)
 
 void appendSettingJSON(SettingItem * item, char * jsonBuffer, int bufferLength)
 {
-
-
 	int * intValuePointer;
 	boolean * boolValuePointer;
 	double * doubleValuePointer;
+	u4_t * loraIDValuePointer;
+
+	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
 
 	snprintf(jsonBuffer, bufferLength,
 		"%s,\"%s\":",
@@ -587,6 +828,17 @@ void appendSettingJSON(SettingItem * item, char * jsonBuffer, int bufferLength)
 	case doubleValue:
 		doubleValuePointer = (double *)item->value;
 		Serial.println(*doubleValuePointer);
+		break;
+
+	case loraKey:
+		dumpHexString(loraKeyBuffer, (uint8_t *) item->value, LORA_KEY_LENGTH );
+		Serial.println(loraKeyBuffer);
+		break;
+	
+	case loraID:
+		loraIDValuePointer = (u4_t *) item->value;
+		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer) ;
+		Serial.println(loraKeyBuffer);
 		break;
 
 	case onOff:
@@ -639,6 +891,7 @@ void resetSettings()
 		resetSettingCollection(&allSettings[collectionNo]);
 	}
 
+	PrintAllSettings();
 	settings.checkByte1 = CHECK_BYTE_O1;
 	settings.checkByte2 = CHECK_BYTE_O2;
 }

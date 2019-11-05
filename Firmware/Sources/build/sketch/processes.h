@@ -15,7 +15,22 @@ struct process
 	boolean beingUpdated;  // true if the process is running
 	int status;      // zero means OK - any other value is an error state
 	unsigned long activeTime;
+	void * processDetails;
 };
+
+
+extern struct process PixelProcess;
+extern struct process WiFiProcessDescriptor;
+extern struct process ConsoleProcessDescriptor;
+extern struct process WebServerProcessDescriptor;
+extern struct process MQTTProcessDescriptor;
+extern struct process OTAUpdateProcess;
+extern struct process InputSwitchProcess;
+extern struct process WiFiConfigProcess;
+extern struct process LCDProcess;
+extern struct process TimingProcess; 
+extern struct process InputKeysProcess; 
+extern struct process LoRaProcess;
 
 struct process * findProcessByName(char * name);
 struct process * startProcessByName(char * name);

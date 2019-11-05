@@ -10,6 +10,10 @@
 #include "mqtt.h"
 #include "airquality.h"
 #include "bme280.h"
+#include "processes.h"
+#include "lora.h"
+
+String loggingStateNames [] = { "off", "particles", "temp", "pressure", "humidity", "all"};
 
 unsigned long mqtt_reading_retry_interval_in_millis;
 unsigned long mqtt_reading_interval_in_millis;
@@ -127,7 +131,10 @@ boolean send_to_mqtt()
 
 boolean send_to_lora()
 {
-    return true;
+    airqualityReading *airq = (airqualityReading *)airqSensor.activeReading;
+    bme280Reading *env = (bme280Reading *)bme280Sensor.activeReading;
+
+	return publishReadingsToLoRa ( airq->pm25Average, airq->pm10Average, env->temperature, env->pressure, env->humidity);
 }
 
 void sendReadings()
@@ -289,12 +296,9 @@ void timingSensorGettingReading()
 
 void start_sensor()
 {
-	for (int i = 0; i < 5; i++)
-	{
-		Serial.println("start..");
-		set_sensor_working(true);
-		delay(500);
-	}
+	mqttForceSend=false;
+	loraForceSend=false;
+	set_sensor_working(true);
 }
 
 unsigned long dump_air_values_reading_count = 0;
@@ -306,7 +310,6 @@ void print_dump_values()
 
     airqualityReading *airq = (airqualityReading *)airqSensor.activeReading;
     bme280Reading *env = (bme280Reading *)bme280Sensor.activeReading;
-
 
 	switch(settings.logging)
 	{
@@ -338,7 +341,7 @@ void print_dump_values()
 	Serial.println(number_buffer);
 }
 
-void do_serial_dump()
+void updateSerialDump()
 {
 	if(settings.logging == loggingOff) return;
 
@@ -351,7 +354,8 @@ void do_serial_dump()
 	}
 }
 
-void setup_timing()
+
+int startTiming(struct process * timingProcess)
 {
 	unsigned long time_in_millis = millis();
 
@@ -361,12 +365,12 @@ void setup_timing()
 	milliseconds_at_last_lora_update = time_in_millis - lora_reading_interval_in_millis;
 	timing_state = sensorOff;
 	start_sensor();
+	return PROCESS_OK;
 }
 
-void loop_timing()
+int updateTiming(struct process * timingProcess)
 {
-
-	do_serial_dump();
+	updateSerialDump();
 
 	switch (timing_state)
 	{
@@ -399,4 +403,29 @@ void loop_timing()
 			((settings.mqttSecsPerUpdate * 1000) - (settings.airqSecnondsSensorWarmupTime * 1000));
 		mqttForceSend = false;
 	}
+	return PROCESS_OK;
 }
+
+int stopTiming(struct process * timingProcess)
+{
+	return PROCESS_OK;
+}
+
+void timingStatusMessage(struct process * timingProcess, char * buffer, int bufferLength)
+{
+	switch (timing_state)
+	{
+	case sensorOff:
+		snprintf(buffer, bufferLength, "Sensor off");
+		break;
+
+	case sensorWarmingUp:
+		snprintf(buffer, bufferLength, "Sensor warming up");
+		break;
+
+	case sensorGettingReading:
+		snprintf(buffer, bufferLength, "Sensor getting readings");
+		break;
+	}
+}
+

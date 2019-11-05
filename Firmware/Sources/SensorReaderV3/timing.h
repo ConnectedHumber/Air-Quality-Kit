@@ -27,9 +27,11 @@ bool can_power_off_sensor();
 bool can_start_reading();
 void check_sensor_power();
 void start_sensor();
-void setup_timing();
-void loop_timing();
+int startTiming(struct process * timingProcess);
+int updateTiming(struct process * wifiConfigProcess);
+int stopTiming(struct process * wifiConfigProcess);
+void timingStatusMessage(struct process * wifiConfigProcess, char * buffer, int bufferLength);
 void force_mqtt_send ();
-
-
+void force_lora_send();
 timingStates getTimingState();
+
