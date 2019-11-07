@@ -3,7 +3,7 @@
 
 #include "webserver.h"
 
-#define WEB_PAGE_BUFFER_SIZE 1000
+#define WEB_PAGE_BUFFER_SIZE 3000
 
 #define WEBSERVER_OK 0
 #define WEBSERVER_OFF 1
@@ -64,6 +64,8 @@ void buildCollectionSettingsPage(SettingItemCollection * settingCollection, char
 	int * valuePointer;
 	double * doublePointer;
 	boolean * boolPointer;
+	u4_t * loraIDValuePointer;
+	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
 
 	snprintf(webPageBuffer, bufferSize, settingsPageHeader, settingCollection->collectionDescription, settingCollection->collectionName);
 
@@ -121,8 +123,21 @@ void buildCollectionSettingsPage(SettingItemCollection * settingCollection, char
 					webPageBuffer, settingCollection->settings[i].formName);
 			}
 			break;
+		case loraKey:
+			dumpHexString(loraKeyBuffer, (uint8_t *) settingCollection->settings[i].value, LORA_KEY_LENGTH );
+			snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='%s'><br>",
+				webPageBuffer, settingCollection->settings[i].formName, loraKeyBuffer);
+			break;
+		
+		case loraID:
+			loraIDValuePointer = (u4_t *) settingCollection->settings[i].value;
+			dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer) ;
+			snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='%s'><br>",
+				webPageBuffer, settingCollection->settings[i].formName, loraKeyBuffer);
+			break;
+
+			}
 		}
-	}
 
 	snprintf(webPageBuffer, bufferSize, settingsPageFooter, webPageBuffer);
 }

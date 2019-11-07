@@ -5,6 +5,10 @@
 #define SENSOR_OK 0
 #define SENSOR_OFF 1
 
+void setNoOfAverages(struct average * averages, int noOfValuesToAverage, int noOfAverageValues);
+
+void resetAverages(struct average * averages, int noOfAverageValues);
+
 struct sensor
 {
 	char * sensorName;

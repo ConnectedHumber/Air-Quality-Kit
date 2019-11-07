@@ -5,6 +5,7 @@
 #include "airquality.h"
 #include "settings.h"
 #include "processes.h"
+#include "debug.h"
 
 #include <HardwareSerial.h>
 
@@ -31,14 +32,14 @@ struct airqSensorStartSequence airqStartSequences[] =
 };
 
 
-void resetAverages(airqualityReading * reading)
+void resetAirqAverages(airqualityReading * reading)
 {
 	reading->pm10AvgTotal = 0;
 	reading->pm25AvgTotal = 0;
 	reading->averageCount = 0;
 }
 
-void updateAverages(airqualityReading * reading)
+void updateAirqAverages(airqualityReading * reading)
 {
 
 	reading->pm10AvgTotal += reading->pm10;
@@ -51,8 +52,8 @@ void updateAverages(airqualityReading * reading)
 		reading->pm10Average = reading->pm10AvgTotal / settings.airqNoOfAverages;
 		reading->pm25Average = reading->pm25AvgTotal / settings.airqNoOfAverages;
 		reading->lastAirqAverageMillis = millis();
-		reading->airAverageReadingCount++;
-		resetAverages(reading);
+		reading->airNoOfAveragesCalculated++;
+		resetAirqAverages(reading);
 	}
 }
 
@@ -135,7 +136,8 @@ int startAirq(struct sensor * airqSensor)
 	{
 		airqSensorSerial = new HardwareSerial(1);
 
-		airqSensorSerial->begin(9600, SERIAL_8N1, 17, 13);  // badud, mode, rx, tx
+		// airqSensorSerial->begin(9600, SERIAL_8N1, 17, 13);  // badud, mode, rx, tx
+		airqSensorSerial->begin(9600, SERIAL_8N1, settings.airqRXPinNo, settings.airqTXPinNo);  // badud, mode, rx, tx
 	}
 
 	int sensorType;
@@ -200,7 +202,7 @@ boolean pumpSDS011Byte(airqualityReading * result, byte sds011Value)
 
 			result->readings++;
 
-			updateAverages(result);
+			updateAirqAverages(result);
 			return true;
 		}
 		else
@@ -248,7 +250,7 @@ boolean pumpZPH01Byte(airqualityReading * result, byte zph01Value)
 			result->pm25 = pm25;
 			result->pm10 = -1;
 
-			updateAverages(result);
+			updateAirqAverages(result);
 
 			result->readings++;
 
@@ -319,7 +321,7 @@ boolean pumppms5003Byte(airqualityReading * result, byte pms5003Value)
 			result->pm10 = pms5003Pm10Serial;
 			result->pm25 = pms5003Pm25Serial;
 			result->readings++;
-			updateAverages(result);
+			updateAirqAverages(result);
 			return true;
 		}
 		else
@@ -330,9 +332,102 @@ boolean pumppms5003Byte(airqualityReading * result, byte pms5003Value)
 	return false;
 }
 
+uint8_t get_checksum(uint8_t * byte_buffer, int byte_buffer_length)
+{
+	uint8_t check_sum = 0;
+
+	// TRACE("Check:");
+	for (int i = 2; i < byte_buffer_length; i++)
+	{
+		// TRACE_HEX(byte_buffer[i]);
+		// TRACE(" ");
+		check_sum = check_sum + byte_buffer[i];
+	}
+	// TRACELN();
+	return check_sum;
+}
+
+uint8_t reporting_mode_command[] = {
+  0xAA, //  00  start of command
+  0xB4, //  01  command ID - 0xb4 means read - 0xc5 means write
+  0x02, //  02  data byte 1 always 2
+  0x00, //  03  data byte 2 - 0 means query 1 means set
+  0x00, //  04  data byte 3 - 0 means report active 1 means report query
+  0x00, //  05  data byte 4- 0 (reserved) 
+  0x00, //  06  data byte 5 - 0 (reserved) or Device ID byte 1
+  0x00, //  07  data byte 6 - 0 (reserved) or Device ID byte 2
+  0x00, //  08  data byte 7 - 0
+  0x00, //  09  data byte 8 - 0
+  0x00, //  10  data byte 9 - 0
+  0x00, //  11  data byte 10 - 0
+  0x00, //  12  data byte 11 - 0
+  0x00, //  13  data byte 12 - 0
+  0x00, //  14  data byte 13 - 0
+  0xFF, //  15  0xFF means all sensors or device ID byte 1
+  0xFF, //  16  0xFF means all sensors or device ID byte 2
+  0x00, //  17  checksum
+  0xAB  //  18  tail
+};
+
+void send_block(uint8_t * block_base, int block_length)
+{
+	int checksum_pos = block_length - 2;
+	uint8_t checksum = get_checksum(reporting_mode_command, checksum_pos);
+
+	// TRACE("Calculated checksum:");
+	// TRACE_HEX(checksum);
+
+	reporting_mode_command[checksum_pos] = checksum;
+
+	for (int i = 0; i < block_length; i++)
+	{
+
+		// TRACE("Writing byte:");
+		// TRACE_HEXLN(reporting_mode_command[i]);
+
+		airqSensorSerial->write(reporting_mode_command[i]);
+	}
+}
+
+void set_sds011_working(bool working)
+{
+	reporting_mode_command[1] = 0xB4;
+	reporting_mode_command[2] = 6;
+	reporting_mode_command[3] = 1;
+	if (working)
+		reporting_mode_command[4] = 1;
+	else
+		reporting_mode_command[4] = 0;
+	Serial.println("working command being sent");
+	send_block(reporting_mode_command, sizeof(reporting_mode_command) / sizeof(uint8_t));
+}
+
 void set_sensor_working(bool working)
 {
-	// TODO: add sensor switching code
+	if (working)
+	{
+		TRACELN("Setting sensor working");
+	}
+	else
+	{
+		TRACELN("Setting sensor asleep");
+	}
+
+	switch (settings.airqSensorType)
+	{
+	case UNKNOWN_SENSOR:
+		break;
+
+	case SDS011_SENSOR:
+		set_sds011_working(working);
+		break;
+
+	case PMS5003_SENSOR: 
+		break;
+
+	case ZPH01_SENSOR:
+		break;
+	}
 }
 
 int updateAirqReading(struct sensor * airqSensor)
@@ -391,6 +486,7 @@ int updateAirqReading(struct sensor * airqSensor)
 					airqSensor->status = SENSOR_OK;
 					airqSensor->millisAtLastReading = millis();
 					airqSensor->readingNumber++;
+					updateAirqAverages(airqualityActiveReading);
 				}
 				break;
 
@@ -407,7 +503,7 @@ int updateAirqReading(struct sensor * airqSensor)
 void startAirqReading(struct sensor * airqSensor)
 {
     airqualityReading *airq = (airqualityReading *) airqSensor->activeReading;
-    resetAverages(airq);
+    resetAirqAverages(airq);
 }
 
 int addAirqReading(struct sensor * airqSensor, char * jsonBuffer, int jsonBufferSize)

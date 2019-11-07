@@ -20,7 +20,7 @@ void startDevice()
 	if (readInputSwitch())
 	{
 		Serial.println("Starting WiFi configuration");
-		Serial.println("Reset the device to exit configuratin mode\n\n");
+		Serial.println("Reset the device to exit configuration mode\n\n");
 		beginWifiStatusDisplay();
 		startWifiConfigProcesses();
 		while (1)

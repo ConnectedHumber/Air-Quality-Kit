@@ -34,8 +34,8 @@
 
 #define EEPROM_SIZE 5000
 #define SETTINGS_EEPROM_OFFSET 0
-#define CHECK_BYTE_O1 0xAA
-#define CHECK_BYTE_O2 0x55
+#define CHECK_BYTE_O1 0x55
+#define CHECK_BYTE_O2 0xAA
 
 #define LORA_KEY_LENGTH 16
 #define LORA_EUI_LENGTH 8
@@ -110,6 +110,7 @@ struct Device_Settings
 	int airqSensorType;
 	int airqSecnondsSensorWarmupTime;
 	int airqRXPinNo;
+	int airqTXPinNo;
 	boolean bme280Fitted;
 
 	boolean powerControlFitted;
@@ -133,6 +134,8 @@ struct Device_Settings
 	int airqHighWarnLimit;
 	int airqHighAlertLimit;
 	int airqNoOfAverages;
+
+	int envNoOfAverages;
 
 	Logging_State logging;
 
@@ -187,5 +190,10 @@ AllSystemSettings * getAllSystemSettings();
 processSettingCommandResult processSettingCommand(char * command);
 
 void setupSettings();
+
+void dumpHexString(char *dest, uint8_t *pos, int length);
+void dumpUnsignedLong(char *dest, uint32_t value);
+int decodeHexValueIntoBytes(uint8_t *dest, const char *newVal, int length);
+int decodeHexValueIntoUnsignedLong(u4_t *dest, const char *newVal);
 
 

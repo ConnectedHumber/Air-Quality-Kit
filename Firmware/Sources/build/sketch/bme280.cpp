@@ -1,4 +1,7 @@
 #include "bme280.h"
+#include "debug.h"
+#include "sensors.h"
+#include "settings.h"
 
 Adafruit_BME280 bme;
 
@@ -34,8 +37,38 @@ int startBme280(struct sensor * bme280Sensor)
 	return BME280_NOT_CONNECTED;
 }
 
+void resetEnvqAverages(bme280Reading * reading)
+{
+	reading->temperatureTotal = 0;
+	reading->pressureTotal = 0;
+	reading->humidityTotal = 0;
+	reading->averageCount = 0;
+}
+
+void updateEnvAverages(bme280Reading * reading)
+{
+	reading->temperatureTotal += reading->temperature;
+	reading->pressureTotal += reading->pressure;
+	reading->humidityTotal += reading->humidity;
+
+	reading->averageCount++;
+
+	if (reading->averageCount == settings.envNoOfAverages)
+	{
+		reading->temperatureAverage = reading->temperatureTotal / settings.airqNoOfAverages;
+		reading->pressureAverage = reading->pressureTotal / settings.airqNoOfAverages;
+		reading->humidityAverage = reading->humidityTotal / settings.airqNoOfAverages;
+		reading->lastEnvqAverageMillis = millis();
+		reading->envNoOfAveragesCalculated++;
+	}
+}
+
+
 void startBME280Reading(struct sensor * bme280Sensor)
 {
+	struct bme280Reading * bme280activeReading =
+		(struct bme280Reading *) bme280Sensor->activeReading;
+	resetEnvqAverages(bme280activeReading);
 }
 
 int updateBME280Reading(struct sensor * bme280Sensor)
@@ -50,6 +83,7 @@ int updateBME280Reading(struct sensor * bme280Sensor)
 		bme280activeReading->pressure = bme.readPressure() / 100.0F;
 		bme280Sensor->millisAtLastReading = millis();
 		bme280Sensor->readingNumber++;
+		updateEnvAverages(bme280activeReading);
 	}
 
 	return bme280Sensor->status;

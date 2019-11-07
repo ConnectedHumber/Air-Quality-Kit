@@ -278,18 +278,20 @@ void timingSensorGettingReading()
 
 	unsigned long millis = ulongDiff(time_in_millis, readingFetchStartMillis);
 
-#ifdef TEST_LORA
-	if (1)
-#else
-	if (airqSensor.lastTransmittedReadingNumber != airqSensor.readingNumber && 
-        bme280Sensor.lastTransmittedReadingNumber != bme280Sensor.readingNumber) 
-#endif
+	struct bme280Reading * bme280activeReading =
+		(bme280Reading *) bme280Sensor.activeReading;
+
+	struct airqualityReading * airqualityActiveReading =
+		(airqualityReading *)airqSensor.activeReading;
+
+	if (airqSensor.lastTransmittedReadingNumber != airqualityActiveReading->airNoOfAveragesCalculated && 
+        bme280Sensor.lastTransmittedReadingNumber != bme280activeReading->envNoOfAveragesCalculated) 
 	{
         // got readings from both sensors
 		Serial.println("Sending values");
 		sendReadings();
-        airqSensor.lastTransmittedReadingNumber = airqSensor.readingNumber;
-        bme280Sensor.lastTransmittedReadingNumber = bme280Sensor.readingNumber;
+        airqSensor.lastTransmittedReadingNumber = airqualityActiveReading->airNoOfAveragesCalculated;
+        bme280Sensor.lastTransmittedReadingNumber = bme280activeReading->envNoOfAveragesCalculated;
 		check_sensor_power();
 	}
 }

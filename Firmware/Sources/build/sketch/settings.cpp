@@ -525,11 +525,6 @@ void setDefaultAirqHighAlertLimit(void * dest)
 	*destInt = 250;
 }
 
-void setDefaultAirqnoOfAverages(void * dest)
-{
-	int * destInt = (int *)dest;
-	*destInt = 5;
-}
 
 void setDefault(void * dest)
 {
@@ -547,13 +542,12 @@ struct SettingItem pixelSettingItems[] =
 	"AirQ Mid Warning Limit", "airqmidwarnlimit", &settings.airqMidWarnLimit, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqMidWarnLimit, validateInt,
 	"AirQ High Warning Limit", "airqhighwarnlimit", &settings.airqHighWarnLimit, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqHighWarnLimit, validateInt,
 	"AirQ High Alert Limit", "airqhighalertlimit", &settings.airqHighAlertLimit, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqHighAlertLimit, validateInt,
-	"AirQ Number of averages", "airqnoOfAverages", &settings.airqNoOfAverages, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqnoOfAverages, validateInt,
 };
 
 void setDefaultAirQSensorType(void * dest)
 {
 	int * destInt = (int *)dest;
-	*destInt = 0;
+	*destInt = UNKNOWN_SENSOR;
 }
 
 void setDefaultAirQWarmupTime(void * dest)
@@ -565,32 +559,37 @@ void setDefaultAirQWarmupTime(void * dest)
 void setDefaultAirqRXpin(void * dest)
 {
 	int * destInt = (int *)dest;
-	*destInt = 12;
+	*destInt = 17;
 }
 
-void setDefaultGpsPinNo(void * dest)
+void setDefaultAirqTXpin(void * dest)
 {
 	int * destInt = (int *)dest;
 	*destInt = 13;
 }
 
+void setDefaultGpsPinNo(void * dest)
+{
+	int * destInt = (int *)dest;
+	*destInt = 22;
+}
+
 void setDefaultPowerControlPinNo(void * dest)
 {
 	int * destInt = (int *)dest;
-	*destInt = 5;
+	*destInt = 21;
 }
 
 void setDefaultControlInputPin(void * dest)
 {
 	int * destInt = (int *)dest;
-	*destInt = 14;
+	*destInt = 36;
 }
-
 
 void setDefaultPixelControlPinNo(void * dest)
 {
 	int * destInt = (int *)dest;
-	*destInt = 15;
+	*destInt = 25;
 }
 
 void setDefaultNoOfPixels(void * dest)
@@ -598,6 +597,51 @@ void setDefaultNoOfPixels(void * dest)
 	int * destInt = (int *)dest;
 	*destInt = 12;
 }
+
+void setDefaultAirqnoOfAverages(void * dest)
+{
+	int * destInt = (int *)dest;
+	*destInt = 25;
+}
+
+void setDefaultEnvnoOfAverages(void * dest)
+{
+	int * destInt = (int *)dest;
+	*destInt = 25;
+}
+
+struct SettingItem hardwareSettingItems[] =
+{
+	"AirQ Sensor type (0 = not fitted 1=SDS011, 2=ZPH01)", "airqsensortype", &settings.airqSensorType, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirQSensorType, validateInt,
+	"AirQ Seconds for sensor warmup", "airqsensorwarmup", &settings.airqSecnondsSensorWarmupTime, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirQWarmupTime, validateInt,
+	"AirQ RX Pin", "airqrxpinno", &settings.airqRXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqRXpin, validateInt,
+	"AirQ TX Pin", "airqtxpinno", &settings.airqTXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqTXpin, validateInt,
+	"BME 280 fitted (yes or no)", "bme280fitted", &settings.bme280Fitted, ONOFF_INPUT_LENGTH, yesNo, setTrue,validateYesNo,
+	"Power Control fitted (yes or no)", "powercontrolfitted", &settings.powerControlFitted, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
+	"Power Control Pin", "powercontrolpin", &settings.powerControlPin, NUMBER_INPUT_LENGTH, integerValue, setDefaultPowerControlPinNo, validateInt,
+	"Control Input Pin", "controlinputpin", &settings.controlInputPin, NUMBER_INPUT_LENGTH, integerValue, setDefaultControlInputPin, validateInt,
+	"Control Input Active Low", "controlinputlow", &settings.controlInputPinActiveLow, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo,
+	"GPS fitted (yes or no)", "gpsfitted", &settings.gpsFitted, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
+	"GPS RX Pin", "gpsrxpin", &settings.gpsRXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultGpsPinNo, validateInt,
+	"Number of pixels (0 for pixels not fitted)", "noofpixels", &settings.noOfPixels, NUMBER_INPUT_LENGTH, integerValue, setDefaultNoOfPixels, validateInt,
+	"Pixel Control Pin", "pixelcontrolpin", &settings.pixelControlPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultPixelControlPinNo, validateInt,
+	"AirQ Number of averages", "airqnoOfAverages", &settings.airqNoOfAverages, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqnoOfAverages, validateInt,
+	"Environment Number of averages", "envnoOfAverages", &settings.envNoOfAverages, NUMBER_INPUT_LENGTH, integerValue, setDefaultEnvnoOfAverages, validateInt,
+};
+
+void setDefaultPositionValue(void * dest)
+{
+	double * destDouble = (double *)dest;
+	*destDouble = -1000;
+}
+
+struct SettingItem locationSettingItems[] =
+{
+	"Fixed location", "fixedlocation", &settings.fixedLocation, ONOFF_INPUT_LENGTH, yesNo, setTrue,validateYesNo,
+	"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
+	"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
+	"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo
+};
 
 boolean validateSplashScreen(void * dest, const char * newValueStr)
 {
@@ -643,36 +687,12 @@ void setDefaultLoggingState(void * dest)
 }
 
 
-struct SettingItem hardwareSettingItems[] =
+struct SettingItem displaySettingItems[] =
 {
-	"AirQ Sensor type (0 = not fitted 1=SDS011, 2=ZPH01)", "airqsensortype", &settings.airqSensorType, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirQSensorType, validateInt,
-	"AirQ Seconds for sensor warmup", "airqsensorwarmup", &settings.airqSecnondsSensorWarmupTime, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirQWarmupTime, validateInt,
-	"AirQ RX Pin", "airqrxpinno", &settings.airqRXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqRXpin, validateInt,
-	"BME 280 fitted (yes or no)", "bme280fitted", &settings.bme280Fitted, ONOFF_INPUT_LENGTH, yesNo, setTrue,validateYesNo,
-	"Power Control fitted (yes or no)", "powercontrolfitted", &settings.powerControlFitted, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
-	"Power Control Pin", "powercontrolpin", &settings.powerControlPin, NUMBER_INPUT_LENGTH, integerValue, setDefaultPowerControlPinNo, validateInt,
-	"Control Input Pin", "controlinputpin", &settings.controlInputPin, NUMBER_INPUT_LENGTH, integerValue, setDefaultControlInputPin, validateInt,
-	"Control Input Active Low", "controlinputlow", &settings.controlInputPinActiveLow, ONOFF_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
-	"GPS fitted (yes or no)", "gpsfitted", &settings.gpsFitted, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
-	"GPS RX Pin", "gpsrxpin", &settings.gpsRXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultGpsPinNo, validateInt,
-	"Number of pixels (0 for pixels not fitted)", "noofpixels", &settings.noOfPixels, NUMBER_INPUT_LENGTH, integerValue, setDefaultNoOfPixels, validateInt,
-	"Pixel Control Pin", "pixelcontrolpin", &settings.pixelControlPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultPixelControlPinNo, validateInt,
+	"Splash screen top line", "splashTop", settings.splash_screen_top_line, SPLASH_LINE_LENGTH, text, setDefaultSplashTopLine, validateSplashScreen,
+	"Splash screen bottom line", "splashBtm", settings.splash_screen_bottom_line, SPLASH_LINE_LENGTH, text, setDefaultSplashBottomLine, validateSplashScreen,
+	"Logging (0=off,1=air,2=temp,3=pres,4=hum,5=all)", "logging", &settings.logging, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoggingState, validateLoggingState
 };
-
-void setDefaultPositionValue(void * dest)
-{
-	double * destDouble = (double *)dest;
-	*destDouble = -1000;
-}
-
-struct SettingItem locationSettingItems[] =
-{
-	"Fixed location", "fixedlocation", &settings.fixedLocation, ONOFF_INPUT_LENGTH, yesNo, setTrue,validateYesNo,
-	"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-	"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-	"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo
-};
-
 
 struct SettingItem quickSettingItems[] =
 {
@@ -682,13 +702,6 @@ struct SettingItem quickSettingItems[] =
 	"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
 	"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
 	"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo
-};
-
-struct SettingItem displaySettingItems[] =
-{
-	"Splash screen top line", "splashTop", settings.splash_screen_top_line, SPLASH_LINE_LENGTH, text, setDefaultSplashTopLine, validateSplashScreen,
-	"Splash screen bottom line", "splashBtm", settings.splash_screen_bottom_line, SPLASH_LINE_LENGTH, text, setDefaultSplashBottomLine, validateSplashScreen,
-	"Logging (0=off,1=air,2=temp,3=pres,4=hum,5=all)", "logging", &settings.logging, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoggingState, validateLoggingState
 };
 
 SettingItemCollection allSettings[] = {
@@ -737,8 +750,8 @@ void printSetting(SettingItem * item)
 		break;
 
 	case password:
-		Serial.println((char *)item->value);
-//		Serial.println("******");
+//		Serial.println((char *)item->value);
+		Serial.println("******");
 		break;
 
 	case integerValue:
@@ -954,9 +967,6 @@ void loadSettings()
 	readBytesFromEEPROM(settingPtr, SETTINGS_EEPROM_OFFSET, sizeof(Device_Settings));
 }
 
-#define CHECK_BYTE_O1 0xAA
-#define CHECK_BYTE_O2 0x55
-
 boolean validStoredSettings()
 {
 	return (settings.checkByte1 == CHECK_BYTE_O1 && settings.checkByte2 == CHECK_BYTE_O2);
@@ -1110,6 +1120,12 @@ void setupSettings()
 		resetSettings();
 		saveSettings();
 	}
+
+	// always clear down the sensor type to force auto discovery
+	// can be used for manual setting during testing
+	setDefaultAirQSensorType(&settings.airqSensorType);
+
+	PrintAllSettings();	
 }
 
 void createSettingsJson(char * jsonBuffer, int length)

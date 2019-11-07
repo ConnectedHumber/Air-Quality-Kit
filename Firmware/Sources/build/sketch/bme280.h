@@ -29,6 +29,16 @@ struct bme280Reading {
 	float temperature;
 	float pressure;
 	float humidity;
+	float temperatureAverage;
+	float pressureAverage;
+	float humidityAverage;
+	// these are temporary values that are not for public use
+	float temperatureTotal;
+	float pressureTotal;
+	float humidityTotal;
+	int envNoOfAveragesCalculated;
+  int averageCount;
+  unsigned long lastEnvqAverageMillis;
 };
 
 int startBme280(struct sensor * bme280Sensor);

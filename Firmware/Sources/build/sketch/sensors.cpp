@@ -31,7 +31,6 @@ struct sensor * findSensorByName(char * name)
 	return NULL;
 }
 
-
 #define SENSOR_STATUS_BUFFER_SIZE 300
 
 char sensorStatusBuffer[SENSOR_STATUS_BUFFER_SIZE];

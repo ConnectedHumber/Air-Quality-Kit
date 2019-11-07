@@ -17,6 +17,7 @@ struct airqualityReading {
 	float pm10;
 	unsigned long lastAirqAverageMillis;
 	int airAverageReadingCount;
+	int airNoOfAveragesCalculated;
 	float pm25Average;
 	float pm10Average;
 	// these are temporary values that are not for public use
@@ -33,5 +34,5 @@ void startAirqReading(struct sensor * gpsSensor);
 int addAirqReading(struct sensor * airqSensor, char * jsonBuffer, int jsonBufferSize);
 void airqStatusMessage(struct sensor * airqSensor, char * buffer, int bufferLength);
 void set_sensor_working(bool working);
-void resetAverages(airqualityReading * reading);
+void resetAirqAverages(airqualityReading * reading);
 

@@ -14,10 +14,13 @@
 #include "lcd.h"
 #include "inputkeys.h"
 #include "menu.h"
+#include "lora.h"
 
 #define STATUS_DESCRIPTION_LENGTH 200
 
 
+
+//								name	 start		update		  stop        status             activeAtStart beingUpdated status activeTime processDetails
 struct process PixelProcess = { "Pixel", startPixel, updatePixel, stopPixel, pixelStatusMessage, true, false, 0, 0, NULL };
 struct process WiFiProcessDescriptor = { "WiFi", startWifi, updateWifi, stopWiFi, wifiStatusMessage, true, false, 0, 0, NULL  };
 struct process ConsoleProcessDescriptor = { "Console", startConsole, updateConsole, stopConsole, consoleStatusMessage, true, false, 0, 0, NULL  };
@@ -29,8 +32,8 @@ struct process WiFiConfigProcess = { "Wifi Config", startWifiConfig, updateWifiC
 struct process LCDProcess = { "LCD", startLCD, updateLCD, stopLCD, LCDStatusMessage, true, false, 0, 0, NULL  };
 struct process TimingProcess = { "Timing", startTiming, updateTiming, stopTiming, timingStatusMessage , true, false, 0, 0, NULL  };
 struct process InputKeysProcess = { "Input keys", startInputKeys, updateInputKeys, stopInputKeys, inputKeysStatusMessage , true, false, 0, 0, NULL  };
-struct process MenuProcess = { "Menu", startMenu, updateMenu, stopInputKeys, inputKeysStatusMessage , true, false, 0, 0, NULL  };
-struct process LoRaProcess= { "LoRa", startMenu, updateMenu, stopInputKeys, inputKeysStatusMessage , true, false, 0, 0, NULL  };
+struct process MenuProcess = { "Menu", startMenu, updateMenu, stopMenu, menuStatusMessage , true, false, 0, 0, NULL  };
+struct process LoRaProcess= { "LoRa", startLoRa, updateLoRa, stopLoRa, loraStatusMessage , true, false, 0, 0, NULL  };
 
 struct process * runningProcessList[] =
 {
@@ -40,7 +43,7 @@ struct process * runningProcessList[] =
 	&WebServerProcessDescriptor,
 	&MQTTProcessDescriptor,
 	&OTAUpdateProcess,
-//	&InputSwitchProcess,
+	&InputSwitchProcess,
 	&LCDProcess,
 	&TimingProcess,
 	&InputKeysProcess,
@@ -51,7 +54,8 @@ struct process * runningProcessList[] =
 struct process * wifiConfigProcessList[] =
 {
 	&WiFiConfigProcess,
-	&WebServerProcessDescriptor
+	&WebServerProcessDescriptor,
+	&ConsoleProcessDescriptor
 };
 
 struct process * findProcessByName(char * name)
@@ -129,8 +133,11 @@ void dumpProcessStatus()
 
 	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process *); i++)
 	{
+		if (!runningProcessList[i]->beingUpdated)
+			continue;
+		Serial.printf("    %s:", runningProcessList[i]->processName);
 		runningProcessList[i]->getStatusMessage(runningProcessList[i], processStatusBuffer, PROCESS_STATUS_BUFFER_SIZE);
-		Serial.printf("    %s Active time(microsecs):", processStatusBuffer);
+		Serial.printf("%s Active time(microsecs):", processStatusBuffer);
 		Serial.println(runningProcessList[i]->activeTime);
 	}
 }

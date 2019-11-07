@@ -247,14 +247,14 @@ void do_send(osjob_t* j, float pub_avg_ppm_25, float pub_avg_ppm_10, float tempe
 	buffer[3] = (int)(pub_avg_ppm_25+0.5f); // just send the sensor values as int readings
 	buffer[4] = (int)(pub_avg_ppm_10+0.5f);
 	// Check if there is not a current TX/RX job running
-	// if (LMIC.opmode & OP_TXRXPEND) {
-	// 	DEBUG_PRINTLN("OP_TXRXPEND, not sending");
-	// }
-	// else {
-	// 	// Prepare upstream data transmission at the next possible time.
-	// 	LMIC_setTxData2(1, (uint8_t*)buffer, 5, 0);
-	// 	DEBUG_PRINTLN("Sending: ");
-	// }
+	if (LMIC.opmode & OP_TXRXPEND) {
+		DEBUG_PRINTLN("OP_TXRXPEND, not sending");
+	}
+	else {
+		// Prepare upstream data transmission at the next possible time.
+		LMIC_setTxData2(1, (uint8_t*)buffer, 5, 0);
+		DEBUG_PRINTLN("Sending: ");
+	}
 }
 
 void abp_setup_lora()
