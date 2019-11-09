@@ -126,7 +126,7 @@ boolean send_to_mqtt()
 {
     char jsonBuffer[JSON_BUFFER_SIZE];
 	createSensorJson(jsonBuffer, JSON_BUFFER_SIZE);
-    return publishReadingsToMQTT(jsonBuffer);
+    return publishBufferToMQTT(jsonBuffer);
 }
 
 boolean send_to_lora()

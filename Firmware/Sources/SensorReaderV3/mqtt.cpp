@@ -31,6 +31,12 @@ boolean first_mqtt_message = true;
 int messagesSent;
 int messagesReceived;
 
+void mqtt_deliver_command_result(char * result)
+{
+	publishBufferToMQTT(result);
+}
+
+
 void callback(char* topic, byte* payload, unsigned int length)
 {
 	int i;
@@ -40,7 +46,9 @@ void callback(char* topic, byte* payload, unsigned int length)
 
 	// Put the terminator on the string
 	mqtt_receive_buffer[i] = 0;
-	// Now do something with the string....
+
+	act_onJson_command(mqtt_receive_buffer, mqtt_deliver_command_result);
+
 	Serial.printf("Received from MQTT: %s\n", mqtt_receive_buffer);
 
 	messagesReceived++;
@@ -143,7 +151,7 @@ int restartMQTT()
 	return MQTT_OK;
 }
 
-boolean publishReadingsToMQTT(char * buffer)
+boolean publishBufferToMQTT(char * buffer)
 {
 	if (activeMQTTProcess->status == MQTT_OK)
 	{

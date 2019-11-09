@@ -4,29 +4,30 @@
 #include "errors.h"
 #include "settings.h"
 #include "debug.h"
+#include "ArduinoJson-v5.13.2.h"
 
 struct Device_Settings settings;
 
-void setEmptyString(void * dest)
+void setEmptyString(void *dest)
 {
 	strcpy((char *)dest, "");
 }
 
-void setFalse(void * dest)
+void setFalse(void *dest)
 {
-	boolean * destBool = (boolean *)dest;
+	boolean *destBool = (boolean *)dest;
 	*destBool = false;
 }
 
-void setTrue(void * dest)
+void setTrue(void *dest)
 {
-	boolean * destBool = (boolean *)dest;
+	boolean *destBool = (boolean *)dest;
 	*destBool = true;
 }
 
-boolean validateOnOff(void * dest, const char * newValueStr)
+boolean validateOnOff(void *dest, const char *newValueStr)
 {
-	boolean * destBool = (boolean *)dest;
+	boolean *destBool = (boolean *)dest;
 
 	if (strcasecmp(newValueStr, "on") == 0)
 	{
@@ -43,9 +44,9 @@ boolean validateOnOff(void * dest, const char * newValueStr)
 	return false;
 }
 
-boolean validateYesNo(void * dest, const char * newValueStr)
+boolean validateYesNo(void *dest, const char *newValueStr)
 {
-	boolean * destBool = (boolean *)dest;
+	boolean *destBool = (boolean *)dest;
 
 	if (strcasecmp(newValueStr, "yes") == 0)
 	{
@@ -62,8 +63,7 @@ boolean validateYesNo(void * dest, const char * newValueStr)
 	return false;
 }
 
-
-boolean validateString(char * dest, const char * source, int maxLength)
+boolean validateString(char *dest, const char *source, int maxLength)
 {
 	if (strlen(source) > (maxLength - 1))
 		return false;
@@ -73,7 +73,7 @@ boolean validateString(char * dest, const char * source, int maxLength)
 	return true;
 }
 
-boolean validateInt(void * dest, const char * newValueStr)
+boolean validateInt(void *dest, const char *newValueStr)
 {
 	int value;
 
@@ -86,8 +86,7 @@ boolean validateInt(void * dest, const char * newValueStr)
 	return false;
 }
 
-
-boolean validateDouble(void * dest, const char * newValueStr)
+boolean validateDouble(void *dest, const char *newValueStr)
 {
 	double value;
 
@@ -206,7 +205,7 @@ int decodeHexValueIntoBytes(uint8_t *dest, const char *newVal, int length)
 
 	int inputLength = strlen(newVal);
 
-	if ( inputLength!= length * 2)
+	if (inputLength != length * 2)
 	{
 		TRACELN("Incoming hex value is the wrong length");
 		return INCOMING_HEX_VALUE_IS_THE_WRONG_LENGTH;
@@ -278,205 +277,198 @@ int decodeHexValueIntoUnsignedLong(u4_t *dest, const char *newVal)
 	return WORKED_OK;
 }
 
-boolean validateLoRAKey (void * dest, const char * newValueStr)
+boolean validateLoRAKey(void *dest, const char *newValueStr)
 {
 	return decodeHexValueIntoBytes((uint8_t *)dest, newValueStr, LORA_KEY_LENGTH) == WORKED_OK;
 }
 
-boolean validateLoRaID (void * dest, const char * newValueStr)
+boolean validateLoRaID(void *dest, const char *newValueStr)
 {
-	return decodeHexValueIntoUnsignedLong((u4_t *) dest, newValueStr) == WORKED_OK;
+	return decodeHexValueIntoUnsignedLong((u4_t *)dest, newValueStr) == WORKED_OK;
 }
 
-void setDefaultDevname(void * dest)
+void setDefaultDevname(void *dest)
 {
-	char * destStr = (char *)dest;
+	char *destStr = (char *)dest;
 	snprintf(destStr, DEVICE_NAME_LENGTH, "CHASW-%06x-1", ESP.getEfuseMac());
 }
 
-boolean validateDevName(void * dest, const char * newValueStr)
+boolean validateDevName(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, DEVICE_NAME_LENGTH));
 }
 
-boolean validateWifiSSID(void * dest, const char * newValueStr)
+boolean validateWifiSSID(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, WIFI_SSID_LENGTH));
 }
 
-boolean validateWifiPWD(void * dest, const char * newValueStr)
+boolean validateWifiPWD(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, WIFI_PASSWORD_LENGTH));
 }
 
-
-
 struct SettingItem wifiSettingItems[] =
-{
-	"Device name", "devname", settings.deviceName, DEVICE_NAME_LENGTH, text, setDefaultDevname, validateDevName,
-	"WiFiSSID1", "wifissid1", settings.wifi1SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-	"WiFiPassword1", "wifipwd1", settings.wifi1PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-	"WiFiSSID2", "wifissid2", settings.wifi2SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-	"WiFiPassword2", "wifipwd2", settings.wifi2PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-	"WiFiSSID3", "wifissid3", settings.wifi3SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-	"WiFiPassword3", "wifipwd3", settings.wifi3PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-	"WiFiSSID4", "wifissid4", settings.wifi4SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-	"WiFiPassword4", "wifipwd4", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-	"WiFiSSID5", "wifissid5", settings.wifi5SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-	"WiFiPassword5", "wifipwd5", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-	"WiFi On", "wifion", &settings.wiFiOn, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff
-};
+	{
+		"Device name", "devname", settings.deviceName, DEVICE_NAME_LENGTH, text, setDefaultDevname, validateDevName,
+		"WiFiSSID1", "wifissid1", settings.wifi1SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
+		"WiFiPassword1", "wifipwd1", settings.wifi1PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
+		"WiFiSSID2", "wifissid2", settings.wifi2SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
+		"WiFiPassword2", "wifipwd2", settings.wifi2PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
+		"WiFiSSID3", "wifissid3", settings.wifi3SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
+		"WiFiPassword3", "wifipwd3", settings.wifi3PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
+		"WiFiSSID4", "wifissid4", settings.wifi4SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
+		"WiFiPassword4", "wifipwd4", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
+		"WiFiSSID5", "wifissid5", settings.wifi5SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
+		"WiFiPassword5", "wifipwd5", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
+		"WiFi On", "wifion", &settings.wiFiOn, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff};
 
-boolean validateServerName(void * dest, const char * newValueStr)
+boolean validateServerName(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, SERVER_NAME_LENGTH));
 }
 
 struct SettingItem autoUpdateSettingItems[] =
-{
-	"Auto update image server", "autoupdimage", settings.autoUpdateImageServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName,
-	"Auto update status server", "autoupdstatus", settings.autoUpdateStatusServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName,
-	"Auto update on", "autoupdon", &settings.autoUpdateEnabled, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff
-};
+	{
+		"Auto update image server", "autoupdimage", settings.autoUpdateImageServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName,
+		"Auto update status server", "autoupdstatus", settings.autoUpdateStatusServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName,
+		"Auto update on", "autoupdon", &settings.autoUpdateEnabled, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff};
 
-char * defaultMQTTName = "NewMQTTDevice";
-char * defaultMQTTHost = "mqtt.connectedhumber.org";
+char *defaultMQTTName = "NewMQTTDevice";
+char *defaultMQTTHost = "mqtt.connectedhumber.org";
 
-void setDefaultMQTTTname(void * dest)
+void setDefaultMQTTTname(void *dest)
 {
-	char * destStr = (char *)dest;
+	char *destStr = (char *)dest;
 	snprintf(destStr, DEVICE_NAME_LENGTH, "Sensor-%06x", ESP.getEfuseMac());
 }
 
-void setDefaultMQTThost(void * dest)
+void setDefaultMQTThost(void *dest)
 {
 	strcpy((char *)dest, "mqtt.connectedhumber.org");
 }
 
-boolean validateMQTThost(void * dest, const char * newValueStr)
+boolean validateMQTThost(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, SERVER_NAME_LENGTH));
 }
 
-void setDefaultMQTTport(void * dest)
+void setDefaultMQTTport(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 1883; // use 8883 for secure connection to Azure IoT hub
 }
 
-boolean validateMQTTtopic(void * dest, const char * newValueStr)
+boolean validateMQTTtopic(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, MQTT_TOPIC_LENGTH));
 }
 
-void setDefaultMQTTusername(void * dest)
+void setDefaultMQTTusername(void *dest)
 {
 	strcpy((char *)dest, "connectedhumber");
 }
 
-boolean validateMQTTusername(void * dest, const char * newValueStr)
+boolean validateMQTTusername(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, MQTT_USER_NAME_LENGTH));
 }
 
-boolean validateMQTTPWD(void * dest, const char * newValueStr)
+boolean validateMQTTPWD(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, MQTT_PASSWORD_LENGTH));
 }
 
-void setDefaultMQTTpublishTopic(void * dest)
+void setDefaultMQTTpublishTopic(void *dest)
 {
 	snprintf((char *)dest, MQTT_TOPIC_LENGTH, "airquality/data/Monitair-%06x", ESP.getEfuseMac());
 }
 
-void setDefaultMQTTsubscribeTopic(void * dest)
+void setDefaultMQTTsubscribeTopic(void *dest)
 {
 	snprintf((char *)dest, MQTT_TOPIC_LENGTH, "airquality/command/Monitair-%06x", ESP.getEfuseMac());
 }
 
-void setDefaultMQTTreportTopic(void * dest)
+void setDefaultMQTTreportTopic(void *dest)
 {
 	snprintf((char *)dest, MQTT_TOPIC_LENGTH, "airquality/report/Monitair-%06x", ESP.getEfuseMac());
 }
 
-void setDefaultMQTTsecsPerUpdate(void * dest)
+void setDefaultMQTTsecsPerUpdate(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 360;
 }
 
-void setDefaultMQTTsecsPerRetry(void * dest)
+void setDefaultMQTTsecsPerRetry(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 10;
 }
 
 struct SettingItem mqtttSettingItems[] =
-{
-	"MQTT Host", "mqtthost", settings.mqttServer, SERVER_NAME_LENGTH, text, setDefaultMQTThost, validateServerName,
-	"MQTT Port number", "mqttport", &settings.mqttPort, NUMBER_INPUT_LENGTH, integerValue,setDefaultMQTTport,validateInt,
-	"MQTT Secure sockets (on or off)", "mqttsecure", &settings.mqttSecureSockets, ONOFF_INPUT_LENGTH, onOff,setFalse, validateOnOff,
-	"MQTT Active (yes or no)", "mqttactive", &settings.mqtt_enabled, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
-	"MQTT UserName", "mqttuser", settings.mqttUser, MQTT_USER_NAME_LENGTH, text, setDefaultMQTTusername,validateMQTTusername,
-	"MQTT Password", "mqttpwd", settings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString,validateMQTTPWD,
-	"MQTT Publish topic", "mqttpub", settings.mqttPublishTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTpublishTopic,validateMQTTtopic,
-	"MQTT Subscribe topic", "mqttsub", settings.mqttSubscribeTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTsubscribeTopic,validateMQTTtopic,
-	"MQTT Reporting topic", "mqttreport", settings.mqttReportTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTreportTopic,validateMQTTtopic,
-	"MQTT Seconds per update", "mqttsecsperupdate", &settings.mqttSecsPerUpdate, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerUpdate, validateInt,
-	"MQTT Seconds per retry", "mqttsecsperretry", &settings.seconds_per_mqtt_retry, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerRetry, validateInt
-};
+	{
+		"MQTT Host", "mqtthost", settings.mqttServer, SERVER_NAME_LENGTH, text, setDefaultMQTThost, validateServerName,
+		"MQTT Port number", "mqttport", &settings.mqttPort, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTport, validateInt,
+		"MQTT Secure sockets (on or off)", "mqttsecure", &settings.mqttSecureSockets, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff,
+		"MQTT Active (yes or no)", "mqttactive", &settings.mqtt_enabled, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo,
+		"MQTT UserName", "mqttuser", settings.mqttUser, MQTT_USER_NAME_LENGTH, text, setDefaultMQTTusername, validateMQTTusername,
+		"MQTT Password", "mqttpwd", settings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString, validateMQTTPWD,
+		"MQTT Publish topic", "mqttpub", settings.mqttPublishTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTpublishTopic, validateMQTTtopic,
+		"MQTT Subscribe topic", "mqttsub", settings.mqttSubscribeTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTsubscribeTopic, validateMQTTtopic,
+		"MQTT Reporting topic", "mqttreport", settings.mqttReportTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTreportTopic, validateMQTTtopic,
+		"MQTT Seconds per update", "mqttsecsperupdate", &settings.mqttSecsPerUpdate, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerUpdate, validateInt,
+		"MQTT Seconds per retry", "mqttsecsperretry", &settings.seconds_per_mqtt_retry, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerRetry, validateInt};
 
-void setDefaultLoRasecsPerUpdate(void * dest)
+void setDefaultLoRasecsPerUpdate(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 360;
 }
 
-void setDefaultLoRaAbpAppKey(void * dest)
+void setDefaultLoRaAbpAppKey(void *dest)
 {
 	validateLoRAKey(dest, "B04C8C1286439B81F1AAA2D04FEA1B31");
 }
 
-void setDefaultLoRaAbpNwkKey(void * dest)
+void setDefaultLoRaAbpNwkKey(void *dest)
 {
 	validateLoRAKey(dest, "27315ED03ED864DA00B0744DB3715D28");
 }
 
-void setDefaultLoRaAbpDevAddrKey(void * dest)
+void setDefaultLoRaAbpDevAddrKey(void *dest)
 {
 	validateLoRaID(dest, "26011DAB");
 }
 
-
 struct SettingItem loraSettingItems[] =
-{
-	"LoRa Active (yes or no)", "loraactive", &settings.loraOn, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
-	"LoRa Seconds per update", "lorasecsperupdate", &settings.seconds_per_lora_update, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoRasecsPerUpdate, validateInt,
-	"LoRa Using ABP (yes or no)", "lorausingabp", &settings.loraAbp, YESNO_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
-	"Lora ABP App Key", "loraabpappkey", &settings.lora_abp_APPSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpAppKey, validateLoRAKey,
-	"Lora ABP Nwk Key", "loraabpnwkkey", &settings.lora_abp_NWKSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpNwkKey, validateLoRAKey,
-	"Lora ABP Dev. addr", "loraabpdevaddr", &settings.lora_abp_DEVADDR, LORA_EUI_LENGTH, loraID, setDefaultLoRaAbpDevAddrKey, validateLoRaID 
-};
+	{
+		"LoRa Active (yes or no)", "loraactive", &settings.loraOn, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo,
+		"LoRa Seconds per update", "lorasecsperupdate", &settings.seconds_per_lora_update, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoRasecsPerUpdate, validateInt,
+		"LoRa Using ABP (yes or no)", "lorausingabp", &settings.loraAbp, YESNO_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
+		"Lora ABP App Key", "loraabpappkey", &settings.lora_abp_APPSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpAppKey, validateLoRAKey,
+		"Lora ABP Nwk Key", "loraabpnwkkey", &settings.lora_abp_NWKSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpNwkKey, validateLoRAKey,
+		"Lora ABP Dev. addr", "loraabpdevaddr", &settings.lora_abp_DEVADDR, LORA_EUI_LENGTH, loraID, setDefaultLoRaAbpDevAddrKey, validateLoRaID};
 
-void setDefaultPixelRed(void * dest)
+void setDefaultPixelRed(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 0;
 }
 
-void setDefaultPixelGreen(void * dest)
+void setDefaultPixelGreen(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 255;
 }
 
-void setDefaultPixelBlue(void * dest)
+void setDefaultPixelBlue(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 0;
 }
 
-boolean validateColour(void * dest, const char * newValueStr)
+boolean validateColour(void *dest, const char *newValueStr)
 {
 	int value;
 
@@ -495,170 +487,306 @@ boolean validateColour(void * dest, const char * newValueStr)
 	return true;
 }
 
-void setDefaultAirqLowLimit(void * dest)
+void setDefaultAirqLowLimit(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 15;
 }
 
-void setDefaultAirqLowWarnLimit(void * dest)
+void setDefaultAirqLowWarnLimit(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 40;
 }
 
-void setDefaultAirqMidWarnLimit(void * dest)
+void setDefaultAirqMidWarnLimit(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 65;
 }
 
-void setDefaultAirqHighWarnLimit(void * dest)
+void setDefaultAirqHighWarnLimit(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 150;
 }
 
-void setDefaultAirqHighAlertLimit(void * dest)
+void setDefaultAirqHighAlertLimit(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 250;
 }
 
-
-void setDefault(void * dest)
+void setDefault(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 0;
 }
 
 struct SettingItem pixelSettingItems[] =
-{
-	"Pixel red (0-255)", "pixelred", &settings.pixelRed, NUMBER_INPUT_LENGTH, integerValue, setDefaultPixelRed, validateColour,
-	"Pixel green (0-255)", "pixelgreen", &settings.pixelGreen, NUMBER_INPUT_LENGTH, integerValue, setDefaultPixelGreen, validateColour,
-	"Pixel blue (0-255)", "pixelblue", &settings.pixelBlue, NUMBER_INPUT_LENGTH, integerValue, setDefaultPixelBlue, validateColour,
-	"AirQ Low Limit", "airqlowlimit", &settings.airqLowLimit, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqLowLimit, validateInt,
-	"AirQ Low Warning Limit", "airqlowwarnlimit", &settings.airqLowWarnLimit, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqLowWarnLimit, validateInt,
-	"AirQ Mid Warning Limit", "airqmidwarnlimit", &settings.airqMidWarnLimit, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqMidWarnLimit, validateInt,
-	"AirQ High Warning Limit", "airqhighwarnlimit", &settings.airqHighWarnLimit, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqHighWarnLimit, validateInt,
-	"AirQ High Alert Limit", "airqhighalertlimit", &settings.airqHighAlertLimit, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqHighAlertLimit, validateInt,
+	{
+		"Pixel red (0-255)",
+		"pixelred",
+		&settings.pixelRed,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelRed,
+		validateColour,
+		"Pixel green (0-255)",
+		"pixelgreen",
+		&settings.pixelGreen,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelGreen,
+		validateColour,
+		"Pixel blue (0-255)",
+		"pixelblue",
+		&settings.pixelBlue,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelBlue,
+		validateColour,
+		"AirQ Low Limit",
+		"airqlowlimit",
+		&settings.airqLowLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqLowLimit,
+		validateInt,
+		"AirQ Low Warning Limit",
+		"airqlowwarnlimit",
+		&settings.airqLowWarnLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqLowWarnLimit,
+		validateInt,
+		"AirQ Mid Warning Limit",
+		"airqmidwarnlimit",
+		&settings.airqMidWarnLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqMidWarnLimit,
+		validateInt,
+		"AirQ High Warning Limit",
+		"airqhighwarnlimit",
+		&settings.airqHighWarnLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqHighWarnLimit,
+		validateInt,
+		"AirQ High Alert Limit",
+		"airqhighalertlimit",
+		&settings.airqHighAlertLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqHighAlertLimit,
+		validateInt,
 };
 
-void setDefaultAirQSensorType(void * dest)
+void setDefaultAirQSensorType(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = UNKNOWN_SENSOR;
 }
 
-void setDefaultAirQWarmupTime(void * dest)
+void setDefaultAirQWarmupTime(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 30;
 }
 
-void setDefaultAirqRXpin(void * dest)
+void setDefaultAirqRXpin(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 17;
 }
 
-void setDefaultAirqTXpin(void * dest)
+void setDefaultAirqTXpin(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 13;
 }
 
-void setDefaultGpsPinNo(void * dest)
+void setDefaultGpsPinNo(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 22;
 }
 
-void setDefaultPowerControlPinNo(void * dest)
+void setDefaultPowerControlPinNo(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 21;
 }
 
-void setDefaultControlInputPin(void * dest)
+void setDefaultControlInputPin(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 36;
 }
 
-void setDefaultPixelControlPinNo(void * dest)
+void setDefaultPixelControlPinNo(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 25;
 }
 
-void setDefaultNoOfPixels(void * dest)
+void setDefaultNoOfPixels(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 12;
 }
 
-void setDefaultAirqnoOfAverages(void * dest)
+void setDefaultAirqnoOfAverages(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 25;
 }
 
-void setDefaultEnvnoOfAverages(void * dest)
+void setDefaultEnvnoOfAverages(void *dest)
 {
-	int * destInt = (int *)dest;
+	int *destInt = (int *)dest;
 	*destInt = 25;
 }
 
 struct SettingItem hardwareSettingItems[] =
-{
-	"AirQ Sensor type (0 = not fitted 1=SDS011, 2=ZPH01)", "airqsensortype", &settings.airqSensorType, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirQSensorType, validateInt,
-	"AirQ Seconds for sensor warmup", "airqsensorwarmup", &settings.airqSecnondsSensorWarmupTime, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirQWarmupTime, validateInt,
-	"AirQ RX Pin", "airqrxpinno", &settings.airqRXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqRXpin, validateInt,
-	"AirQ TX Pin", "airqtxpinno", &settings.airqTXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqTXpin, validateInt,
-	"BME 280 fitted (yes or no)", "bme280fitted", &settings.bme280Fitted, ONOFF_INPUT_LENGTH, yesNo, setTrue,validateYesNo,
-	"Power Control fitted (yes or no)", "powercontrolfitted", &settings.powerControlFitted, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
-	"Power Control Pin", "powercontrolpin", &settings.powerControlPin, NUMBER_INPUT_LENGTH, integerValue, setDefaultPowerControlPinNo, validateInt,
-	"Control Input Pin", "controlinputpin", &settings.controlInputPin, NUMBER_INPUT_LENGTH, integerValue, setDefaultControlInputPin, validateInt,
-	"Control Input Active Low", "controlinputlow", &settings.controlInputPinActiveLow, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo,
-	"GPS fitted (yes or no)", "gpsfitted", &settings.gpsFitted, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo,
-	"GPS RX Pin", "gpsrxpin", &settings.gpsRXPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultGpsPinNo, validateInt,
-	"Number of pixels (0 for pixels not fitted)", "noofpixels", &settings.noOfPixels, NUMBER_INPUT_LENGTH, integerValue, setDefaultNoOfPixels, validateInt,
-	"Pixel Control Pin", "pixelcontrolpin", &settings.pixelControlPinNo, NUMBER_INPUT_LENGTH, integerValue, setDefaultPixelControlPinNo, validateInt,
-	"AirQ Number of averages", "airqnoOfAverages", &settings.airqNoOfAverages, NUMBER_INPUT_LENGTH, integerValue, setDefaultAirqnoOfAverages, validateInt,
-	"Environment Number of averages", "envnoOfAverages", &settings.envNoOfAverages, NUMBER_INPUT_LENGTH, integerValue, setDefaultEnvnoOfAverages, validateInt,
+	{
+		"AirQ Sensor type (0 = not fitted 1=SDS011, 2=ZPH01)",
+		"airqsensortype",
+		&settings.airqSensorType,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirQSensorType,
+		validateInt,
+		"AirQ Seconds for sensor warmup",
+		"airqsensorwarmup",
+		&settings.airqSecnondsSensorWarmupTime,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirQWarmupTime,
+		validateInt,
+		"AirQ RX Pin",
+		"airqrxpinno",
+		&settings.airqRXPinNo,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqRXpin,
+		validateInt,
+		"AirQ TX Pin",
+		"airqtxpinno",
+		&settings.airqTXPinNo,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqTXpin,
+		validateInt,
+		"BME 280 fitted (yes or no)",
+		"bme280fitted",
+		&settings.bme280Fitted,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setTrue,
+		validateYesNo,
+		"Power Control fitted (yes or no)",
+		"powercontrolfitted",
+		&settings.powerControlFitted,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setFalse,
+		validateYesNo,
+		"Power Control Pin",
+		"powercontrolpin",
+		&settings.powerControlPin,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPowerControlPinNo,
+		validateInt,
+		"Control Input Pin",
+		"controlinputpin",
+		&settings.controlInputPin,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultControlInputPin,
+		validateInt,
+		"Control Input Active Low",
+		"controlinputlow",
+		&settings.controlInputPinActiveLow,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setFalse,
+		validateYesNo,
+		"GPS fitted (yes or no)",
+		"gpsfitted",
+		&settings.gpsFitted,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setFalse,
+		validateYesNo,
+		"GPS RX Pin",
+		"gpsrxpin",
+		&settings.gpsRXPinNo,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultGpsPinNo,
+		validateInt,
+		"Number of pixels (0 for pixels not fitted)",
+		"noofpixels",
+		&settings.noOfPixels,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultNoOfPixels,
+		validateInt,
+		"Pixel Control Pin",
+		"pixelcontrolpin",
+		&settings.pixelControlPinNo,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelControlPinNo,
+		validateInt,
+		"AirQ Number of averages",
+		"airqnoOfAverages",
+		&settings.airqNoOfAverages,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqnoOfAverages,
+		validateInt,
+		"Environment Number of averages",
+		"envnoOfAverages",
+		&settings.envNoOfAverages,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultEnvnoOfAverages,
+		validateInt,
 };
 
-void setDefaultPositionValue(void * dest)
+void setDefaultPositionValue(void *dest)
 {
-	double * destDouble = (double *)dest;
+	double *destDouble = (double *)dest;
 	*destDouble = -1000;
 }
 
 struct SettingItem locationSettingItems[] =
-{
-	"Fixed location", "fixedlocation", &settings.fixedLocation, ONOFF_INPUT_LENGTH, yesNo, setTrue,validateYesNo,
-	"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-	"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-	"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo
-};
+	{
+		"Fixed location", "fixedlocation", &settings.fixedLocation, ONOFF_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
+		"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
+		"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
+		"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo};
 
-boolean validateSplashScreen(void * dest, const char * newValueStr)
+boolean validateSplashScreen(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, SPLASH_LINE_LENGTH));
 }
 
-void setDefaultSplashTopLine(void * dest)
+void setDefaultSplashTopLine(void *dest)
 {
 	snprintf((char *)dest, SPLASH_LINE_LENGTH, "Connected");
 }
 
-void setDefaultSplashBottomLine(void * dest)
+void setDefaultSplashBottomLine(void *dest)
 {
 	snprintf((char *)dest, SPLASH_LINE_LENGTH, "Humber");
 }
 
-boolean validateLoggingState(void * dest, const char * newValueStr)
+boolean validateLoggingState(void *dest, const char *newValueStr)
 {
 	int value;
 
@@ -667,55 +795,51 @@ boolean validateLoggingState(void * dest, const char * newValueStr)
 		return false;
 	}
 
-	if(value < 0)
+	if (value < 0)
 	{
 		return false;
 	}
 
-	if(value > 5)
+	if (value > 5)
 	{
 		return false;
 	}
 
-	*(Logging_State *)dest = (Logging_State) value;
+	*(Logging_State *)dest = (Logging_State)value;
 	return true;
 }
 
-void setDefaultLoggingState(void * dest)
+void setDefaultLoggingState(void *dest)
 {
 	*(Logging_State *)dest = loggingOff;
 }
 
-
 struct SettingItem displaySettingItems[] =
-{
-	"Splash screen top line", "splashTop", settings.splash_screen_top_line, SPLASH_LINE_LENGTH, text, setDefaultSplashTopLine, validateSplashScreen,
-	"Splash screen bottom line", "splashBtm", settings.splash_screen_bottom_line, SPLASH_LINE_LENGTH, text, setDefaultSplashBottomLine, validateSplashScreen,
-	"Logging (0=off,1=air,2=temp,3=pres,4=hum,5=all)", "logging", &settings.logging, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoggingState, validateLoggingState
-};
+	{
+		"Splash screen top line", "splashTop", settings.splash_screen_top_line, SPLASH_LINE_LENGTH, text, setDefaultSplashTopLine, validateSplashScreen,
+		"Splash screen bottom line", "splashBtm", settings.splash_screen_bottom_line, SPLASH_LINE_LENGTH, text, setDefaultSplashBottomLine, validateSplashScreen,
+		"Logging (0=off,1=air,2=temp,3=pres,4=hum,5=all)", "logging", &settings.logging, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoggingState, validateLoggingState};
 
 struct SettingItem quickSettingItems[] =
-{
-	"WiFi access point name", "wifissid1", settings.wifi1SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-	"WiFi password", "wifipwd1", settings.wifi1PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-	"MQTT Password", "mqttpwd", settings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString,validateMQTTPWD,
-	"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-	"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-	"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse,validateYesNo
-};
+	{
+		"WiFi access point name", "wifissid1", settings.wifi1SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
+		"WiFi password", "wifipwd1", settings.wifi1PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
+		"MQTT Password", "mqttpwd", settings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString, validateMQTTPWD,
+		"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
+		"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
+		"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo};
 
 SettingItemCollection allSettings[] = {
-	{"Quick", "Just the settings to get you started", quickSettingItems, sizeof(quickSettingItems) / sizeof(SettingItem) },
-	{"Output", "Display and logging settings", displaySettingItems, sizeof(displaySettingItems) / sizeof(SettingItem) },
-	{"Wifi", "Set the SSID and password for wifi connections", wifiSettingItems, sizeof(wifiSettingItems) / sizeof(SettingItem) },
-	{"MQTT", "Set the device, user, site, password and topic for MQTT", mqtttSettingItems, sizeof(mqtttSettingItems) / sizeof(SettingItem) },
-	{"LoRa", "Set the authentication and data rate for LoRa", loraSettingItems, sizeof(loraSettingItems) / sizeof(SettingItem) },
+	{"Quick", "Just the settings to get you started", quickSettingItems, sizeof(quickSettingItems) / sizeof(SettingItem)},
+	{"Output", "Display and logging settings", displaySettingItems, sizeof(displaySettingItems) / sizeof(SettingItem)},
+	{"Wifi", "Set the SSID and password for wifi connections", wifiSettingItems, sizeof(wifiSettingItems) / sizeof(SettingItem)},
+	{"MQTT", "Set the device, user, site, password and topic for MQTT", mqtttSettingItems, sizeof(mqtttSettingItems) / sizeof(SettingItem)},
+	{"LoRa", "Set the authentication and data rate for LoRa", loraSettingItems, sizeof(loraSettingItems) / sizeof(SettingItem)},
 	{"Pixel", "Set the pixel colours and display levels", pixelSettingItems, sizeof(pixelSettingItems) / sizeof(SettingItem)},
 	{"Hardware", "Set the hardware pins and configuration", hardwareSettingItems, sizeof(hardwareSettingItems) / sizeof(SettingItem)},
-	{"Location", "Set the fixed location of the device", locationSettingItems, sizeof(locationSettingItems) / sizeof(SettingItem)}
-};
+	{"Location", "Set the fixed location of the device", locationSettingItems, sizeof(locationSettingItems) / sizeof(SettingItem)}};
 
-SettingItem * FindSetting(char * settingName)
+SettingItem *FindSetting(char *settingName)
 {
 	// Start the search at setting collection 1 so that the quick settings are not used in the search
 	for (int collectionNo = 1; collectionNo < sizeof(allSettings) / sizeof(SettingItemCollection); collectionNo++)
@@ -731,12 +855,12 @@ SettingItem * FindSetting(char * settingName)
 	return NULL;
 }
 
-void printSetting(SettingItem * item)
+void printSetting(SettingItem *item)
 {
-	int * intValuePointer;
-	boolean * boolValuePointer;
-	double * doubleValuePointer;
-	u4_t * loraIDValuePointer;
+	int *intValuePointer;
+	boolean *boolValuePointer;
+	double *doubleValuePointer;
+	u4_t *loraIDValuePointer;
 
 	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
 
@@ -750,12 +874,12 @@ void printSetting(SettingItem * item)
 		break;
 
 	case password:
-//		Serial.println((char *)item->value);
+		//		Serial.println((char *)item->value);
 		Serial.println("******");
 		break;
 
 	case integerValue:
-		intValuePointer = (int*)item->value;
+		intValuePointer = (int *)item->value;
 		Serial.println(*intValuePointer);
 		break;
 
@@ -765,18 +889,18 @@ void printSetting(SettingItem * item)
 		break;
 
 	case loraKey:
-		dumpHexString(loraKeyBuffer, (uint8_t *) item->value, LORA_KEY_LENGTH );
+		dumpHexString(loraKeyBuffer, (uint8_t *)item->value, LORA_KEY_LENGTH);
 		Serial.println(loraKeyBuffer);
 		break;
-	
+
 	case loraID:
-		loraIDValuePointer = (u4_t *) item->value;
-		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer) ;
+		loraIDValuePointer = (u4_t *)item->value;
+		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer);
 		Serial.println(loraKeyBuffer);
 		break;
 
 	case onOff:
-		boolValuePointer = (boolean*)item->value;
+		boolValuePointer = (boolean *)item->value;
 		if (*boolValuePointer)
 		{
 			Serial.println("on");
@@ -788,7 +912,7 @@ void printSetting(SettingItem * item)
 		break;
 
 	case yesNo:
-		boolValuePointer = (boolean*)item->value;
+		boolValuePointer = (boolean *)item->value;
 		if (*boolValuePointer)
 		{
 			Serial.println("yes");
@@ -801,40 +925,39 @@ void printSetting(SettingItem * item)
 	}
 }
 
-
-void appendSettingJSON(SettingItem * item, char * jsonBuffer, int bufferLength)
+void appendSettingJSON(SettingItem *item, char *jsonBuffer, int bufferLength)
 {
-	int * intValuePointer;
-	boolean * boolValuePointer;
-	double * doubleValuePointer;
-	u4_t * loraIDValuePointer;
+	int *intValuePointer;
+	boolean *boolValuePointer;
+	double *doubleValuePointer;
+	u4_t *loraIDValuePointer;
 
 	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
 
 	snprintf(jsonBuffer, bufferLength,
-		"%s,\"%s\":",
-		jsonBuffer,
-		item->formName);
+			 "%s,\"%s\":",
+			 jsonBuffer,
+			 item->formName);
 
 	switch (item->settingType)
 	{
 
 	case text:
 		snprintf(jsonBuffer, bufferLength,
-			"%s\"%s\"",
-			jsonBuffer,
-			(char *)item->value);
+				 "%s\"%s\"",
+				 jsonBuffer,
+				 (char *)item->value);
 		break;
 
 	case password:
 		Serial.println("******");
 		snprintf(jsonBuffer, bufferLength,
-			"%s\"******\"",
-			jsonBuffer);
+				 "%s\"******\"",
+				 jsonBuffer);
 		break;
 
 	case integerValue:
-		intValuePointer = (int*)item->value;
+		intValuePointer = (int *)item->value;
 		Serial.println(*intValuePointer);
 		break;
 
@@ -844,18 +967,18 @@ void appendSettingJSON(SettingItem * item, char * jsonBuffer, int bufferLength)
 		break;
 
 	case loraKey:
-		dumpHexString(loraKeyBuffer, (uint8_t *) item->value, LORA_KEY_LENGTH );
+		dumpHexString(loraKeyBuffer, (uint8_t *)item->value, LORA_KEY_LENGTH);
 		Serial.println(loraKeyBuffer);
 		break;
-	
+
 	case loraID:
-		loraIDValuePointer = (u4_t *) item->value;
-		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer) ;
+		loraIDValuePointer = (u4_t *)item->value;
+		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer);
 		Serial.println(loraKeyBuffer);
 		break;
 
 	case onOff:
-		boolValuePointer = (boolean*)item->value;
+		boolValuePointer = (boolean *)item->value;
 		if (*boolValuePointer)
 		{
 			Serial.println("on");
@@ -867,7 +990,7 @@ void appendSettingJSON(SettingItem * item, char * jsonBuffer, int bufferLength)
 		break;
 
 	case yesNo:
-		boolValuePointer = (boolean*)item->value;
+		boolValuePointer = (boolean *)item->value;
 		if (*boolValuePointer)
 		{
 			Serial.println("yes");
@@ -880,13 +1003,12 @@ void appendSettingJSON(SettingItem * item, char * jsonBuffer, int bufferLength)
 	}
 }
 
-
-void resetSetting(SettingItem * setting)
+void resetSetting(SettingItem *setting)
 {
 	setting->setDefault(setting->value);
 }
 
-void resetSettingCollection(SettingItemCollection * settingCollection)
+void resetSettingCollection(SettingItemCollection *settingCollection)
 {
 	for (int settingNo = 0; settingNo < settingCollection->noOfSettings; settingNo++)
 	{
@@ -918,7 +1040,6 @@ void PrintSettingCollection(SettingItemCollection settingCollection)
 	}
 }
 
-
 void PrintAllSettings()
 {
 	// Start the search at setting collection 1 so that the quick settings are not printed
@@ -928,8 +1049,7 @@ void PrintAllSettings()
 	}
 }
 
-
-void writeBytesToEEPROM(byte * bytesToStore, int address, int length)
+void writeBytesToEEPROM(byte *bytesToStore, int address, int length)
 {
 	int endAddress = address + length;
 	for (int i = address; i < endAddress; i++)
@@ -940,7 +1060,7 @@ void writeBytesToEEPROM(byte * bytesToStore, int address, int length)
 	EEPROM.commit();
 }
 
-void readBytesFromEEPROM(byte * destination, int address, int length)
+void readBytesFromEEPROM(byte *destination, int address, int length)
 {
 	int endAddress = address + length;
 
@@ -956,14 +1076,14 @@ void saveSettings()
 {
 	int addr = SETTINGS_EEPROM_OFFSET;
 
-	byte * settingPtr = (byte *)&settings;
+	byte *settingPtr = (byte *)&settings;
 
 	writeBytesToEEPROM(settingPtr, SETTINGS_EEPROM_OFFSET, sizeof(Device_Settings));
 }
 
 void loadSettings()
 {
-	byte * settingPtr = (byte *)&settings;
+	byte *settingPtr = (byte *)&settings;
 	readBytesFromEEPROM(settingPtr, SETTINGS_EEPROM_OFFSET, sizeof(Device_Settings));
 }
 
@@ -972,8 +1092,7 @@ boolean validStoredSettings()
 	return (settings.checkByte1 == CHECK_BYTE_O1 && settings.checkByte2 == CHECK_BYTE_O2);
 }
 
-
-boolean matchSettingCollectionName(SettingItemCollection * settingCollection, const char * name)
+boolean matchSettingCollectionName(SettingItemCollection *settingCollection, const char *name)
 {
 	int settingNameLength = strlen(settingCollection->collectionName);
 
@@ -992,7 +1111,7 @@ boolean matchSettingCollectionName(SettingItemCollection * settingCollection, co
 	return false;
 }
 
-SettingItemCollection * findSettingItemCollectionByName(const char * name)
+SettingItemCollection *findSettingItemCollectionByName(const char *name)
 {
 	for (int collectionNo = 0; collectionNo < sizeof(allSettings) / sizeof(SettingItemCollection); collectionNo++)
 	{
@@ -1004,7 +1123,7 @@ SettingItemCollection * findSettingItemCollectionByName(const char * name)
 	return NULL;
 }
 
-boolean matchSettingName(SettingItem * setting, char * name)
+boolean matchSettingName(SettingItem *setting, const char *name)
 {
 	int settingNameLength = strlen(setting->formName);
 
@@ -1026,7 +1145,7 @@ boolean matchSettingName(SettingItem * setting, char * name)
 	return false;
 }
 
-SettingItem * findSettingByNameInCollection(SettingItemCollection settingCollection, char * name)
+SettingItem *findSettingByNameInCollection(SettingItemCollection settingCollection, const char *name)
 {
 	for (int settingNo = 0; settingNo < settingCollection.noOfSettings; settingNo++)
 	{
@@ -1036,11 +1155,11 @@ SettingItem * findSettingByNameInCollection(SettingItemCollection settingCollect
 	return NULL;
 }
 
-SettingItem * findSettingByName(char * name)
+SettingItem *findSettingByName(const char *name)
 {
 	for (int collectionNo = 0; collectionNo < sizeof(allSettings) / sizeof(SettingItemCollection); collectionNo++)
 	{
-		SettingItem * result;
+		SettingItem *result;
 		result = findSettingByNameInCollection(allSettings[collectionNo], name);
 		if (result != NULL)
 			return result;
@@ -1050,17 +1169,16 @@ SettingItem * findSettingByName(char * name)
 
 struct AllSystemSettings allSystemSettings = {
 	allSettings,
-	sizeof(allSettings) / sizeof(SettingItemCollection)
-};
+	sizeof(allSettings) / sizeof(SettingItemCollection)};
 
-AllSystemSettings * getAllSystemSettings()
+AllSystemSettings *getAllSystemSettings()
 {
 	return &allSystemSettings;
 }
 
-processSettingCommandResult processSettingCommand(char * command)
+processSettingCommandResult processSettingCommand(char *command)
 {
-	SettingItem * setting = findSettingByName(command);
+	SettingItem *setting = findSettingByName(command);
 
 	if (setting != NULL)
 	{
@@ -1070,7 +1188,7 @@ processSettingCommandResult processSettingCommand(char * command)
 		if (command[settingNameLength] == 0)
 		{
 			// Settting is on it's own on the line
-			// Just print the value 
+			// Just print the value
 			printSetting(setting);
 			return displayedOK;
 		}
@@ -1079,7 +1197,7 @@ processSettingCommandResult processSettingCommand(char * command)
 		{
 			// Setting is being assigned a value
 			// move down the input to the new value
-			char * startOfSettingInfo = command + settingNameLength + 1;
+			char *startOfSettingInfo = command + settingNameLength + 1;
 			if (setting->validateValue(setting->value, startOfSettingInfo))
 			{
 				saveSettings();
@@ -1089,6 +1207,65 @@ processSettingCommandResult processSettingCommand(char * command)
 		}
 	}
 	return settingNotFound;
+}
+
+void sendSettingItemToJSONString(struct SettingItem *item, char *buffer, int bufferSize)
+{
+	int *valuePointer;
+	double *doublePointer;
+	boolean *boolPointer;
+	u4_t *loraIDValuePointer;
+	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
+
+	switch (item->settingType)
+	{
+	case text:
+		snprintf(buffer, bufferSize, "\"%s\"", item->value);
+		break;
+	case password:
+		snprintf(buffer, bufferSize, "\"%s\"", item->value);
+		break;
+	case integerValue:
+		valuePointer = (int *)item->value;
+		snprintf(buffer, bufferSize, "%d", *valuePointer);
+		break;
+	case doubleValue:
+		doublePointer = (double *)item->value;
+		snprintf(buffer, bufferSize, "%lf", *doublePointer);
+		break;
+	case onOff:
+		boolPointer = (boolean *)item->value;
+		if (*boolPointer)
+		{
+			snprintf(buffer, bufferSize, "\"on\"");
+		}
+		else
+		{
+			snprintf(buffer, bufferSize, "\"off\"");
+		}
+		break;
+	case yesNo:
+		boolPointer = (boolean *)item->value;
+		if (*boolPointer)
+		{
+			snprintf(buffer, bufferSize, "\"yes\"");
+		}
+		else
+		{
+			snprintf(buffer, bufferSize, "\"no\"");
+		}
+		break;
+	case loraKey:
+		dumpHexString(loraKeyBuffer, (uint8_t *)item->value, LORA_KEY_LENGTH);
+		snprintf(buffer, bufferSize, "\"%s\"", loraKeyBuffer);
+		break;
+
+	case loraID:
+		loraIDValuePointer = (u4_t *)item->value;
+		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer);
+		snprintf(buffer, bufferSize, "\"%s\"", loraKeyBuffer);
+		break;
+	}
 }
 
 void testSettingsStorage()
@@ -1108,6 +1285,156 @@ void testSettingsStorage()
 		Serial.println("Something wrong with setting storage");
 }
 
+#define COMMAND_REPLY_BUFFER_SIZE 240
+#define REPLY_ELEMENT_SIZE 100
+
+char command_reply_buffer[COMMAND_REPLY_BUFFER_SIZE];
+
+StaticJsonBuffer<300> jsonBuffer;
+
+void build_command_reply(int errorNo, JsonObject &root, char *resultBuffer)
+{
+	char replyBuffer[REPLY_ELEMENT_SIZE];
+
+	const char *sequence = root["seq"];
+
+	if (sequence)
+	{
+		// Got a sequence number in the command - must return the same number
+		// so that the sender can identify the command that was sent
+		int sequenceNo = root["seq"];
+		sprintf(replyBuffer, "\"error\":%d,\"seq\":%d", errorNo, sequenceNo);
+	}
+	else
+	{
+		sprintf(replyBuffer, "\"error\":%d", errorNo);
+	}
+	strcat(resultBuffer, replyBuffer);
+}
+
+void build_text_value_command_reply(int errorNo, String result, JsonObject &root, char *resultBuffer)
+{
+	char replyBuffer[REPLY_ELEMENT_SIZE];
+
+	const char *sequence = root["seq"];
+
+	if (sequence)
+	{
+		// Got a sequence number in the command - must return the same number
+		// so that the sender can identify the command that was sent
+		int sequenceNo = root["seq"];
+		sprintf(replyBuffer, "\"val\":\"%s\",\"error\":%d,\"seq\":%d", result, errorNo, sequenceNo);
+	}
+	else
+	{
+		sprintf(replyBuffer, "\"val\":\"%s\",\"error\":%d", result, errorNo);
+	}
+
+	strcat(resultBuffer, replyBuffer);
+}
+
+void actOnCommand(const char *command, JsonObject &root, char *resultBuffer)
+{
+}
+
+void abort_json_command(int error, JsonObject &root, void (*deliverResult)(char *resultText))
+{
+	build_command_reply(error, root, command_reply_buffer);
+	// append the version number to the invalid command message
+	strcat(command_reply_buffer, "}");
+	deliverResult(command_reply_buffer);
+}
+
+void act_onJson_command(const char *json, void (*deliverResult)(char *resultText))
+{
+	TRACE("Received message:");
+	TRACELN(json);
+
+	command_reply_buffer[0] = 0;
+
+	strcat(command_reply_buffer, "{");
+
+	// Clear any previous elements from the buffer
+
+	jsonBuffer.clear();
+
+	JsonObject &root = jsonBuffer.parseObject(json);
+
+	if (!root.success())
+	{
+		TRACELN("JSON could not be parsed");
+		abort_json_command(JSON_MESSAGE_COULD_NOT_BE_PARSED, root, deliverResult);
+		return;
+	}
+
+	const char *setting = root["setting"];
+
+	if (!setting)
+	{
+		TRACELN("Missing setting");
+		abort_json_command(JSON_MESSAGE_MISSING_COMMAND_NAME, root, deliverResult);
+		return;
+	}
+
+	TRACE("Received setting: ");
+	TRACELN(setting);
+
+	SettingItem *item = findSettingByName(setting);
+
+	if (item == NULL)
+	{
+		build_command_reply(JSON_MESSAGE_COMMAND_NAME_INVALID, root, command_reply_buffer);
+	}
+	else
+	{
+		char buffer[120];
+
+		if (!root["value"])
+		{
+			sendSettingItemToJSONString(item, buffer, 120);
+			// no value - just a status request
+			build_text_value_command_reply(WORKED_OK, buffer, root, command_reply_buffer);
+		}
+		else
+		{
+			const char *inputSource = NULL;
+
+			if (!root["value"].is<int>())
+			{
+				// need to convert the input value into a string
+				// as our value parser uses strings as inputs
+				snprintf(buffer, 120, "%d", root["value"]);
+				inputSource = buffer;
+			}
+			else
+			{
+				if (!root["value"].is<char *>())
+					inputSource = root["value"];
+			}
+
+			if (inputSource == NULL)
+			{
+				build_command_reply(JSON_MESSAGE_INVALID_DATA_TYPE, root, command_reply_buffer);
+			}
+			else
+			{
+				if (item->validateValue(item->value, inputSource))
+				{
+					saveSettings();
+					build_command_reply(JSON_COMMAND_OK, root, command_reply_buffer);
+				}
+				else
+				{
+					build_command_reply(JSON_MESSAGE_INVALID_DATA_VALUE, root, command_reply_buffer);
+				}
+			}
+		}
+	}
+
+	strcat(command_reply_buffer, "}");
+	deliverResult(command_reply_buffer);
+}
+
 void setupSettings()
 {
 	EEPROM.begin(EEPROM_SIZE);
@@ -1125,20 +1452,20 @@ void setupSettings()
 	// can be used for manual setting during testing
 	setDefaultAirQSensorType(&settings.airqSensorType);
 
-	PrintAllSettings();	
+	PrintAllSettings();
 }
 
-void createSettingsJson(char * jsonBuffer, int length)
+void createSettingsJson(char *jsonBuffer, int length)
 {
 	snprintf(jsonBuffer, length, "{ \"dev\":\"%s\",\"plat\":\WEMOS\"",
-		settings.deviceName);
+			 settings.deviceName);
 }
 
 void testFindSettingByName()
 {
 	resetSettings();
 
-	SettingItem * result = findSettingByName("pixelControlPinNo");
+	SettingItem *result = findSettingByName("pixelControlPinNo");
 	if (result != NULL)
 		Serial.println("Setting find works OK");
 	else

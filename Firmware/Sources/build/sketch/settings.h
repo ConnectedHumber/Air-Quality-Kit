@@ -40,6 +40,7 @@
 #define LORA_KEY_LENGTH 16
 #define LORA_EUI_LENGTH 8
 
+
 struct Device_Settings
 {
 	int majorVersion;
@@ -196,4 +197,7 @@ void dumpUnsignedLong(char *dest, uint32_t value);
 int decodeHexValueIntoBytes(uint8_t *dest, const char *newVal, int length);
 int decodeHexValueIntoUnsignedLong(u4_t *dest, const char *newVal);
 
+void sendSettingItemToString(struct SettingItem * item, char * bufffer, int bufferLength);
+
+void act_onJson_command(const char *json, void (*deliverResult)(char *resultText));
 

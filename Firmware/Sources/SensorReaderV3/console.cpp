@@ -101,7 +101,6 @@ boolean findCommandName(command * com, char * name)
 {
 	int commandNameLength = strlen(com->commandName);
 
-
 	for (int i = 0; i < commandNameLength; i++)
 	{
 		if (tolower(name[i] != com->commandName[i]))
@@ -197,7 +196,7 @@ void actOnSerialCommand()
 
 void bufferSerialChar(char ch)
 {
-	if (ch == '\n' || ch == '\r' || ch == 0)
+	if (ch == '\n' || ch == '\r' || ch == ',' || ch == 0)
 	{
 		if (serialReceiveBufferPos > 0)
 		{
