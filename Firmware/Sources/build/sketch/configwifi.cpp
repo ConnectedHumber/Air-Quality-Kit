@@ -6,6 +6,7 @@
 
 #include "configwifi.h"
 #include "settings.h"
+#include "lcd.h"
 
 char configSSID[WIFI_SSID_LENGTH];
 
@@ -14,6 +15,7 @@ const byte DNS_PORT = 53;
 
 int startWifiConfig(struct process * wifiConfigProcess)
 {
+	setPopupMessage("Config", "Network starting");
 	WiFi.mode(WIFI_AP);
 
 	delay(100);
@@ -25,6 +27,8 @@ int startWifiConfig(struct process * wifiConfigProcess)
 	dnsServer->setErrorReplyCode(DNSReplyCode::NoError);
 
 	delay(500);
+
+	setPopupMessage("Host", WiFi.localIP().toString().c_str());
 
 	return PROCESS_OK;
 }

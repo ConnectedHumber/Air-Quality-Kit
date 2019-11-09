@@ -1312,7 +1312,7 @@ void build_command_reply(int errorNo, JsonObject &root, char *resultBuffer)
 	strcat(resultBuffer, replyBuffer);
 }
 
-void build_text_value_command_reply(int errorNo, String result, JsonObject &root, char *resultBuffer)
+void build_text_value_command_reply(int errorNo, const char * result, JsonObject &root, char *resultBuffer)
 {
 	char replyBuffer[REPLY_ELEMENT_SIZE];
 
@@ -1323,18 +1323,14 @@ void build_text_value_command_reply(int errorNo, String result, JsonObject &root
 		// Got a sequence number in the command - must return the same number
 		// so that the sender can identify the command that was sent
 		int sequenceNo = root["seq"];
-		sprintf(replyBuffer, "\"val\":\"%s\",\"error\":%d,\"seq\":%d", result, errorNo, sequenceNo);
+		sprintf(replyBuffer, "\"val\":%s\",\"error\":%d,\"seq\":%d", result, errorNo, sequenceNo);
 	}
 	else
 	{
-		sprintf(replyBuffer, "\"val\":\"%s\",\"error\":%d", result, errorNo);
+		sprintf(replyBuffer, "\"val\":%s,\"error\":%d", result, errorNo);
 	}
 
 	strcat(resultBuffer, replyBuffer);
-}
-
-void actOnCommand(const char *command, JsonObject &root, char *resultBuffer)
-{
 }
 
 void abort_json_command(int error, JsonObject &root, void (*deliverResult)(char *resultText))
