@@ -15,6 +15,7 @@
 #include "inputkeys.h"
 #include "menu.h"
 #include "lora.h"
+#include "utils.h"
 
 #define STATUS_DESCRIPTION_LENGTH 200
 
@@ -55,7 +56,9 @@ struct process * wifiConfigProcessList[] =
 {
 	&WiFiConfigProcess,
 	&WebServerProcessDescriptor,
-	&ConsoleProcessDescriptor
+	&ConsoleProcessDescriptor,
+	&LCDProcess,
+	&MenuProcess
 };
 
 struct process * findProcessByName(char * name)

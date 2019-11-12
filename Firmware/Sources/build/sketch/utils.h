@@ -1,5 +1,7 @@
 #pragma once
 
+int srtcasecmp(const char *string1, const char *string2);
+
 unsigned long ulongDiff(unsigned long end, unsigned long start);
 
 // typenames to match the LoRa library

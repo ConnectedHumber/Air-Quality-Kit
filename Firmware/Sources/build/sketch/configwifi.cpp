@@ -7,6 +7,8 @@
 #include "configwifi.h"
 #include "settings.h"
 #include "lcd.h"
+#include "utils.h"
+#include "menu.h"
 
 char configSSID[WIFI_SSID_LENGTH];
 

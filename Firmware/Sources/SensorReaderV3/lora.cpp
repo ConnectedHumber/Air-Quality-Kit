@@ -185,7 +185,7 @@ void onEvent(ev_t ev)
 		DEBUG_PRINTLN("EV_TXCOMPLETE (includes waiting for RX windows)");
 		loraSentCount++;
 		OK_to_send = true;
-		startPopUpMessage("LoRa", "Message sent");
+		startPopUpMessage("LoRa", "Message sent", POPUP_DURATION_MILLIS);
 		break;
 	case EV_LOST_TSYNC:
 		DEBUG_PRINTLN("EV_LOST_TSYNC");

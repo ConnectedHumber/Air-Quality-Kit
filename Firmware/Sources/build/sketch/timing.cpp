@@ -11,6 +11,7 @@
 #include "airquality.h"
 #include "bme280.h"
 #include "processes.h"
+#include "menu.h"
 #include "lora.h"
 
 String loggingStateNames [] = { "off", "particles", "temp", "pressure", "humidity", "all"};
@@ -126,7 +127,12 @@ boolean send_to_mqtt()
 {
     char jsonBuffer[JSON_BUFFER_SIZE];
 	createSensorJson(jsonBuffer, JSON_BUFFER_SIZE);
-    return publishBufferToMQTT(jsonBuffer);
+	boolean result = publishBufferToMQTT(jsonBuffer);
+	if(result)
+	{
+		startPopUpMessage("MQTT", "Message sent", POPUP_DURATION_MILLIS);
+	}
+    return result;
 }
 
 boolean send_to_lora()

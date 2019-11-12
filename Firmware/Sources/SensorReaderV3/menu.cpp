@@ -132,7 +132,7 @@ unsigned long messageDisplayStartTime;
 unsigned long messageDisplayTimeInMillis;
 
 unsigned long popUpDisplayStartTime;
-unsigned long popUpDisplayTimeInMillis = 1000;
+unsigned long popUpDisplayTimeInMillis ;
 
 void (*messageDisplayCompleteCallback)();
 
@@ -491,9 +491,11 @@ MenuState stateBeforeAction;
 // they are asynchronous (can happen at any time)
 // when the screen is turned off they must not be displayed
 
-void startPopUpMessage(String title, String text)
+void startPopUpMessage(String title, String text, int popUpTime)
 {
 	TRACELN("Start action");
+
+	popUpDisplayTimeInMillis = popUpTime;
 
 	switch (menuState)
 	{
@@ -771,6 +773,9 @@ void refreshDisplay()
 
 void checkPopUpTimeout()
 {
+	if(popUpDisplayTimeInMillis==POPUP_NO_TIMEOUT)
+		return;
+
 	unsigned long time = millis();
 
 	unsigned long diff = ulongDiff(time, popUpDisplayStartTime);
