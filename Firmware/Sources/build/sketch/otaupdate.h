@@ -1,4 +1,6 @@
-#pragma once
+#ifndef OTAUPDATE_H
+
+#define OTAUPDATE_H
 
 #include "processes.h"
 #include "connectwifi.h"
@@ -12,3 +14,4 @@ int updateOtaUpdate(struct process * otaUpdateProcess);
 int stopOtaUpdate(struct process * otaUpdateProcess);
 void otaUpdateStatusMessage(struct process * otaUpdateProcess, char * buffer, int bufferLength);
 
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CONNECT_WIFI_H
+
+#define CONNECT_WIFI_H
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -32,3 +34,5 @@ int startWifi(struct process * wifiProcess);
 int stopWiFi(struct process * wifiProcess);
 int updateWifi(struct process * wifiProcess);
 void wifiStatusMessage(struct process * wifiProcess, char * buffer, int bufferLength);
+
+#endif

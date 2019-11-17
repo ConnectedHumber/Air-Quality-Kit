@@ -1,4 +1,6 @@
-#pragma once
+#ifndef MQTT_H
+
+#define MQTT_H
 
 #include "processes.h"
 #include "connectwifi.h"
@@ -26,3 +28,5 @@ int startMQTT(struct process * mqttProcess);
 int stopMQTT(struct process * mqttProcess);
 int updateMQTT(struct process * mqttProcess);
 void mqttStatusMessage(struct process * mqttProcess, char * buffer, int bufferLength);
+
+#endif

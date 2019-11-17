@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PIXELS_H
+
+#define PIXELS_H
 
 #include "utils.h"
 #include "processes.h"
@@ -42,5 +44,27 @@ int updatePixel(struct process * pixelProcess);
 int stopPixel(struct process * pixelProcess);
 void pixelStatusMessage(struct process * pixelProcess, char * buffer, int bufferLength);
 
+struct PixelSettings
+{
+	int pixelControlPinNo;
+	int noOfPixels;
+
+	int airqLowLimit;
+	int airqLowWarnLimit;
+	int airqMidWarnLimit;
+	int airqHighWarnLimit;
+	int airqHighAlertLimit;
+
+	int pixelRed;
+	int pixelGreen;
+	int pixelBlue;
+
+};
+
+extern struct PixelSettings pixelSettings;
+
+extern struct SettingItem pixelControlPinSetting;
+extern struct SettingItem pixelNoOfPixelsSetting;
 
 
+#endif

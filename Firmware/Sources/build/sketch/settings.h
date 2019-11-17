@@ -1,9 +1,12 @@
-#pragma once
+#ifndef SETTINGS_H
+
+#define SETTINGS_H
 
 #include <Arduino.h>
 
 #include "utils.h"
-#include "timing.h"
+
+#include "timing.h" // contains the definition for Logging_State
 
 #define MAJOR_VERSION 3
 #define MINOR_VERSION 0
@@ -36,10 +39,6 @@
 #define SETTINGS_EEPROM_OFFSET 0
 #define CHECK_BYTE_O1 0x55
 #define CHECK_BYTE_O2 0xAA
-
-#define LORA_KEY_LENGTH 16
-#define LORA_EUI_LENGTH 8
-
 
 struct Device_Settings
 {
@@ -91,20 +90,6 @@ struct Device_Settings
 	int mqttSecsPerUpdate;
 	int seconds_per_mqtt_retry;
 	boolean mqtt_enabled;
-
-	// TODO: add complete LoRa settings here
-	boolean loraOn;
-	boolean loraAbp;
-
-	int seconds_per_lora_update;
-
-	u4_t lora_abp_DEVADDR;
-	u1_t lora_abp_NWKSKEY[LORA_KEY_LENGTH];
-	u1_t lora_abp_APPSKEY[LORA_KEY_LENGTH];
-
-	u1_t lora_otaa_APPKEY[LORA_KEY_LENGTH];
-	u1_t lora_otaa_DEVEUI[LORA_EUI_LENGTH];
-	u1_t lora_otaa_APPEUI[LORA_EUI_LENGTH];
 
 	// Hardware settings
 
@@ -201,3 +186,20 @@ void sendSettingItemToString(struct SettingItem * item, char * bufffer, int buff
 
 void act_onJson_command(const char *json, void (*deliverResult)(char *resultText));
 
+void setEmptyString(void *dest);
+
+void setFalse(void *dest);
+
+void setTrue(void *dest);
+
+boolean validateOnOff(void *dest, const char *newValueStr);
+
+boolean validateYesNo(void *dest, const char *newValueStr);
+
+boolean validateString(char *dest, const char *source, int maxLength);
+
+boolean validateInt(void *dest, const char *newValueStr);
+
+boolean validateDouble(void *dest, const char *newValueStr);
+
+#endif

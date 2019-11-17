@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SENSORS_H
+
+#define SENSORS_H
 
 #include <Arduino.h>
 
@@ -44,3 +46,5 @@ void updateSensors();
 void createSensorJson(char * buffer, int bufferLength);
 
 void displaySensorStatus();
+
+#endif

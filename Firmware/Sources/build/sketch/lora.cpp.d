@@ -142,4 +142,5 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\menu.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\processes.h
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\processes.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\errors.h

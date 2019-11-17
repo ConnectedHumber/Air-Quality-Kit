@@ -10,6 +10,7 @@
 #include "settings.h"
 #include "timing.h"
 #include "control.h"
+#include "lora.h"
 
 enum MenuState
 {
@@ -368,7 +369,7 @@ void menuLoraOff()
 {
 	TRACELN("LoRa off called");
 	displayMessage("LoRa", "Off", 2000, messageDisplayComplete);
-	settings.loraOn = false;
+	loRaSettings.loraOn = false;
 	saveSettings();
 }
 
@@ -376,7 +377,7 @@ void menuLoraOn()
 {
 	TRACELN("LoRa on called");
 	displayMessage("LoRa", "On", 2000, messageDisplayComplete);
-	settings.loraOn = true;
+	loRaSettings.loraOn = true;
 	saveSettings();
 }
 
@@ -390,14 +391,14 @@ void menuLoraSend()
 void menuLoraGapDone (int readGap)
 {
 	displayMessage("Lora", "Gap set", 2000, messageDisplayComplete);
-	settings.seconds_per_lora_update = readGap;
+	loRaSettings.seconds_per_lora_update = readGap;
 	saveSettings();
 }
 
 void menuLoraGap()
 {
 	TRACELN("Set Lora gap called");
-	getNumber("Set gap", settings.seconds_per_lora_update, 60, 3600, menuLoraGapDone);
+	getNumber("Set gap", loRaSettings.seconds_per_lora_update, 60, 3600, menuLoraGapDone);
 }
 
 Menu loraMenu = {0, "Turn Lora on\nTurn Lora off\nForce Lora send\nSet send Interval\nBack", {menuLoraOn, menuLoraOff, menuLoraSend, menuLoraGap, doBackFromMenu}};

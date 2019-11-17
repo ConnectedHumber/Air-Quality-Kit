@@ -33,9 +33,6 @@
     <ClInclude Include="configwifi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="connectwifi-hp-sprout.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="connectwifi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -69,13 +66,52 @@
     <ClInclude Include="settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SoftwareSerial.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="webserver.h">
+    <ClInclude Include="ArduinoJson-v5.13.2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="errors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="images.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inputkeys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lcd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lora.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OLEDDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OLEDDisplayFonts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OLEDDisplayUi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SSD1306.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SSD1306Wire.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="timing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="settingsWebServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -125,13 +161,31 @@
     <ClCompile Include="settings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SoftwareSerial.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="webserver.cpp">
+    <ClCompile Include="inputkeys.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lcd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lora.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OLEDDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OLEDDisplayUi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="timing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="settingsWebServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

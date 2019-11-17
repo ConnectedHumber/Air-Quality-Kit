@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CONSOLE_H
+
+#define CONSOLE_H
 
 #include "processes.h"
 
@@ -10,3 +12,4 @@ int stopConsole(struct process * consoleProcess);
 int updateConsole(struct process * consoleProcess);
 void consoleStatusMessage(struct process * consoleProcess, char * buffer, int bufferLength);
 
+#endif

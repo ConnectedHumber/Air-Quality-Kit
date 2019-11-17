@@ -89,7 +89,7 @@ unsigned long time_to_next_mqtt_update()
 
 unsigned long time_to_next_lora_update()
 {
-	if (settings.loraOn)
+	if (loRaSettings.loraOn)
 	{
 		unsigned long millis_since_last_lora_update = ulongDiff(millis(), milliseconds_at_last_lora_update);
 
@@ -104,7 +104,7 @@ unsigned long time_to_next_lora_update()
 
 bool updates_active()
 {
-	if(settings.loraOn) return true;
+	if(loRaSettings.loraOn) return true;
 	if(settings.mqtt_enabled) return true;
 
 	return false;
@@ -175,7 +175,7 @@ void sendReadings()
 		}
 	}
 
-	if (settings.loraOn)
+	if (loRaSettings.loraOn)
 	{
 		unsigned long millis_since_last_lora_update = ulongDiff(time_in_millis, milliseconds_at_last_lora_update);
 
@@ -369,7 +369,7 @@ int startTiming(struct process * timingProcess)
 
 	mqtt_reading_interval_in_millis = settings.mqttSecsPerUpdate * 1000;
 	milliseconds_at_last_mqtt_update = time_in_millis - mqtt_reading_interval_in_millis;
-	lora_reading_interval_in_millis = settings.seconds_per_lora_update * 1000;
+	lora_reading_interval_in_millis = loRaSettings.seconds_per_lora_update * 1000;
 	milliseconds_at_last_lora_update = time_in_millis - lora_reading_interval_in_millis;
 	timing_state = sensorOff;
 	start_sensor();
@@ -399,7 +399,7 @@ int updateTiming(struct process * timingProcess)
 	{
 		unsigned long time_in_millis = millis();
 		milliseconds_at_last_lora_update = time_in_millis - 
-			((settings.seconds_per_lora_update * 1000) - (settings.airqSecnondsSensorWarmupTime * 1000));
+			((loRaSettings.seconds_per_lora_update * 1000) - (settings.airqSecnondsSensorWarmupTime * 1000));
 		loraForceSend = false;
 	}
 

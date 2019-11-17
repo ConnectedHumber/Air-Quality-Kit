@@ -4,6 +4,161 @@
 #include "settings.h"
 #include "airquality.h"
 
+struct PixelSettings pixelSettings;
+
+void setDefaultPixelControlPinNo(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 25;
+}
+
+struct SettingItem pixelControlPinSetting = { "Pixel Control Pin",
+		"pixelcontrolpin",
+		&pixelSettings.pixelControlPinNo,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelControlPinNo,
+		validateInt };
+
+void setDefaultNoOfPixels(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 12;
+}
+
+struct SettingItem pixelNoOfPixelsSetting = { "Number of pixels (0 for pixels not fitted)",
+		"noofpixels",
+		&pixelSettings.noOfPixels,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultNoOfPixels,
+		validateInt };
+
+
+void setDefaultPixelRed(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 0;
+}
+
+struct SettingItem pixelRedLevel = {
+		"Pixel red (0-255)",
+		"pixelred",
+		&pixelSettings.pixelRed,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelRed,
+		validateColour
+};
+
+void setDefaultPixelGreen(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 255;
+}
+
+struct SettingItem pixelGreenLevel = {
+		"Pixel green (0-255)",
+		"pixelgreen",
+		&pixelSettings.pixelGreen,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelGreen,
+		validateColour
+};
+
+void setDefaultPixelBlue(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 0;
+}
+
+struct SettingItem pixelBlueLevel = {
+		"Pixel blue (0-255)",
+		"pixelblue",
+		&pixelSettings.pixelBlue,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelBlue,
+		validateColour
+};
+
+void setDefaultAirqLowLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 15;
+}
+
+void setDefaultAirqLowWarnLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 40;
+}
+
+void setDefaultAirqMidWarnLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 65;
+}
+
+void setDefaultAirqHighWarnLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 150;
+}
+
+void setDefaultAirqHighAlertLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 250;
+}
+
+struct SettingItem pixelSettingItems[] =
+	{
+		"Pixel blue (0-255)",
+		"pixelblue",
+		&settings.pixelBlue,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelBlue,
+		validateColour,
+		"AirQ Low Limit",
+		"airqlowlimit",
+		&settings.airqLowLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqLowLimit,
+		validateInt,
+		"AirQ Low Warning Limit",
+		"airqlowwarnlimit",
+		&settings.airqLowWarnLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqLowWarnLimit,
+		validateInt,
+		"AirQ Mid Warning Limit",
+		"airqmidwarnlimit",
+		&settings.airqMidWarnLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqMidWarnLimit,
+		validateInt,
+		"AirQ High Warning Limit",
+		"airqhighwarnlimit",
+		&settings.airqHighWarnLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqHighWarnLimit,
+		validateInt,
+		"AirQ High Alert Limit",
+		"airqhighalertlimit",
+		&settings.airqHighAlertLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqHighAlertLimit,
+		validateInt,
+};
+
 Adafruit_NeoPixel * strip;
 
 // All the brightness values are between 0 and 1

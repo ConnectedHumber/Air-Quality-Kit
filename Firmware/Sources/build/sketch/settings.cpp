@@ -5,6 +5,8 @@
 #include "settings.h"
 #include "debug.h"
 #include "ArduinoJson-v5.13.2.h"
+#include "utils.h"
+#include "lora.h"
 
 struct Device_Settings settings;
 
@@ -277,16 +279,6 @@ int decodeHexValueIntoUnsignedLong(u4_t *dest, const char *newVal)
 	return WORKED_OK;
 }
 
-boolean validateLoRAKey(void *dest, const char *newValueStr)
-{
-	return decodeHexValueIntoBytes((uint8_t *)dest, newValueStr, LORA_KEY_LENGTH) == WORKED_OK;
-}
-
-boolean validateLoRaID(void *dest, const char *newValueStr)
-{
-	return decodeHexValueIntoUnsignedLong((u4_t *)dest, newValueStr) == WORKED_OK;
-}
-
 void setDefaultDevname(void *dest)
 {
 	char *destStr = (char *)dest;
@@ -419,36 +411,6 @@ struct SettingItem mqtttSettingItems[] =
 		"MQTT Reporting topic", "mqttreport", settings.mqttReportTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTreportTopic, validateMQTTtopic,
 		"MQTT Seconds per update", "mqttsecsperupdate", &settings.mqttSecsPerUpdate, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerUpdate, validateInt,
 		"MQTT Seconds per retry", "mqttsecsperretry", &settings.seconds_per_mqtt_retry, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerRetry, validateInt};
-
-void setDefaultLoRasecsPerUpdate(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 360;
-}
-
-void setDefaultLoRaAbpAppKey(void *dest)
-{
-	validateLoRAKey(dest, "B04C8C1286439B81F1AAA2D04FEA1B31");
-}
-
-void setDefaultLoRaAbpNwkKey(void *dest)
-{
-	validateLoRAKey(dest, "27315ED03ED864DA00B0744DB3715D28");
-}
-
-void setDefaultLoRaAbpDevAddrKey(void *dest)
-{
-	validateLoRaID(dest, "26011DAB");
-}
-
-struct SettingItem loraSettingItems[] =
-	{
-		"LoRa Active (yes or no)", "loraactive", &settings.loraOn, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo,
-		"LoRa Seconds per update", "lorasecsperupdate", &settings.seconds_per_lora_update, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoRasecsPerUpdate, validateInt,
-		"LoRa Using ABP (yes or no)", "lorausingabp", &settings.loraAbp, YESNO_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
-		"Lora ABP App Key", "loraabpappkey", &settings.lora_abp_APPSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpAppKey, validateLoRAKey,
-		"Lora ABP Nwk Key", "loraabpnwkkey", &settings.lora_abp_NWKSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpNwkKey, validateLoRAKey,
-		"Lora ABP Dev. addr", "loraabpdevaddr", &settings.lora_abp_DEVADDR, LORA_EUI_LENGTH, loraID, setDefaultLoRaAbpDevAddrKey, validateLoRaID};
 
 void setDefaultPixelRed(void *dest)
 {
@@ -834,7 +796,7 @@ SettingItemCollection allSettings[] = {
 	{"Output", "Display and logging settings", displaySettingItems, sizeof(displaySettingItems) / sizeof(SettingItem)},
 	{"Wifi", "Set the SSID and password for wifi connections", wifiSettingItems, sizeof(wifiSettingItems) / sizeof(SettingItem)},
 	{"MQTT", "Set the device, user, site, password and topic for MQTT", mqtttSettingItems, sizeof(mqtttSettingItems) / sizeof(SettingItem)},
-	{"LoRa", "Set the authentication and data rate for LoRa", loraSettingItems, sizeof(loraSettingItems) / sizeof(SettingItem)},
+	{"LoRa", "Set the authentication and data rate for LoRa", loraSettingItems, noOfLoraSettingItems},
 	{"Pixel", "Set the pixel colours and display levels", pixelSettingItems, sizeof(pixelSettingItems) / sizeof(SettingItem)},
 	{"Hardware", "Set the hardware pins and configuration", hardwareSettingItems, sizeof(hardwareSettingItems) / sizeof(SettingItem)},
 	{"Location", "Set the fixed location of the device", locationSettingItems, sizeof(locationSettingItems) / sizeof(SettingItem)}};

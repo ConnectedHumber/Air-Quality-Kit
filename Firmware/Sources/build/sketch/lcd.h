@@ -1,3 +1,7 @@
+#ifndef LCD_H
+
+#define LCD_H
+
 void setWorkingDisplay();
 void set_message_display(String title, String text);
 void setPopupMessage(String title, String text);
@@ -28,4 +32,4 @@ void activate_action_display();
 void lcdSleep();
 void lcdWake();
 
-
+#endif

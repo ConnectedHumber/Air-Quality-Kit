@@ -1,4 +1,6 @@
-#pragma once
+#ifndef INPUTSWITCH_H
+
+#define INPUTSWITCH_H
 
 #include "processes.h"
 
@@ -11,3 +13,6 @@ int startInputSwitch(struct process * inputSwitchProcess);
 int updateInputSwitch(struct process * inputSwitchProcess);
 int stopInputSwitch(struct process * inputSwitchProcess);
 void inputSwitchStatusMessage(struct process * inputSwitchProcess, char * buffer, int bufferLength);
+
+
+#endif

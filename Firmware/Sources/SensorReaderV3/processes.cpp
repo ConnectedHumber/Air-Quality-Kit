@@ -9,7 +9,7 @@
 #include "inputswitch.h"
 #include "mqtt.h"
 #include "otaupdate.h"
-#include "webserver.h"
+#include "settingsWebServer.h"
 #include "timing.h"
 #include "lcd.h"
 #include "inputkeys.h"
@@ -22,10 +22,10 @@
 
 
 //								name	 start		update		  stop        status             activeAtStart beingUpdated status activeTime processDetails
-struct process PixelProcess = { "Pixel", startPixel, updatePixel, stopPixel, pixelStatusMessage, true, false, 0, 0, NULL };
+struct process PixelProcess = { "Pixel", startPixel, updatePixel, stopPixel, pixelStatusMessage, true,		   false,		0,		0,		NULL };
 struct process WiFiProcessDescriptor = { "WiFi", startWifi, updateWifi, stopWiFi, wifiStatusMessage, true, false, 0, 0, NULL  };
 struct process ConsoleProcessDescriptor = { "Console", startConsole, updateConsole, stopConsole, consoleStatusMessage, true, false, 0, 0, NULL  };
-struct process WebServerProcessDescriptor = { "Webserver", startWebServer, updateWebServer, stopWebserver, webserverStatusMessage, false, false, 0, 0, NULL  }; // don't start the web server by default
+struct process WebServerProcessDescriptor = { "Settingswebserver", startWebServer, updateWebServer, stopWebserver, webserverStatusMessage, false, false, 0, 0, NULL  }; // don't start the web server by default
 struct process MQTTProcessDescriptor = { "MQTT", startMQTT, updateMQTT, stopMQTT, mqttStatusMessage, true,  false, 0, 0, NULL  };
 struct process OTAUpdateProcess = { "OTA", startOtaUpdate, updateOtaUpdate, stopOtaUpdate, otaUpdateStatusMessage, false, false, 0, 0, NULL  }; // don't start the ota update by default
 struct process InputSwitchProcess = { "Input switch", startInputSwitch, updateInputSwitch, stopInputSwitch, inputSwitchStatusMessage, true, false, 0, 0, NULL  };

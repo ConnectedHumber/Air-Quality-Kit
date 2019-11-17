@@ -1,4 +1,6 @@
-#pragma once
+#ifndef UTILS_H
+
+#define UTILS_H
 
 int srtcasecmp(const char *string1, const char *string2);
 
@@ -14,3 +16,5 @@ typedef int16_t            s2_t;
 typedef uint32_t           u4_t;
 typedef int32_t            s4_t;
 typedef unsigned int       uint;
+
+#endif // !UTILS_H

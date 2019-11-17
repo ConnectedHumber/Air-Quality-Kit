@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PROCESSES_H
+
+#define	PROCESSES_H
 
 #include <Arduino.h>
 
@@ -16,8 +18,10 @@ struct process
 	int status;      // zero means OK - any other value is an error state
 	unsigned long activeTime;
 	void * processDetails;
+	unsigned char* settingsStoreBase;
+	int settingsStoreLength;
+	void (*resetSettings) ();
 };
-
 
 extern struct process PixelProcess;
 extern struct process WiFiProcessDescriptor;
@@ -43,5 +47,4 @@ void updateProcess(struct process * process);
 void updateProcesses();
 void displayProcessStatus();
 
-
-
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PIXELS_H
+
+#define PIXELS_H
 
 #include "utils.h"
 #include "processes.h"
@@ -42,5 +44,4 @@ int updatePixel(struct process * pixelProcess);
 int stopPixel(struct process * pixelProcess);
 void pixelStatusMessage(struct process * pixelProcess, char * buffer, int bufferLength);
 
-
-
+#endif

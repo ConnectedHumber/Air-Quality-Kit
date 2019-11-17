@@ -1,9 +1,5 @@
+#include <HTTP_Method.h>
 #include <Arduino.h>
-
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <WebServer.h>
-#include <ESPmDNS.h>
 
 #include <MicroNMEA.h>
 #include <DNSServer.h>

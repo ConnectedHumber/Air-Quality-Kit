@@ -1,4 +1,6 @@
-#pragma once
+#ifndef AIR_QUALITY_H
+
+#define AIR_QUALITY_H
 
 #include "sensors.h"
 
@@ -36,3 +38,4 @@ void airqStatusMessage(struct sensor * airqSensor, char * buffer, int bufferLeng
 void set_sensor_working(bool working);
 void resetAirqAverages(airqualityReading * reading);
 
+#endif

@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SENSORS_H
+
+#define SENSORS_H
 
 #include <Arduino.h>
 
@@ -24,6 +26,9 @@ struct sensor
 	boolean beingUpdated;  // active means that the sensor will be updated 
 	void * activeReading;
 	unsigned int activeTime;
+	unsigned char* settingsStoreBase;
+	int settingsStoreLength;
+	void (*resetSettings) ();
 };
 
 struct sensor * findSensorByName(char * name);
@@ -44,3 +49,5 @@ void updateSensors();
 void createSensorJson(char * buffer, int bufferLength);
 
 void displaySensorStatus();
+
+#endif

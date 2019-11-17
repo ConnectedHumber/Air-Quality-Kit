@@ -1,7 +1,12 @@
 
+#include <WiFi.h>
+#include <WiFiClient.h>
 #include <WebServer.h>
+#include <ESPmDNS.h>
 
-#include "webserver.h"
+#include "settingsWebServer.h"
+#include "lora.h"
+#include "settings.h"
 
 #define WEB_PAGE_BUFFER_SIZE 3000
 
@@ -10,6 +15,8 @@
 #define WEBSERVER_ERROR_NO_WIFI -1
 
 char webPageBuffer [WEB_PAGE_BUFFER_SIZE];
+
+WebServer * webServer;
 
 const char homePageHeader[] =
 "<html>"
@@ -177,8 +184,6 @@ void updateSettings(WebServer *webServer, SettingItemCollection * settingCollect
 	saveSettings();
 	snprintf(webPageBuffer, bufferSize, replyPageFooter, webPageBuffer);
 }
-
-WebServer * webServer;
 
 void serveHome(WebServer *webServer)
 {

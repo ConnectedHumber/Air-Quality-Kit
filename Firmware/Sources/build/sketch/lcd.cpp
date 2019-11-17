@@ -11,7 +11,6 @@
 #include "airquality.h"
 #include "bme280.h"
 #include "debug.h"
-#include "settings.h"
 #include "lora.h"
 #include "processes.h"
 
@@ -124,7 +123,7 @@ void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x,
 
     display->drawString(0 + x, 10 + y, status_buffer);
 
-    if (settings.loraOn)
+    if (loRaSettings.loraOn)
         sprintf(status_buffer, "LoRa sent: %d", getLoraSentCount());
     else
     {
@@ -137,7 +136,7 @@ void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x,
 
     display->drawString(0 + x, 30 + y, status_buffer);
 
-    sprintf(status_buffer, "LoRa gap: %d", settings.seconds_per_lora_update);
+    sprintf(status_buffer, "LoRa gap: %d", loRaSettings.seconds_per_lora_update);
 
     display->drawString(0 + x, 40 + y, status_buffer);
 }

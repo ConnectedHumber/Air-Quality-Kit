@@ -1,3 +1,6 @@
+#ifndef LORA_H
+
+#define LORA_H
 
 int getLoraSentCount();
 
@@ -11,4 +14,27 @@ int stopLoRa(struct process * loraProcess);
 
 void loraStatusMessage(struct process * loraProcess, char * buffer, int bufferLength);
 
+extern struct SettingItem loraSettingItems [];
+extern int noOfLoraSettingItems;
 
+#define LORA_KEY_LENGTH 16
+#define LORA_EUI_LENGTH 8
+
+struct LoRaSettings
+{
+	boolean loraOn;
+	boolean loraAbp;
+
+	int seconds_per_lora_update;
+
+	u4_t lora_abp_DEVADDR;
+	u1_t lora_abp_NWKSKEY[LORA_KEY_LENGTH];
+	u1_t lora_abp_APPSKEY[LORA_KEY_LENGTH];
+
+	u1_t lora_otaa_APPKEY[LORA_KEY_LENGTH];
+	u1_t lora_otaa_DEVEUI[LORA_EUI_LENGTH];
+	u1_t lora_otaa_APPEUI[LORA_EUI_LENGTH];
+} loRaSettings;
+
+
+#endif

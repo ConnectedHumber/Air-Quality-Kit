@@ -1,4 +1,6 @@
-#pragma once
+#ifndef CLOCK_H
+
+#define CLOCK_H
 
 #include <Arduino.h>
 #include <ezTime.h>
@@ -29,3 +31,6 @@ int updateClockReading(struct sensor * clockSensor);
 void startClockReading(struct sensor * clockSensor);
 int addClockReading(struct sensor * clockSensor, char * jsonBuffer, int jsonBufferSize);
 void clockStatusMessage(struct sensor * clockSensor, char * buffer, int bufferLength);
+
+
+#endif // !CLOCK_H

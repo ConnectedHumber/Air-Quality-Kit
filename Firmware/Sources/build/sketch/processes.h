@@ -1,4 +1,6 @@
-#pragma once
+#ifndef PROCESSES_H
+
+#define	PROCESSES_H
 
 #include <Arduino.h>
 
@@ -43,5 +45,4 @@ void updateProcess(struct process * process);
 void updateProcesses();
 void displayProcessStatus();
 
-
-
+#endif

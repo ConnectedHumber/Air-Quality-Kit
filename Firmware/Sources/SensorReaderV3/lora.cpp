@@ -40,42 +40,89 @@
 #include "settings.h"
 #include "menu.h"
 #include "processes.h"
+#include "errors.h"
+
+struct LoRaSettings loRaSettings;
 
 bool lora_otaa_joined = false;
 bool sleeping = false;
 
 #define LORA_STATUS_BUFFER_SIZE 200
-#define LORA_STATUS_BUFFER_LIMIT LORA_STATUS_BUFFER_SIZE-1
+#define LORA_STATUS_BUFFER_LIMIT LORA_STATUS_BUFFER_SIZE - 1
 
 char LoraStatusBuffer[LORA_STATUS_BUFFER_SIZE];
 
 int loraSentCount = 0;
-
 
 #define DEBUG_LORA //change to DEBUG to see Serial messages
 
 #ifdef DEBUG_LORA
 #define DEBUG_PRINT(x) Serial.print(x)
 #define DEBUG_PRINTLN(x) Serial.println(x)
-#define DEBUG_HEX_PRINT(x,y) Serial.print(x,y)
+#define DEBUG_HEX_PRINT(x, y) Serial.print(x, y)
 #else
 #define DEBUG_PRINT(x)
 #define DEBUG_PRINTLN(x)
-#define DEBUG_HEX_PRINT(x,y)
+#define DEBUG_HEX_PRINT(x, y)
 #endif
 
-void os_getArtEui(u1_t* buf) {
-	memcpy(buf, settings.lora_otaa_APPEUI, 8);
+boolean validateLoRAKey(void *dest, const char *newValueStr)
+{
+	return decodeHexValueIntoBytes((uint8_t *)dest, newValueStr, LORA_KEY_LENGTH) == WORKED_OK;
+}
+
+boolean validateLoRaID(void *dest, const char *newValueStr)
+{
+	return decodeHexValueIntoUnsignedLong((u4_t *)dest, newValueStr) == WORKED_OK;
+}
+
+void setDefaultLoRasecsPerUpdate(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 360;
+}
+
+void setDefaultLoRaAbpAppKey(void *dest)
+{
+	validateLoRAKey(dest, "B04C8C1286439B81F1AAA2D04FEA1B31");
+}
+
+void setDefaultLoRaAbpNwkKey(void *dest)
+{
+	validateLoRAKey(dest, "27315ED03ED864DA00B0744DB3715D28");
+}
+
+void setDefaultLoRaAbpDevAddrKey(void *dest)
+{
+	validateLoRaID(dest, "26011DAB");
+}
+
+struct SettingItem loraSettingItems[] =
+	{
+		"LoRa Active (yes or no)", "loraactive", &loRaSettings.loraOn, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo,
+		"LoRa Seconds per update", "lorasecsperupdate", &loRaSettings.seconds_per_lora_update, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoRasecsPerUpdate, validateInt,
+		"LoRa Using ABP (yes or no)", "lorausingabp", &loRaSettings.loraAbp, YESNO_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
+		"Lora ABP App Key", "loraabpappkey", &loRaSettings.lora_abp_APPSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpAppKey, validateLoRAKey,
+		"Lora ABP Nwk Key", "loraabpnwkkey", &loRaSettings.lora_abp_NWKSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpNwkKey, validateLoRAKey,
+		"Lora ABP Dev. addr", "loraabpdevaddr", &loRaSettings.lora_abp_DEVADDR, LORA_EUI_LENGTH, loraID, setDefaultLoRaAbpDevAddrKey, validateLoRaID};
+
+int noOfLoraSettingItems = sizeof(loraSettingItems) / sizeof(struct SettingItem);
+
+void os_getArtEui(u1_t *buf)
+{
+	memcpy(buf, loRaSettings.lora_otaa_APPEUI, 8);
 }
 
 // provide DEVEUI (8 bytes, LSBF)
-void os_getDevEui(u1_t* buf) {
-	memcpy(buf, settings.lora_otaa_DEVEUI, 8);
+void os_getDevEui(u1_t *buf)
+{
+	memcpy(buf, loRaSettings.lora_otaa_DEVEUI, 8);
 }
 
 // provide APPKEY key (16 bytes)
-void os_getDevKey(u1_t* buf) {
-	memcpy(buf, settings.lora_otaa_APPKEY, 16);
+void os_getDevKey(u1_t *buf)
+{
+	memcpy(buf, loRaSettings.lora_otaa_APPKEY, 16);
 }
 
 static osjob_t sendjob;
@@ -100,14 +147,14 @@ const lmic_pinmap lmic_pins = {
 	.dio = {26, 35, 34},
 };
 
-
 bool OK_to_send = true;
 
 // initial job
-static void initfunc(osjob_t* j) {
-	if (settings.loraAbp)
-	{  
-        // do nothing for abp
+static void initfunc(osjob_t *j)
+{
+	if (loRaSettings.loraAbp)
+	{
+		// do nothing for abp
 	}
 	else
 	{
@@ -119,29 +166,31 @@ static void initfunc(osjob_t* j) {
 	}
 }
 
-void lora_deliver_command_result(char * result)
+void lora_deliver_command_result(char *result)
 {
-	if (LMIC.opmode & OP_TXRXPEND) {
+	if (LMIC.opmode & OP_TXRXPEND)
+	{
 		DEBUG_PRINTLN("OP_TXRXPEND, not sending");
 	}
-	else {
+	else
+	{
 		// Prepare upstream data transmission at the next possible time.
-		LMIC_setTxData2(1, (uint8_t*)result, strlen(result), 0);
+		LMIC_setTxData2(1, (uint8_t *)result, strlen(result), 0);
 		DEBUG_PRINTLN("Sending: ");
 	}
 }
 
 void default_act_onBinary_command(u1_t *buffer, int length, char *displayBuffer, int displayBufferLength)
 {
-
 }
 
-void (*act_onBinary_command) (u1_t *buffer, int length, char *displayBuffer, int displayBufferLength);
+void (*act_onBinary_command)(u1_t *buffer, int length, char *displayBuffer, int displayBufferLength);
 
 void onEvent(ev_t ev)
 {
 	int i, j;
-	switch (ev) {
+	switch (ev)
+	{
 	case EV_SCAN_TIMEOUT:
 		DEBUG_PRINTLN("EV_SCAN_TIMEOUT");
 		break;
@@ -177,7 +226,7 @@ void onEvent(ev_t ev)
 		os_setCallback(&initjob, initfunc);
 		break;
 	case EV_TXCOMPLETE:
-		if (LMIC.dataLen) 
+		if (LMIC.dataLen)
 		{
 			act_onBinary_command(&LMIC.frame[LMIC.dataBeg], LMIC.dataLen, LoraStatusBuffer, LORA_STATUS_BUFFER_LIMIT);
 		}
@@ -209,7 +258,8 @@ void onEvent(ev_t ev)
 	}
 }
 
-void do_send(osjob_t* j, float pub_avg_ppm_25, float pub_avg_ppm_10, float temperature, float pascal, float humidity) {
+void do_send(osjob_t *j, float pub_avg_ppm_25, float pub_avg_ppm_10, float temperature, float pascal, float humidity)
+{
 	Serial.println("sending");
 	byte buffer[5];
 	uint16_t t_value, p_value, s_value;
@@ -223,16 +273,16 @@ void do_send(osjob_t* j, float pub_avg_ppm_25, float pub_avg_ppm_10, float tempe
 	DEBUG_PRINT("\tHumidity: ");
 	DEBUG_PRINT(humidity);
 	DEBUG_PRINTLN("%");
-	temperature = constrain(temperature, -24, 40);  //temp in range -24 to 40 (64 steps)
-	pascal = constrain(pascal, 970, 1034);    //pressure in range 970 to 1034 (64 steps)*/
-	t_value = uint16_t((temperature*(100 / 6.25) + 2400 / 6.25)); //0.0625 degree steps with offset
-																  // no negative values
+	temperature = constrain(temperature, -24, 40);					//temp in range -24 to 40 (64 steps)
+	pascal = constrain(pascal, 970, 1034);							//pressure in range 970 to 1034 (64 steps)*/
+	t_value = uint16_t((temperature * (100 / 6.25) + 2400 / 6.25)); //0.0625 degree steps with offset
+																	// no negative values
 	DEBUG_PRINT("Coded TEMP: ");
 	DEBUG_HEX_PRINT(t_value, HEX);
 	p_value = uint16_t((pascal - 970) / 1); //1 mbar steps, offset 970.
 	DEBUG_PRINT("\tCoded Pascal: ");
 	DEBUG_HEX_PRINT(p_value, HEX);
-	s_value = (p_value << 10) + t_value;  // putting the bits in the right place
+	s_value = (p_value << 10) + t_value; // putting the bits in the right place
 	h_value = uint8_t(humidity);
 	DEBUG_PRINT("\tCoded Humidity: ");
 	DEBUG_HEX_PRINT(h_value, HEX);
@@ -244,15 +294,17 @@ void do_send(osjob_t* j, float pub_avg_ppm_25, float pub_avg_ppm_10, float tempe
 	buffer[0] = s_value & 0xFF; //lower byte
 	buffer[1] = s_value >> 8;   //higher byte
 	buffer[2] = h_value;
-	buffer[3] = (int)(pub_avg_ppm_25+0.5f); // just send the sensor values as int readings
-	buffer[4] = (int)(pub_avg_ppm_10+0.5f);
+	buffer[3] = (int)(pub_avg_ppm_25 + 0.5f); // just send the sensor values as int readings
+	buffer[4] = (int)(pub_avg_ppm_10 + 0.5f);
 	// Check if there is not a current TX/RX job running
-	if (LMIC.opmode & OP_TXRXPEND) {
+	if (LMIC.opmode & OP_TXRXPEND)
+	{
 		DEBUG_PRINTLN("OP_TXRXPEND, not sending");
 	}
-	else {
+	else
+	{
 		// Prepare upstream data transmission at the next possible time.
-		LMIC_setTxData2(1, (uint8_t*)buffer, 5, 0);
+		LMIC_setTxData2(1, (uint8_t *)buffer, 5, 0);
 		DEBUG_PRINTLN("Sending: ");
 	}
 }
@@ -264,8 +316,8 @@ void abp_setup_lora()
 	// Reset the MAC state. Session and pending data transfers will be discarded.
 	LMIC_reset();
 
-	// Must be called after the settings values have been loaded by command.h
-	LMIC_setSession(0x1, settings.lora_abp_DEVADDR, settings.lora_abp_NWKSKEY, settings.lora_abp_APPSKEY);
+	// Must be called after the loRaSettings values have been loaded by command.h
+	LMIC_setSession(0x1, loRaSettings.lora_abp_DEVADDR, loRaSettings.lora_abp_NWKSKEY, loRaSettings.lora_abp_APPSKEY);
 
 	LMIC_setClockError(MAX_CLOCK_ERROR * 10 / 100);
 
@@ -279,19 +331,19 @@ void abp_setup_lora()
 	// Setting up channels should happen after LMIC_setSession, as that
 	// configures the minimal channel set.
 	// NA-US channels 0-71 are configured automatically
-	LMIC_setupChannel(0, 868100000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);      // g-band
-	LMIC_setupChannel(1, 868300000, DR_RANGE_MAP(DR_SF12, DR_SF7B), BAND_CENTI);      // g-band
-	LMIC_setupChannel(2, 868500000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);      // g-band
-	LMIC_setupChannel(3, 867100000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);      // g-band
-	LMIC_setupChannel(4, 867300000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);      // g-band
-	LMIC_setupChannel(5, 867500000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);      // g-band
-	LMIC_setupChannel(6, 867700000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);      // g-band
-	LMIC_setupChannel(7, 867900000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);      // g-band
-	LMIC_setupChannel(8, 868800000, DR_RANGE_MAP(DR_FSK, DR_FSK), BAND_MILLI);      // g2-band
-																					// TTN defines an additional channel at 869.525Mhz using SF9 for class B
-																					// devices' ping slots. LMIC does not have an easy way to define set this
-																					// frequency and support for class B is spotty and untested, so this
-																					// frequency is not configured here.
+	LMIC_setupChannel(0, 868100000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);  // g-band
+	LMIC_setupChannel(1, 868300000, DR_RANGE_MAP(DR_SF12, DR_SF7B), BAND_CENTI); // g-band
+	LMIC_setupChannel(2, 868500000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);  // g-band
+	LMIC_setupChannel(3, 867100000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);  // g-band
+	LMIC_setupChannel(4, 867300000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);  // g-band
+	LMIC_setupChannel(5, 867500000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);  // g-band
+	LMIC_setupChannel(6, 867700000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);  // g-band
+	LMIC_setupChannel(7, 867900000, DR_RANGE_MAP(DR_SF12, DR_SF7), BAND_CENTI);  // g-band
+	LMIC_setupChannel(8, 868800000, DR_RANGE_MAP(DR_FSK, DR_FSK), BAND_MILLI);   // g2-band
+																				 // TTN defines an additional channel at 869.525Mhz using SF9 for class B
+																				 // devices' ping slots. LMIC does not have an easy way to define set this
+																				 // frequency and support for class B is spotty and untested, so this
+																				 // frequency is not configured here.
 #elif defined(CFG_us915)
 	// NA-US channels 0-71 are configured automatically
 	// but only one group of 8 should (a subband) should be active
@@ -310,7 +362,8 @@ void abp_setup_lora()
 	LMIC_setDrTxpow(DR_SF7, 14);
 }
 
-void otaa_setup_lora() {
+void otaa_setup_lora()
+{
 	os_init();
 	// Reset the MAC state. Session and pending data transfers will be discarded.
 	os_setCallback(&initjob, initfunc);
@@ -318,10 +371,9 @@ void otaa_setup_lora() {
 	LMIC_setClockError(MAX_CLOCK_ERROR * 10 / 100);
 }
 
-
-boolean publishReadingsToLoRa (float pm25Average, float pm10Average, float temperature, float pressure, float humidity)
+boolean publishReadingsToLoRa(float pm25Average, float pm10Average, float temperature, float pressure, float humidity)
 {
-	if (!settings.loraAbp)
+	if (!loRaSettings.loraAbp)
 	{
 		// Using otaa
 		if (!lora_otaa_joined)
@@ -337,7 +389,7 @@ boolean publishReadingsToLoRa (float pm25Average, float pm10Average, float tempe
 		return false;
 	}
 
-	do_send(&sendjob, pm25Average, pm10Average, temperature, pressure, humidity);    // Sent sensor values
+	do_send(&sendjob, pm25Average, pm10Average, temperature, pressure, humidity); // Sent sensor values
 
 	OK_to_send = false;
 	return true;
@@ -345,17 +397,17 @@ boolean publishReadingsToLoRa (float pm25Average, float pm10Average, float tempe
 
 int getLoraSentCount()
 {
-    return loraSentCount;
+	return loraSentCount;
 }
 
-int startLoRa(struct process * loraProcess)
+int startLoRa(struct process *loraProcess)
 {
-    act_onBinary_command = default_act_onBinary_command;
+	act_onBinary_command = default_act_onBinary_command;
 	LoraStatusBuffer[0] = 0;
 
 	loraSentCount = 0;
 
-	if (settings.loraAbp)
+	if (loRaSettings.loraAbp)
 	{
 		abp_setup_lora();
 	}
@@ -363,23 +415,22 @@ int startLoRa(struct process * loraProcess)
 	{
 		otaa_setup_lora();
 	}
-    
-    return PROCESS_OK;
+
+	return PROCESS_OK;
 }
 
-int updateLoRa(struct process * loraProcess)
+int updateLoRa(struct process *loraProcess)
 {
 	os_runloop_once();
-    return PROCESS_OK;
+	return PROCESS_OK;
 }
 
-int stopLoRa(struct process * loraProcess)
+int stopLoRa(struct process *loraProcess)
 {
 	return PROCESS_OK;
 }
 
-
-void loraStatusMessage(struct process * loraProcess, char * buffer, int bufferLength)
+void loraStatusMessage(struct process *loraProcess, char *buffer, int bufferLength)
 {
 	snprintf(buffer, bufferLength, "Lora sent: %d", loraSentCount);
 }

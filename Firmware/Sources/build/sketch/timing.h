@@ -1,4 +1,7 @@
-#pragma once
+
+#ifndef TIMING_H
+
+#define TIMING_H
 
 enum timingStates { sensorWarmingUp, sensorGettingReading, sensorOff } ;
 
@@ -35,3 +38,4 @@ void force_mqtt_send ();
 void force_lora_send();
 timingStates getTimingState();
 
+#endif

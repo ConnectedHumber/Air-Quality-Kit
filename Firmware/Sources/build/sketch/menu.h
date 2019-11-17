@@ -1,3 +1,7 @@
+#ifndef MENU_H
+
+#define MENU_H
+
 int startMenu(struct process * menuProcess);
 
 int updateMenu(struct process * menuProcess);
@@ -12,3 +16,5 @@ void endPopupDisplay();
 
 #define POPUP_DURATION_MILLIS 800
 #define POPUP_NO_TIMEOUT 0
+
+#endif

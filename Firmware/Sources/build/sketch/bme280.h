@@ -1,4 +1,7 @@
-#pragma once
+#ifndef BME280_H
+
+#define BME280_H
+
 /***************************************************************************
   This is a library for the BME280 humidity, temperature & pressure sensor
 
@@ -47,3 +50,4 @@ void startBME280Reading(struct sensor * bme280Sensor);
 int addBME280Reading(struct sensor * bme280Sensor, char * jsonBuffer, int jsonBufferSize);
 void bme280StatusMessage(struct sensor * bme280sensor, char * buffer, int bufferLength);
 
+#endif
