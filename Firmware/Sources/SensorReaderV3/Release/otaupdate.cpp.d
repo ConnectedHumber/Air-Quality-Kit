@@ -218,4 +218,6 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_3
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\utils.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\processes.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\otaupdate.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\connectwifi.h
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\connectwifi.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\settings.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\timing.h

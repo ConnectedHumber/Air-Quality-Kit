@@ -302,21 +302,6 @@ boolean validateWifiPWD(void *dest, const char *newValueStr)
 	return (validateString((char *)dest, newValueStr, WIFI_PASSWORD_LENGTH));
 }
 
-struct SettingItem wifiSettingItems[] =
-	{
-		"Device name", "devname", settings.deviceName, DEVICE_NAME_LENGTH, text, setDefaultDevname, validateDevName,
-		"WiFiSSID1", "wifissid1", settings.wifi1SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword1", "wifipwd1", settings.wifi1PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFiSSID2", "wifissid2", settings.wifi2SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword2", "wifipwd2", settings.wifi2PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFiSSID3", "wifissid3", settings.wifi3SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword3", "wifipwd3", settings.wifi3PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFiSSID4", "wifissid4", settings.wifi4SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword4", "wifipwd4", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFiSSID5", "wifissid5", settings.wifi5SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword5", "wifipwd5", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFi On", "wifion", &settings.wiFiOn, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff};
-
 boolean validateServerName(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, SERVER_NAME_LENGTH));
@@ -327,110 +312,6 @@ struct SettingItem autoUpdateSettingItems[] =
 		"Auto update image server", "autoupdimage", settings.autoUpdateImageServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName,
 		"Auto update status server", "autoupdstatus", settings.autoUpdateStatusServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName,
 		"Auto update on", "autoupdon", &settings.autoUpdateEnabled, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff};
-
-char *defaultMQTTName = "NewMQTTDevice";
-char *defaultMQTTHost = "mqtt.connectedhumber.org";
-
-void setDefaultMQTTTname(void *dest)
-{
-	char *destStr = (char *)dest;
-	snprintf(destStr, DEVICE_NAME_LENGTH, "Sensor-%06x", ESP.getEfuseMac());
-}
-
-void setDefaultMQTThost(void *dest)
-{
-	strcpy((char *)dest, "mqtt.connectedhumber.org");
-}
-
-boolean validateMQTThost(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, SERVER_NAME_LENGTH));
-}
-
-void setDefaultMQTTport(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 1883; // use 8883 for secure connection to Azure IoT hub
-}
-
-boolean validateMQTTtopic(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, MQTT_TOPIC_LENGTH));
-}
-
-void setDefaultMQTTusername(void *dest)
-{
-	strcpy((char *)dest, "connectedhumber");
-}
-
-boolean validateMQTTusername(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, MQTT_USER_NAME_LENGTH));
-}
-
-boolean validateMQTTPWD(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, MQTT_PASSWORD_LENGTH));
-}
-
-void setDefaultMQTTpublishTopic(void *dest)
-{
-	snprintf((char *)dest, MQTT_TOPIC_LENGTH, "airquality/data/Monitair-%06x", ESP.getEfuseMac());
-}
-
-void setDefaultMQTTsubscribeTopic(void *dest)
-{
-	snprintf((char *)dest, MQTT_TOPIC_LENGTH, "airquality/command/Monitair-%06x", ESP.getEfuseMac());
-}
-
-void setDefaultMQTTreportTopic(void *dest)
-{
-	snprintf((char *)dest, MQTT_TOPIC_LENGTH, "airquality/report/Monitair-%06x", ESP.getEfuseMac());
-}
-
-void setDefaultMQTTsecsPerUpdate(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 360;
-}
-
-void setDefaultMQTTsecsPerRetry(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 10;
-}
-
-struct SettingItem mqtttSettingItems[] =
-	{
-		"MQTT Host", "mqtthost", settings.mqttServer, SERVER_NAME_LENGTH, text, setDefaultMQTThost, validateServerName,
-		"MQTT Port number", "mqttport", &settings.mqttPort, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTport, validateInt,
-		"MQTT Secure sockets (on or off)", "mqttsecure", &settings.mqttSecureSockets, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff,
-		"MQTT Active (yes or no)", "mqttactive", &settings.mqtt_enabled, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo,
-		"MQTT UserName", "mqttuser", settings.mqttUser, MQTT_USER_NAME_LENGTH, text, setDefaultMQTTusername, validateMQTTusername,
-		"MQTT Password", "mqttpwd", settings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString, validateMQTTPWD,
-		"MQTT Publish topic", "mqttpub", settings.mqttPublishTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTpublishTopic, validateMQTTtopic,
-		"MQTT Subscribe topic", "mqttsub", settings.mqttSubscribeTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTsubscribeTopic, validateMQTTtopic,
-		"MQTT Reporting topic", "mqttreport", settings.mqttReportTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTreportTopic, validateMQTTtopic,
-		"MQTT Seconds per update", "mqttsecsperupdate", &settings.mqttSecsPerUpdate, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerUpdate, validateInt,
-		"MQTT Seconds per retry", "mqttsecsperretry", &settings.seconds_per_mqtt_retry, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerRetry, validateInt};
-
-void setDefaultPixelRed(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 0;
-}
-
-void setDefaultPixelGreen(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 255;
-}
-
-void setDefaultPixelBlue(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 0;
-}
 
 boolean validateColour(void *dest, const char *newValueStr)
 {
@@ -450,96 +331,6 @@ boolean validateColour(void *dest, const char *newValueStr)
 
 	return true;
 }
-
-void setDefaultAirqLowLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 15;
-}
-
-void setDefaultAirqLowWarnLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 40;
-}
-
-void setDefaultAirqMidWarnLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 65;
-}
-
-void setDefaultAirqHighWarnLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 150;
-}
-
-void setDefaultAirqHighAlertLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 250;
-}
-
-struct SettingItem pixelSettingItems[] =
-	{
-		"Pixel red (0-255)",
-		"pixelred",
-		&settings.pixelRed,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultPixelRed,
-		validateColour,
-		"Pixel green (0-255)",
-		"pixelgreen",
-		&settings.pixelGreen,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultPixelGreen,
-		validateColour,
-		"Pixel blue (0-255)",
-		"pixelblue",
-		&settings.pixelBlue,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultPixelBlue,
-		validateColour,
-		"AirQ Low Limit",
-		"airqlowlimit",
-		&settings.airqLowLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqLowLimit,
-		validateInt,
-		"AirQ Low Warning Limit",
-		"airqlowwarnlimit",
-		&settings.airqLowWarnLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqLowWarnLimit,
-		validateInt,
-		"AirQ Mid Warning Limit",
-		"airqmidwarnlimit",
-		&settings.airqMidWarnLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqMidWarnLimit,
-		validateInt,
-		"AirQ High Warning Limit",
-		"airqhighwarnlimit",
-		&settings.airqHighWarnLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqHighWarnLimit,
-		validateInt,
-		"AirQ High Alert Limit",
-		"airqhighalertlimit",
-		&settings.airqHighAlertLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqHighAlertLimit,
-		validateInt,
-};
 
 void setDefaultAirQSensorType(void *dest)
 {
@@ -581,18 +372,6 @@ void setDefaultControlInputPin(void *dest)
 {
 	int *destInt = (int *)dest;
 	*destInt = 36;
-}
-
-void setDefaultPixelControlPinNo(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 25;
-}
-
-void setDefaultNoOfPixels(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 12;
 }
 
 void setDefaultAirqnoOfAverages(void *dest)
@@ -686,20 +465,6 @@ struct SettingItem hardwareSettingItems[] =
 		integerValue,
 		setDefaultGpsPinNo,
 		validateInt,
-		"Number of pixels (0 for pixels not fitted)",
-		"noofpixels",
-		&settings.noOfPixels,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultNoOfPixels,
-		validateInt,
-		"Pixel Control Pin",
-		"pixelcontrolpin",
-		&settings.pixelControlPinNo,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultPixelControlPinNo,
-		validateInt,
 		"AirQ Number of averages",
 		"airqnoOfAverages",
 		&settings.airqNoOfAverages,
@@ -780,8 +545,8 @@ struct SettingItem displaySettingItems[] =
 
 struct SettingItem quickSettingItems[] =
 	{
-		"WiFi access point name", "wifissid1", settings.wifi1SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFi password", "wifipwd1", settings.wifi1PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
+//		"WiFi access point name", "wifissid1", settings.wifi1SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
+//		"WiFi password", "wifipwd1", settings.wifi1PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
 		"MQTT Password", "mqttpwd", settings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString, validateMQTTPWD,
 		"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
 		"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
@@ -790,10 +555,10 @@ struct SettingItem quickSettingItems[] =
 SettingItemCollection allSettings[] = {
 	{"Quick", "Just the settings to get you started", quickSettingItems, sizeof(quickSettingItems) / sizeof(SettingItem)},
 	{"Output", "Display and logging settings", displaySettingItems, sizeof(displaySettingItems) / sizeof(SettingItem)},
-	{"Wifi", "Set the SSID and password for wifi connections", wifiSettingItems, sizeof(wifiSettingItems) / sizeof(SettingItem)},
-	{"MQTT", "Set the device, user, site, password and topic for MQTT", mqtttSettingItems, sizeof(mqtttSettingItems) / sizeof(SettingItem)},
-	{"LoRa", "Set the authentication and data rate for LoRa", loraSettingItems, noOfLoraSettingItems},
-	{"Pixel", "Set the pixel colours and display levels", pixelSettingItems, sizeof(pixelSettingItems) / sizeof(SettingItem)},
+//	{"Wifi", "Set the SSID and password for wifi connections", wifiSettingItems, sizeof(wifiSettingItems) / sizeof(SettingItem)},
+//	{"MQTT", "Set the device, user, site, password and topic for MQTT", mqtttSettingItems, sizeof(mqtttSettingItems) / sizeof(SettingItem)},
+//	{"LoRa", "Set the authentication and data rate for LoRa", loraSettingItems, noOfLoraSettingItems},
+//	{"Pixel", "Set the pixel colours and display levels", pixelSettingItems, sizeof(pixelSettingItems) / sizeof(SettingItem)},
 	{"Hardware", "Set the hardware pins and configuration", hardwareSettingItems, sizeof(hardwareSettingItems) / sizeof(SettingItem)},
 	{"Location", "Set the fixed location of the device", locationSettingItems, sizeof(locationSettingItems) / sizeof(SettingItem)}};
 

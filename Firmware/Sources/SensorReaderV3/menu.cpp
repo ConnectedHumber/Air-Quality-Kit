@@ -11,6 +11,7 @@
 #include "timing.h"
 #include "control.h"
 #include "lora.h"
+#include "mqtt.h"
 
 enum MenuState
 {
@@ -412,7 +413,7 @@ void menuMQTTOff()
 {
 	TRACELN("MQTT off called");
 	displayMessage("MQTT", "Off", 2000, messageDisplayComplete);
-	settings.mqtt_enabled = false;
+	mqttSettings.mqtt_enabled = false;
 	saveSettings();
 }
 
@@ -420,7 +421,7 @@ void menuMQTTOn()
 {
 	TRACELN("MQTT on called");
 	displayMessage("MQTT", "On", 2000, messageDisplayComplete);
-	settings.mqtt_enabled = true;
+	mqttSettings.mqtt_enabled = true;
 	saveSettings();
 }
 
@@ -433,7 +434,7 @@ void mqtt_send()
 
 void menuMQTTGapDone (int readGap)
 {
-	settings.mqttSecsPerUpdate = readGap;
+	mqttSettings.mqttSecsPerUpdate = readGap;
 	saveSettings();
 	displayMessage("MQTT", "Gap set", 2000, messageDisplayComplete);
 }
@@ -441,7 +442,7 @@ void menuMQTTGapDone (int readGap)
 void menuMQTTGap()
 {
 	TRACELN("Set Lora gap called");
-	getNumber("Set gap", settings.mqttSecsPerUpdate, 60, 3600, menuMQTTGapDone);
+	getNumber("Set gap", mqttSettings.mqttSecsPerUpdate, 60, 3600, menuMQTTGapDone);
 }
 
 

@@ -13,11 +13,118 @@
 
 #include <PubSubClient.h>
 
+struct MqttSettings mqttSettings;
+
+char* defaultMQTTName = "NewMQTTDevice";
+char* defaultMQTTHost = "mqtt.connectedhumber.org";
+
+void setDefaultMQTTTname(void* dest)
+{
+	char* destStr = (char*)dest;
+	snprintf(destStr, DEVICE_NAME_LENGTH, "Sensor-%06x", ESP.getEfuseMac());
+}
+
+void setDefaultMQTThost(void* dest)
+{
+	strcpy((char*)dest, "mqtt.connectedhumber.org");
+}
+
+boolean validateMQTThost(void* dest, const char* newValueStr)
+{
+	return (validateString((char*)dest, newValueStr, SERVER_NAME_LENGTH));
+}
+
+void setDefaultMQTTport(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 1883; // use 8883 for secure connection to Azure IoT hub
+}
+
+boolean validateMQTTtopic(void* dest, const char* newValueStr)
+{
+	return (validateString((char*)dest, newValueStr, MQTT_TOPIC_LENGTH));
+}
+
+void setDefaultMQTTusername(void* dest)
+{
+	strcpy((char*)dest, "connectedhumber");
+}
+
+boolean validateMQTTusername(void* dest, const char* newValueStr)
+{
+	return (validateString((char*)dest, newValueStr, MQTT_USER_NAME_LENGTH));
+}
+
+boolean validateMQTTPWD(void* dest, const char* newValueStr)
+{
+	return (validateString((char*)dest, newValueStr, MQTT_PASSWORD_LENGTH));
+}
+
+void setDefaultMQTTpublishTopic(void* dest)
+{
+	snprintf((char*)dest, MQTT_TOPIC_LENGTH, "airquality/data/Monitair-%06x", ESP.getEfuseMac());
+}
+
+void setDefaultMQTTsubscribeTopic(void* dest)
+{
+	snprintf((char*)dest, MQTT_TOPIC_LENGTH, "airquality/command/Monitair-%06x", ESP.getEfuseMac());
+}
+
+void setDefaultMQTTreportTopic(void* dest)
+{
+	snprintf((char*)dest, MQTT_TOPIC_LENGTH, "airquality/report/Monitair-%06x", ESP.getEfuseMac());
+}
+
+void setDefaultMQTTsecsPerUpdate(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 360;
+}
+
+void setDefaultMQTTsecsPerRetry(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 10;
+}
+
+struct SettingItem mqttOnOffSetting = {
+	"MQTT Active (yes or no)", "mqttactive",&mqttSettings.mqtt_enabled, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo };
+
+struct SettingItem mqttServerSetting = {
+	"MQTT Host", "mqtthost", mqttSettings.mqttServer, SERVER_NAME_LENGTH, text, setDefaultMQTThost, validateServerName };
+
+struct SettingItem mqttPortSetting = {
+	"MQTT Port number", "mqttport", &mqttSettings.mqttPort, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTport, validateInt };
+
+struct SettingItem mqttSecureSocketsSetting = {
+	"MQTT Secure sockets (on or off)", "mqttsecure", &mqttSettings.mqttSecureSockets, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff };
+
+struct SettingItem mqttUserSetting = {
+	"MQTT UserName", "mqttuser", mqttSettings.mqttUser, MQTT_USER_NAME_LENGTH, text, setDefaultMQTTusername, validateMQTTusername };
+
+struct SettingItem mqttPasswordSetting = {
+	"MQTT Password", "mqttpwd", mqttSettings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString, validateMQTTPWD };
+
+struct SettingItem mqttPublishTopicSetting = {
+	"MQTT Publish topic", "mqttpub", mqttSettings.mqttPublishTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTpublishTopic, validateMQTTtopic };
+
+struct SettingItem mqttSubscribeTopicSetting = {
+	"MQTT Subscribe topic", "mqttsub", mqttSettings.mqttSubscribeTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTsubscribeTopic, validateMQTTtopic };
+
+struct SettingItem mqttReportTopicSetting = {
+	"MQTT Reporting topic", "mqttreport", mqttSettings.mqttReportTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTreportTopic, validateMQTTtopic };
+
+struct SettingItem mqttSecsPerUpdateSetting = {
+	"MQTT Seconds per update", "mqttsecsperupdate", &mqttSettings.mqttSecsPerUpdate, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerUpdate, validateInt };
+
+struct SettingItem seconds_per_mqtt_retrySetting = {
+"MQTT Seconds per retry", "mqttsecsperretry", &mqttSettings.seconds_per_mqtt_retry, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerRetry, validateInt };
+
 unsigned long mqtt_timer_start;
 
-Client * espClient = NULL;
+Client* espClient = NULL;
 
-PubSubClient * mqttPubSubClient = NULL;
+PubSubClient* mqttPubSubClient = NULL;
 
 #define MQTT_RECEIVE_BUFFER_SIZE 240
 char mqtt_receive_buffer[MQTT_RECEIVE_BUFFER_SIZE];
@@ -31,7 +138,7 @@ boolean first_mqtt_message = true;
 int messagesSent;
 int messagesReceived;
 
-void mqtt_deliver_command_result(char * result)
+void mqtt_deliver_command_result(char* result)
 {
 	publishBufferToMQTT(result);
 }
@@ -56,10 +163,10 @@ void callback(char* topic, byte* payload, unsigned int length)
 
 int mqttConnectErrorNumber;
 
-struct process * mqttWiFiProcess = NULL;
-struct process * activeMQTTProcess;
+struct process* mqttWiFiProcess = NULL;
+struct process* activeMQTTProcess;
 
-int startMQTT(struct process * mqttProcess)
+int startMQTT(struct process* mqttProcess)
 {
 	activeMQTTProcess = mqttProcess;
 
@@ -86,7 +193,7 @@ int restartMQTT()
 
 	if (espClient == NULL)
 	{
-		if (settings.mqttSecureSockets)
+		if (mqttSettings.mqttSecureSockets)
 		{
 			espClient = new WiFiClientSecure();
 		}
@@ -97,11 +204,11 @@ int restartMQTT()
 
 		mqttPubSubClient = new PubSubClient(*espClient);
 
-		mqttPubSubClient->setServer(settings.mqttServer, settings.mqttPort);
+		mqttPubSubClient->setServer(mqttSettings.mqttServer, mqttSettings.mqttPort);
 		mqttPubSubClient->setCallback(callback);
 	}
 
-	if (!mqttPubSubClient->connect(settings.deviceName, settings.mqttUser, settings.mqttPassword))
+	if (!mqttPubSubClient->connect(mqttSettings.deviceName, mqttSettings.mqttUser, mqttSettings.mqttPassword))
 	{
 		switch (mqttPubSubClient->state())
 		{
@@ -134,13 +241,13 @@ int restartMQTT()
 		return activeMQTTProcess->status;
 	}
 
-	mqttPubSubClient->subscribe(settings.mqttSubscribeTopic);
+	mqttPubSubClient->subscribe(mqttSettings.mqttSubscribeTopic);
 
 	//snprintf(mqtt_send_buffer, MQTT_SEND_BUFFER_SIZE,
 	//	"{\"dev\":\"%s\", \"status\":\"starting\"}",
-	//	settings.deviceName);
+	//	mqttSettings.deviceName);
 
-	//if (!mqttPubSubClient->publish(settings.mqttReportTopic, mqtt_send_buffer))
+	//if (!mqttPubSubClient->publish(mqttSettings.mqttReportTopic, mqtt_send_buffer))
 	//{
 	//	Serial.println("publish failed");
 	//	mqttProcess->status = MQTT_ERROR_CONNECT_MESSAGE_FAILED;
@@ -151,13 +258,13 @@ int restartMQTT()
 	return MQTT_OK;
 }
 
-boolean publishBufferToMQTT(char * buffer)
+boolean publishBufferToMQTT(char* buffer)
 {
 	if (activeMQTTProcess->status == MQTT_OK)
 	{
 		messagesSent++;
 		Serial.println("Publishing message");
-		return mqttPubSubClient->publish(settings.mqttPublishTopic, buffer);
+		return mqttPubSubClient->publish(mqttSettings.mqttPublishTopic, buffer);
 	}
 
 	Serial.println("Not publishing message");
@@ -165,7 +272,7 @@ boolean publishBufferToMQTT(char * buffer)
 	return false;
 }
 
-int stopMQTT(struct process * mqttProcess)
+int stopMQTT(struct process* mqttProcess)
 {
 	mqttProcess->status = MQTT_OFF;
 	return MQTT_OFF;
@@ -174,7 +281,7 @@ int stopMQTT(struct process * mqttProcess)
 unsigned long timeOfLastMQTTsuccess = 0;
 
 
-int updateMQTT(struct process * mqttProcess)
+int updateMQTT(struct process* mqttProcess)
 {
 	switch (mqttProcess->status)
 	{
@@ -234,7 +341,7 @@ int updateMQTT(struct process * mqttProcess)
 	return mqttProcess->status;
 }
 
-void mqttStatusMessage(struct process * mqttProcess, char * buffer, int bufferLength)
+void mqttStatusMessage(struct process* mqttProcess, char* buffer, int bufferLength)
 {
 	switch (mqttProcess->status)
 	{

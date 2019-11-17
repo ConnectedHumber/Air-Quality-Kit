@@ -12,6 +12,7 @@
 #include "bme280.h"
 #include "debug.h"
 #include "lora.h"
+#include "mqtt.h"
 #include "processes.h"
 
 //OLED pins to ESP32 GPIOs via this connecthin:
@@ -132,7 +133,7 @@ void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x,
 
     display->drawString(0 + x, 20 + y, status_buffer);
 
-    sprintf(status_buffer, "MQTT gap: %d", settings.mqttSecsPerUpdate);
+    sprintf(status_buffer, "MQTT gap: %d", mqttSettings.mqttSecsPerUpdate);
 
     display->drawString(0 + x, 30 + y, status_buffer);
 

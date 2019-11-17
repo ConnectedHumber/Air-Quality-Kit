@@ -53,23 +53,6 @@ struct Device_Settings
 
 	// WiFi settings
 
-	char wifi1SSID[WIFI_SSID_LENGTH];
-	char wifi1PWD[WIFI_PASSWORD_LENGTH];
-
-	char wifi2SSID[WIFI_SSID_LENGTH];
-	char wifi2PWD[WIFI_PASSWORD_LENGTH];
-
-	char wifi3SSID[WIFI_SSID_LENGTH];
-	char wifi3PWD[WIFI_PASSWORD_LENGTH];
-
-	char wifi4SSID[WIFI_SSID_LENGTH];
-	char wifi4PWD[WIFI_PASSWORD_LENGTH];
-
-	char wifi5SSID[WIFI_SSID_LENGTH];
-	char wifi5PWD[WIFI_PASSWORD_LENGTH];
-
-	boolean wiFiOn;
-
 	// Auto update settings
 
 	char autoUpdateImageServer[SERVER_NAME_LENGTH];
@@ -77,19 +60,6 @@ struct Device_Settings
 	boolean autoUpdateEnabled;
 
 	// MQTT settings
-
-	char mqttServer[SERVER_NAME_LENGTH];
-	boolean mqttSecureSockets;
-	int mqttPort;
-	char mqttUser[MQTT_USER_NAME_LENGTH];
-	char mqttPassword[MQTT_PASSWORD_LENGTH];
-	char mqttPublishTopic[MQTT_TOPIC_LENGTH];
-	char mqttSubscribeTopic[MQTT_TOPIC_LENGTH];
-	char mqttReportTopic[MQTT_TOPIC_LENGTH];
-
-	int mqttSecsPerUpdate;
-	int seconds_per_mqtt_retry;
-	boolean mqtt_enabled;
 
 	// Hardware settings
 
@@ -191,5 +161,15 @@ boolean validateInt(void *dest, const char *newValueStr);
 boolean validateDouble(void *dest, const char *newValueStr);
 
 boolean validateColour(void* dest, const char* newValueStr);
+
+void setDefaultDevname(void* dest);
+
+boolean validateDevName(void* dest, const char* newValueStr);
+
+boolean validateServerName(void* dest, const char* newValueStr);
+
+boolean validateWifiSSID(void* dest, const char* newValueStr);
+
+boolean validateWifiPWD(void* dest, const char* newValueStr);
 
 #endif
