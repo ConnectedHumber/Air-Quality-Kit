@@ -39,4 +39,6 @@ void startDevice()
 	}
 }
 
-
+void enterWiFiConfig()
+{
+}

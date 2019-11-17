@@ -1,5 +1,6 @@
-c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\libraries\Adafruit_BME280_Library\Adafruit_BME280.cpp.o: \
+c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\libraries\Adafruit_BME280_Library\Adafruit_BME280.cpp.o: \
  C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library\Adafruit_BME280.cpp \
+ C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library\Adafruit_BME280.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Arduino.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/stdint.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/machine/_default_types.h \
@@ -127,11 +128,10 @@ c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\libraries\Ada
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/HardwareSerial.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Esp.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\heltec_wifi_lora_32_V2/pins_arduino.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\Wire\src/Wire.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/freertos/freertos/queue.h \
+ C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Sensor/Adafruit_Sensor.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Print.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
- C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library\Adafruit_BME280.h \
- C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Unified_Sensor/Adafruit_Sensor.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Print.h
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\Wire\src/Wire.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/freertos/freertos/queue.h

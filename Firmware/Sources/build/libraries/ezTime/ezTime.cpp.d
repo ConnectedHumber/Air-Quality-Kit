@@ -1,4 +1,4 @@
-c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\libraries\ezTime\ezTime.cpp.o: \
+c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\libraries\ezTime\ezTime.cpp.o: \
  C:\Users\Rob\Documents\Arduino\libraries\ezTime\src\ezTime.cpp \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Arduino.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/stdint.h \
@@ -179,5 +179,4 @@ c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\libraries\ezT
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiUdp.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Udp.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/cbuf.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiUdp.h \
- C:\Users\Rob\Documents\Arduino\libraries\ezTime\src\lang/EN
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiUdp.h

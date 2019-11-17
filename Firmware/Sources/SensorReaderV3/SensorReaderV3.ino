@@ -37,7 +37,18 @@
 void setup() {
 	Serial.begin(115200);
 	delay(500);
+
+	pinMode(16,OUTPUT);
+	digitalWrite(16, LOW);
+	delay(50);
+	digitalWrite(16, HIGH);
+	pinMode(16, INPUT_PULLUP);
+
+	pinMode(21, OUTPUT);
+	digitalWrite(21, HIGH);
+
 	setupSettings();
+
 	Serial.printf("\nConnected Humber Sensor %s\nVersion %d.%d\n\n", settings.deviceName, 
 		MAJOR_VERSION, MINOR_VERSION);
 

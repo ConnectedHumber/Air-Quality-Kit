@@ -1,5 +1,5 @@
-c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\SensorReaderV3.ino.cpp.o: \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\SensorReaderV3.ino.cpp \
+c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\SensorReaderV3.ino.cpp.o: \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\SensorReaderV3.ino.cpp \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Arduino.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/stdint.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/machine/_default_types.h \
@@ -183,34 +183,34 @@ c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\Sensor
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WebServer\src/detail/RequestHandler.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\ESPmDNS\src/ESPmDNS.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/mdns/mdns.h \
- C:\Users\Rob\Documents\Arduino\libraries\MicroNMEA\src/MicroNMEA.h \
+ C:\Users\Rob\Documents\Arduino\libraries\MicroNMEA-master\src/MicroNMEA.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\DNSServer\src/DNSServer.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiUdp.h \
  C:\Users\Rob\Documents\Arduino\libraries\ezTime\src/ezTime.h \
- C:\Users\Rob\Documents\Arduino\libraries\pubsubclient\src/PubSubClient.h \
+ C:\Users\Rob\Documents\Arduino\libraries\PubSubClient\src/PubSubClient.h \
  C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library/Adafruit_BME280.h \
- C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Unified_Sensor/Adafruit_Sensor.h \
+ C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Sensor/Adafruit_Sensor.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\Wire\src/Wire.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiServer.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\EEPROM\src/EEPROM.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\utils.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\processes.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\sensors.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\bme280.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\airquality.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\connectwifi.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\configwifi.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\webserver.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\otaupdate.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\pixels.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\inputswitch.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\mqtt.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\clock.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\gps.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\console.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\control.h
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\utils.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\processes.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\sensors.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\bme280.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\airquality.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\connectwifi.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\configwifi.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\webserver.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\otaupdate.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\pixels.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\inputswitch.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\mqtt.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\clock.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\gps.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\console.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\control.h

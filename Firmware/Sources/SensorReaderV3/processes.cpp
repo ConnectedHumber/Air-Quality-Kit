@@ -38,13 +38,13 @@ struct process LoRaProcess= { "LoRa", startLoRa, updateLoRa, stopLoRa, loraStatu
 
 struct process * runningProcessList[] =
 {
-	&PixelProcess,
+//	&PixelProcess,
 	&WiFiProcessDescriptor,
 	&ConsoleProcessDescriptor,
 	&WebServerProcessDescriptor,
 	&MQTTProcessDescriptor,
-	&OTAUpdateProcess,
-	&InputSwitchProcess,
+//	&OTAUpdateProcess,
+//	&InputSwitchProcess,
 	&LCDProcess,
 	&TimingProcess,
 	&InputKeysProcess,

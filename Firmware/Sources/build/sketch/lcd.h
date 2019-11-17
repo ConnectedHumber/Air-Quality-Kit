@@ -25,3 +25,7 @@ void LCDStatusMessage(struct process * timingProcess, char * buffer, int bufferL
 void activate_message_display();
 void activate_action_display();
 
+void lcdSleep();
+void lcdWake();
+
+

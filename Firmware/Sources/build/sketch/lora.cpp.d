@@ -1,5 +1,5 @@
-c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora.cpp.o: \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora.cpp \
+c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora.cpp.o: \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora.cpp \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src/lmic.h \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src/lmic/lmic.h \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src/lmic/oslmic.h \
@@ -136,10 +136,10 @@ c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora.c
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/IPAddress.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/HardwareSerial.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Esp.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\debug.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\utils.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\menu.h \
- c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\sketch\processes.h
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\debug.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\utils.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\menu.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\processes.h

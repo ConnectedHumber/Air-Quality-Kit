@@ -9,6 +9,7 @@
 #include "sensors.h"
 #include "settings.h"
 #include "timing.h"
+#include "control.h"
 
 enum MenuState
 {
@@ -476,8 +477,42 @@ void loggingSetup()
 	enterAMenu(&logingMenu);
 }
 
+Menu mqttLoRaMenu = {0, "LoRa\nMQTT\nBack", {loraSetup, mqtt_setup, doBackFromMenu}};
 
-Menu mainMenu = {0, "Logging\nLoRa\nMQTT\nBack", {loggingSetup, loraSetup, mqtt_setup, doBackFromMenu}};
+void mqttLoraSetup()
+{
+	enterAMenu(&mqttLoRaMenu);
+}
+
+boolean powerOn = true;
+
+void powerTest()
+{
+	displayMessage("Web", "Web Host", 2000, messageDisplayComplete);
+	if(powerOn)
+	{		
+		Serial.println("turning off");
+		displayMessage("Power", "Off", 2000, messageDisplayComplete);
+		delay(500);
+		digitalWrite(21, LOW);
+		lcdSleep();
+		powerOn=false;
+	}
+	else
+	{
+		Serial.println("turning on");
+		displayMessage("Power", "On", 2000, messageDisplayComplete);
+		delay(500);
+		digitalWrite(21, HIGH);
+		lcdWake();
+		powerOn=true;
+	}
+	
+
+
+}
+
+Menu mainMenu = {0, "Power Toggle\nMQTT+LoRa\nData\nBack", {powerTest, mqttLoraSetup, loggingSetup, doBackFromMenu}};
 
 void updatePopupMessage(String title, String text)
 {

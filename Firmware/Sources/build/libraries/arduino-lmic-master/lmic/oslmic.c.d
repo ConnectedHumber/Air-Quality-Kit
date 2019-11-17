@@ -1,4 +1,4 @@
-c:\Users\Rob\Desktop\GItHub\Air-Quality-Kit\Firmware\Sources\build\libraries\arduino-lmic-master\lmic\oslmic.c.o: \
+c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\libraries\arduino-lmic-master\lmic\oslmic.c.o: \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src\lmic\oslmic.c \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src\lmic\lmic.h \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src\lmic\oslmic.h \

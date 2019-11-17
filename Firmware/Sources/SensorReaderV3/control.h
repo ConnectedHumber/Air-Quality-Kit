@@ -4,4 +4,6 @@ void showDeviceStatus();
 void startDevice();
 void sendSensorReadings();
 void forceMQTTSend();
+void enterWiFiConfig();
+
 

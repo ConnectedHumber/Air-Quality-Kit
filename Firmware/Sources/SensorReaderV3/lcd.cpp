@@ -522,6 +522,16 @@ bool set_selected_item(int item)
     return true;
 }
 
+void lcdSleep()
+{
+    display.sleep();
+}
+
+void lcdWake()
+{
+    display.wakeup();
+}
+
 void drawClearFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
 {
 }
@@ -554,14 +564,17 @@ int startLCD(struct process * lcdProcess)
     // The ESP is capable of rendering 60fps in 80Mhz mode
     // but that won't give you much time for anything else
     // run it in 160Mhz mode or just set it to 30 fps
-    ui.setTargetFPS(60);
+
+    //ui.setTargetFPS(60);
 
     setWorkingDisplay();
 
+    
     // Initialising the UI will init the display too.
     ui.init();
 
-    //display.flipScreenVertically();
+    display.flipScreenVertically();
+
 	return PROCESS_OK;
 }
 

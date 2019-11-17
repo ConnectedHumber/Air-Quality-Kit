@@ -64,7 +64,7 @@ int startWifi(struct process * wifiProcess)
 
 	if (firstRun)
 	{
-		TRACELN("First run");
+		TRACELN("WiFi first run");
 		WiFi.mode(WIFI_OFF);
 		delay(500);
 		WiFi.mode(WIFI_STA);
@@ -133,7 +133,10 @@ int startWifi(struct process * wifiProcess)
 
 int stopWiFi(struct process * wifiProcess)
 {
+	TRACELN("WiFi turned off");
 	wifiProcess->status = WIFI_TURNED_OFF;
+	WiFi.mode(WIFI_OFF);
+	delay(500);
 	return WIFI_TURNED_OFF;
 }
 

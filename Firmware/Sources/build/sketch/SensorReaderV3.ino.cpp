@@ -1,5 +1,4 @@
-#line 1 "c:\\Users\\Rob\\Desktop\\GItHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
-#line 1 "c:\\Users\\Rob\\Desktop\\GItHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
+#line 1 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
 #include <Arduino.h>
 
 #include <WiFi.h>
@@ -36,15 +35,26 @@
 #include "console.h"
 #include "control.h"
 
-#line 37 "c:\\Users\\Rob\\Desktop\\GItHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
+#line 37 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
 void setup();
-#line 49 "c:\\Users\\Rob\\Desktop\\GItHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
+#line 60 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
 void loop();
-#line 37 "c:\\Users\\Rob\\Desktop\\GItHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
+#line 37 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
 void setup() {
 	Serial.begin(115200);
 	delay(500);
+
+	pinMode(16,OUTPUT);
+	digitalWrite(16, LOW);
+	delay(50);
+	digitalWrite(16, HIGH);
+	pinMode(16, INPUT_PULLUP);
+
+	pinMode(21, OUTPUT);
+	digitalWrite(21, HIGH);
+
 	setupSettings();
+
 	Serial.printf("\nConnected Humber Sensor %s\nVersion %d.%d\n\n", settings.deviceName, 
 		MAJOR_VERSION, MINOR_VERSION);
 
