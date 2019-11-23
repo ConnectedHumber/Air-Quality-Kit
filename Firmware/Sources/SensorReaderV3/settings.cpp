@@ -497,6 +497,10 @@ void writeByteToEEPROM(byte b, int address)
 {
 	checksum = checksum + b;
 
+	unsigned char rb = EEPROM.read(address);
+
+	Serial.print("  r:"); Serial.print(rb); Serial.print(" w:"); Serial.print(b);
+
 	if (EEPROM.read(address) != b)
 	{
 		EEPROM.write(address, b);
@@ -551,11 +555,14 @@ void saveSettingsBLockToEEPROM(unsigned char * block, int size)
 void saveSettings()
 {
 	int saveAddr = SETTINGS_EEPROM_OFFSET;
+
 	checksum = 0;
 
 	iterateThroughProcessSecttings(saveSettingsBLockToEEPROM);
 
 	iterateThroughSensorSecttings(saveSettingsBLockToEEPROM);
+
+	Serial.print("Save checksum:"); Serial.println(checksum);
 
 	writeByteToEEPROM(checksum, saveAddr);
 
@@ -565,9 +572,11 @@ void saveSettings()
 void loadSettings()
 {
 	int loadAddr = SETTINGS_EEPROM_OFFSET;
+
 	checksum = 0;
 
 	iterateThroughProcessSecttings(readSettingsBLockFromEEPROM);
+
 	iterateThroughSensorSecttings(readSettingsBLockFromEEPROM);
 
 	unsigned char readChecksum = readByteFromEEPROM(loadAddr);
@@ -592,18 +601,22 @@ void checkSettingsBLockFromEEPROM(unsigned char* block, int size)
 boolean validStoredSettings()
 {
 	int loadAddr = SETTINGS_EEPROM_OFFSET;
+
 	checksum = 0;
 
 	iterateThroughProcessSecttings(checkSettingsBLockFromEEPROM);
+
 	iterateThroughSensorSecttings(checkSettingsBLockFromEEPROM);
+
+	unsigned char calcChecksum = checksum;
 
 	unsigned char readChecksum = readByteFromEEPROM(loadAddr);
 
-	Serial.print("calc:"); Serial.println(checksum);
+	Serial.print("calc:"); Serial.println(calcChecksum);
+
 	Serial.print("read:"); Serial.println(readChecksum);
 
-
-	return (checksum == readChecksum);
+	return (calcChecksum == readChecksum);
 }
 
 boolean matchSettingCollectionName(SettingItemCollection *settingCollection, const char *name)
@@ -788,6 +801,8 @@ void testSettingsStorage()
 	PrintAllSettings();
 	Serial.println("Storing Settings");
 	saveSettings();
+	Serial.println("Restoring setings");
+	saveSettings();
 	Serial.println("Loading Settings");
 	loadSettings();
 	PrintAllSettings();
@@ -954,6 +969,8 @@ void setupSettings()
 	resetSettings();
 
 	Serial.println("saving");
+
+	saveSettings();
 
 	saveSettings();
 
