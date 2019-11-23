@@ -54,5 +54,5 @@ void displayProcessStatus();
 void iterateThroughProcessSettings(void (*func) (SettingItem* s));
 void iterateThroughProcesses(void (*func) (process* p));
 void iterateThroughProcessSettingCollections(void (*func) (SettingItemCollection* s));
-
+void iterateThroughProcessSecttings(void (*func) (unsigned char* settings, int size));
 #endif

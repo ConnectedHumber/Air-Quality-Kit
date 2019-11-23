@@ -166,6 +166,16 @@ void iterateThroughSensorSettingCollections(void (*func) (SettingItemCollection*
 	}
 }
 
+void iterateThroughSensorSecttings(void (*func) (unsigned char* settings, int size))
+{
+	for (int i = 0; i < sizeof(sensorList) / sizeof(struct process*); i++)
+	{
+		func(sensorList[i]->settingsStoreBase,
+			sensorList[i]->settingsStoreLength);
+	}
+}
+
+
 
 void iterateThroughSensorSettings(void (*func) (SettingItem* s))
 {
@@ -173,7 +183,7 @@ void iterateThroughSensorSettings(void (*func) (SettingItem* s))
 	{
 		if (sensorList[i]->settingItems != NULL)
 		{
-			for (int j = 0; j++; j < sensorList[i]->settingItems->noOfSettings)
+			for (int j = 0; j < sensorList[i]->settingItems->noOfSettings; j++)
 			{
 				func(sensorList[i]->settingItems->settings[j]);
 			}
@@ -206,10 +216,10 @@ SettingItem* FindSensorSettingByFormName(const char* settingName)
 		{
 			SettingItemCollection* testItems = testSensor->settingItems;
 
-			for (int j = 0; j++; j < testSensor->settingItems->noOfSettings)
+			for (int j = 0; j < testSensor->settingItems->noOfSettings; j++)
 			{
 				SettingItem * testSetting = testItems->settings[j];
-				if (strcasecmp(settingName, testSetting->formName))
+				if (matchSettingName(testSetting, settingName))
 				{
 					return testSetting;
 				}

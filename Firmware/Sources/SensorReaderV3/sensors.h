@@ -53,6 +53,6 @@ void resetSensorsToDefaultSettings();
 void iterateThroughSensors(void (*func) (sensor* s));
 void iterateThroughSensorSettings(void (*func) (SettingItem* s));
 void iterateThroughSensorSettingCollections(void (*func) (SettingItemCollection* s));
-
+void iterateThroughSensorSecttings(void (*func) (unsigned char* settings, int size));
 
 #endif

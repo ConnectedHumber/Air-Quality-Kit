@@ -477,8 +477,6 @@ void PrintAllSettings()
 	iterateThroughProcessSettingCollections(PrintSettingCollection);
 }
 
-
-
 void resetSettings()
 {
 	settings.majorVersion = MAJOR_VERSION;
@@ -489,19 +487,42 @@ void resetSettings()
 	resetSensorsToDefaultSettings();
 
 	PrintAllSettings();
-	settings.checkByte1 = CHECK_BYTE_O1;
-	settings.checkByte2 = CHECK_BYTE_O2;
 }
 
-void writeBytesToEEPROM(byte *bytesToStore, int address, int length)
+unsigned char checksum;
+int saveAddr;
+int loadAddr;
+
+void writeByteToEEPROM(byte b, int address)
+{
+	checksum = checksum + b;
+
+	if (EEPROM.read(address) != b)
+	{
+		EEPROM.write(address, b);
+	}
+}
+
+void writeBytesToEEPROM(unsigned char *bytesToStore, int address, int length)
 {
 	int endAddress = address + length;
+
 	for (int i = address; i < endAddress; i++)
 	{
-		EEPROM.write(i, *bytesToStore);
+		byte b = *bytesToStore;
+
+		writeByteToEEPROM(b, address);
+
 		bytesToStore++;
 	}
-	EEPROM.commit();
+}
+
+byte readByteFromEEPROM(int address)
+{
+	byte result;
+	result = EEPROM.read(address);
+	checksum += result;
+	return result;
 }
 
 void readBytesFromEEPROM(byte *destination, int address, int length)
@@ -510,30 +531,79 @@ void readBytesFromEEPROM(byte *destination, int address, int length)
 
 	for (int i = address; i < endAddress; i++)
 	{
-		*destination = EEPROM.read(i);
-
+		*destination = readByteFromEEPROM(i);
 		destination++;
 	}
 }
 
+void readSettingsBLockFromEEPROM(unsigned char* block, int size)
+{
+	readBytesFromEEPROM(block, loadAddr, size);
+	loadAddr = loadAddr + size;
+}
+
+void saveSettingsBLockToEEPROM(unsigned char * block, int size)
+{
+	writeBytesToEEPROM(block, saveAddr,size);
+	saveAddr = saveAddr + size;
+}
+
 void saveSettings()
 {
-	int addr = SETTINGS_EEPROM_OFFSET;
+	int saveAddr = SETTINGS_EEPROM_OFFSET;
+	checksum = 0;
 
-	byte *settingPtr = (byte *)&settings;
+	iterateThroughProcessSecttings(saveSettingsBLockToEEPROM);
 
-	writeBytesToEEPROM(settingPtr, SETTINGS_EEPROM_OFFSET, sizeof(Device_Settings));
+	iterateThroughSensorSecttings(saveSettingsBLockToEEPROM);
+
+	writeByteToEEPROM(checksum, saveAddr);
+
+	EEPROM.commit();
 }
 
 void loadSettings()
 {
-	byte *settingPtr = (byte *)&settings;
-	readBytesFromEEPROM(settingPtr, SETTINGS_EEPROM_OFFSET, sizeof(Device_Settings));
+	int loadAddr = SETTINGS_EEPROM_OFFSET;
+	checksum = 0;
+
+	iterateThroughProcessSecttings(readSettingsBLockFromEEPROM);
+	iterateThroughSensorSecttings(readSettingsBLockFromEEPROM);
+
+	unsigned char readChecksum = readByteFromEEPROM(loadAddr);
+}
+
+void checksumBytesFromEEPROM(byte* destination, int address, int length)
+{
+	int endAddress = address + length;
+
+	for (int i = address; i < endAddress; i++)
+	{
+		readByteFromEEPROM(i);
+	}
+}
+
+void checkSettingsBLockFromEEPROM(unsigned char* block, int size)
+{
+	checksumBytesFromEEPROM(block, loadAddr, size);
+	loadAddr = loadAddr + size;
 }
 
 boolean validStoredSettings()
 {
-	return (settings.checkByte1 == CHECK_BYTE_O1 && settings.checkByte2 == CHECK_BYTE_O2);
+	int loadAddr = SETTINGS_EEPROM_OFFSET;
+	checksum = 0;
+
+	iterateThroughProcessSecttings(checkSettingsBLockFromEEPROM);
+	iterateThroughSensorSecttings(checkSettingsBLockFromEEPROM);
+
+	unsigned char readChecksum = readByteFromEEPROM(loadAddr);
+
+	Serial.print("calc:"); Serial.println(checksum);
+	Serial.print("read:"); Serial.println(readChecksum);
+
+
+	return (checksum == readChecksum);
 }
 
 boolean matchSettingCollectionName(SettingItemCollection *settingCollection, const char *name)
@@ -607,6 +677,7 @@ SettingItem* findSettingByName(const char* settingName)
 	SettingItem* result;
 
 	result = FindSensorSettingByFormName(settingName);
+
 	if (result != NULL)
 		return result;
 
@@ -878,7 +949,27 @@ void setupSettings()
 
 	EEPROM.begin(EEPROM_SIZE);
 
+	Serial.println("reset");
+
 	resetSettings();
+
+	Serial.println("saving");
+
+	saveSettings();
+
+	if (validStoredSettings())
+		Serial.println("settings valid");
+	else
+		Serial.println("settings invalid");
+
+	loadSettings();
+
+	if (validStoredSettings())
+		Serial.println("loaded settings valid");
+	else
+		Serial.println("loaded settings invalid");
+
+	while (true) delay(10);
 
 	//loadSettings();
 

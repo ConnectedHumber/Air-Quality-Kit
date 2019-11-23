@@ -207,6 +207,16 @@ void iterateThroughProcesses(void (*func) (process * p))
 	}
 }
 
+void iterateThroughProcessSecttings(void (*func) (unsigned char * settings, int size))
+{
+	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process*); i++)
+	{
+		func(runningProcessList[i]->settingsStoreBase, 
+			runningProcessList[i]->settingsStoreLength);
+	}
+}
+
+
 void iterateThroughProcessSettingCollections(void (*func) (SettingItemCollection* s))
 {
 	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process*); i++)
@@ -224,7 +234,7 @@ void iterateThroughProcessSettings(void (*func) (SettingItem* s))
 	{
 		if (runningProcessList[i]->settingItems != NULL)
 		{
-			for (int j = 0; j++; j < runningProcessList[i]->settingItems->noOfSettings)
+			for (int j = 0; j < runningProcessList[i]->settingItems->noOfSettings; j++)
 			{
 				func(runningProcessList[i]->settingItems->settings[j]);
 			}
@@ -258,10 +268,10 @@ SettingItem* FindProcesSettingByFormName(const char* settingName)
 		{
 			SettingItemCollection* testItems = testProcess->settingItems;
 
-			for (int j = 0; j++; j < testProcess->settingItems->noOfSettings)
+			for (int j = 0; j < testProcess->settingItems->noOfSettings; j++)
 			{
 				SettingItem* testSetting = testItems->settings[j];
-				if (strcasecmp(settingName, testSetting->formName))
+				if (matchSettingName(testSetting, settingName))
 				{
 					return testSetting;
 				}

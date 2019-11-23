@@ -40,8 +40,6 @@ struct Device_Settings
 	int majorVersion;
 	int minorVersion;
 
-	byte checkByte1;
-
 	char deviceName[DEVICE_NAME_LENGTH];
 
 	boolean indoorDevice;
@@ -49,8 +47,6 @@ struct Device_Settings
 	boolean fixedLocation;
 	double lattitude;
 	double longitude;
-
-	byte checkByte2;
 };
 
 extern struct Device_Settings settings;
@@ -85,7 +81,8 @@ void PrintAllSettings();
 SettingItem* findSettingByName(const char* settingName);
 
 SettingItemCollection * findSettingItemCollectionByName(const char * name);
-
+boolean matchSettingCollectionName(SettingItemCollection* settingCollection, const char* name);
+boolean matchSettingName(SettingItem* setting, const char* name);
 processSettingCommandResult processSettingCommand(char * command);
 
 void setupSettings();
