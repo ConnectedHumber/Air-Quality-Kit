@@ -7,6 +7,8 @@
 #include "settingsWebServer.h"
 #include "lora.h"
 #include "settings.h"
+#include "sensors.h"
+#include "processes.h"
 
 #define WEB_PAGE_BUFFER_SIZE 3000
 
@@ -14,7 +16,7 @@
 #define WEBSERVER_OFF 1
 #define WEBSERVER_ERROR_NO_WIFI -1
 
-char webPageBuffer [WEB_PAGE_BUFFER_SIZE];
+char webPageBuffer [WEB_PAGE_BUFFER_SIZE+1];
 
 WebServer * webServer;
 
@@ -25,27 +27,34 @@ const char homePageHeader[] =
 "<style>input {margin: 5px auto; } </style>"
 "</head>"
 "<body>"
-"<h1> Monitair Home</h1>"
-"<h2>Version %d.%d</h2>"; // version number goes here;
+"<h1>Configuration Home</h1>"
+"<h2>Version %d.%d</h2>" // version number goes here;
+"<h1>Sensors</h1>";
 
 const char homePageFooter[] =
 "<p> Select the link to the page that you want to view.</p>"
 "</body>"
 "</html>";
 
-void buildHomePage(char * webPageBuffer, int bufferSize, SettingItemCollection * allSettings, int noOfSettings)
+void addItem(SettingItemCollection * settings)
 {
-	snprintf(webPageBuffer, bufferSize, homePageHeader, MAJOR_VERSION, MINOR_VERSION);
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <p><a href=""%s"">%s</a> </p>",
+		webPageBuffer,
+		settings->collectionName,
+		settings->collectionDescription);
+}
 
-	for (int collectionNo = 0; collectionNo < noOfSettings; collectionNo++)
-	{
-		snprintf(webPageBuffer, bufferSize, "%s <p><a href=""%s"">%s</a> </p>",
-			webPageBuffer,
-			allSettings[collectionNo].collectionName,
-			allSettings[collectionNo].collectionDescription);
-	}
+void buildHomePage()
+{
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, homePageHeader, MAJOR_VERSION, MINOR_VERSION);
 
-	snprintf(webPageBuffer, bufferSize, "%s %s",
+	iterateThroughSensorSettingCollections(addItem);
+
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <h1>Processes</h1>", webPageBuffer);
+
+	iterateThroughProcessSettingCollections(addItem);
+
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s %s",
 		webPageBuffer, homePageFooter);
 }
 
@@ -66,7 +75,7 @@ const char settingsPageFooter[] =
 "</body>"
 "</html>";
 
-void buildCollectionSettingsPage(SettingItemCollection * settingCollection, char * webPageBuffer, int bufferSize)
+void buildCollectionSettingsPage(SettingItemCollection * settingCollection)
 {
 	int * valuePointer;
 	double * doublePointer;
@@ -74,79 +83,79 @@ void buildCollectionSettingsPage(SettingItemCollection * settingCollection, char
 	u4_t * loraIDValuePointer;
 	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
 
-	snprintf(webPageBuffer, bufferSize, settingsPageHeader, settingCollection->collectionDescription, settingCollection->collectionName);
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, settingsPageHeader, settingCollection->collectionDescription, settingCollection->collectionName);
 
 	// Start the search at setting collection 0 so that the quick settings are used to build the web page
 	for (int i = 0; i < settingCollection->noOfSettings; i++)
 	{
-		snprintf(webPageBuffer, bufferSize, "%s <label for='%s'> %s: </label>",
+		snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <label for='%s'> %s: </label>",
 			webPageBuffer,
-			settingCollection->settings[i].formName,
-			settingCollection->settings[i].prompt);
+			settingCollection->settings[i]->formName,
+			settingCollection->settings[i]->prompt);
 
-		switch (settingCollection->settings[i].settingType)
+		switch (settingCollection->settings[i]->settingType)
 		{
 		case text:
-			snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='%s'><br>",
-				webPageBuffer, settingCollection->settings[i].formName, settingCollection->settings[i].value);
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='%s'><br>",
+				webPageBuffer, settingCollection->settings[i]->formName, settingCollection->settings[i]->value);
 			break;
 		case password:
-			snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'password' value='%s'><br>",
-				webPageBuffer, settingCollection->settings[i].formName, settingCollection->settings[i].value);
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'password' value='%s'><br>",
+				webPageBuffer, settingCollection->settings[i]->formName, settingCollection->settings[i]->value);
 			break;
 		case integerValue:
-			valuePointer = (int*)settingCollection->settings[i].value;
-			snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='%d'><br>",
-				webPageBuffer, settingCollection->settings[i].formName, *valuePointer);
+			valuePointer = (int*)settingCollection->settings[i]->value;
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='%d'><br>",
+				webPageBuffer, settingCollection->settings[i]->formName, *valuePointer);
 			break;
 		case doubleValue:
-			doublePointer = (double*)settingCollection->settings[i].value;
-			snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='%lf'><br>",
-				webPageBuffer, settingCollection->settings[i].formName, *doublePointer);
+			doublePointer = (double*)settingCollection->settings[i]->value;
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='%lf'><br>",
+				webPageBuffer, settingCollection->settings[i]->formName, *doublePointer);
 			break;
 		case onOff:
-			boolPointer = (boolean*)settingCollection->settings[i].value;
+			boolPointer = (boolean*)settingCollection->settings[i]->value;
 			if (*boolPointer)
 			{
-				snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='on'><br>",
-					webPageBuffer, settingCollection->settings[i].formName);
+				snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='on'><br>",
+					webPageBuffer, settingCollection->settings[i]->formName);
 			}
 			else
 			{
-				snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='off'><br>",
-					webPageBuffer, settingCollection->settings[i].formName);
+				snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='off'><br>",
+					webPageBuffer, settingCollection->settings[i]->formName);
 			}
 			break;
 		case yesNo:
-			boolPointer = (boolean*)settingCollection->settings[i].value;
+			boolPointer = (boolean*)settingCollection->settings[i]->value;
 			if (*boolPointer)
 			{
-				snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='yes'><br>",
-					webPageBuffer, settingCollection->settings[i].formName);
+				snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='yes'><br>",
+					webPageBuffer, settingCollection->settings[i]->formName);
 			}
 			else
 			{
-				snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='no'><br>",
-					webPageBuffer, settingCollection->settings[i].formName);
+				snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='no'><br>",
+					webPageBuffer, settingCollection->settings[i]->formName);
 			}
 			break;
 		case loraKey:
-			dumpHexString(loraKeyBuffer, (uint8_t *) settingCollection->settings[i].value, LORA_KEY_LENGTH );
-			snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='%s'><br>",
-				webPageBuffer, settingCollection->settings[i].formName, loraKeyBuffer);
+			dumpHexString(loraKeyBuffer, (uint8_t *) settingCollection->settings[i]->value, LORA_KEY_LENGTH );
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='%s'><br>",
+				webPageBuffer, settingCollection->settings[i]->formName, loraKeyBuffer);
 			break;
 		
 		case loraID:
-			loraIDValuePointer = (u4_t *) settingCollection->settings[i].value;
+			loraIDValuePointer = (u4_t *) settingCollection->settings[i]->value;
 			dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer) ;
-			snprintf(webPageBuffer, bufferSize, "%s <input name = '%s' type = 'text' value='%s'><br>",
-				webPageBuffer, settingCollection->settings[i].formName, loraKeyBuffer);
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='%s'><br>",
+				webPageBuffer, settingCollection->settings[i]->formName, loraKeyBuffer);
 			break;
 
 			}
 		}
 
-	snprintf(webPageBuffer, bufferSize, settingsPageFooter, webPageBuffer);
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, settingsPageFooter, webPageBuffer);
 }
 
 const char replyPageHeader[] =
@@ -164,25 +173,34 @@ const char replyPageFooter[] =
 "<p><a href = ""/"">return to the settings home screen </a></p>"
 "</body></html>";
 
-void updateSettings(WebServer *webServer, SettingItemCollection * settingCollection, char * webPageBuffer, int bufferSize)
+void updateItem(SettingItemCollection* settings)
 {
-	snprintf(webPageBuffer, bufferSize, replyPageHeader, settingCollection->collectionDescription, settingCollection->collectionName);
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <p><a href=""%s"">%s</a> </p>",
+		webPageBuffer,
+		settings->collectionName,
+		settings->collectionDescription);
+}
+
+
+void updateSettings(WebServer *webServer, SettingItemCollection * settingCollection)
+{
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, replyPageHeader, settingCollection->collectionDescription, settingCollection->collectionName);
 
 	for (int i = 0; i < settingCollection->noOfSettings; i++)
 	{
-		String fName = String(settingCollection->settings[i].formName);
+		String fName = String(settingCollection->settings[i]->formName);
 		String argValue = webServer->arg(fName);
 
-		if (!settingCollection->settings[i].validateValue(
-			settingCollection->settings[i].value,
+		if (!settingCollection->settings[i]->validateValue(
+			settingCollection->settings[i]->value,
 			argValue.c_str()))
 		{
-			snprintf(webPageBuffer, bufferSize, "%s <p>Invalid value %s for %s</p> ",
-				webPageBuffer, argValue.c_str(), settingCollection->settings[i].prompt);
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <p>Invalid value %s for %s</p> ",
+				webPageBuffer, argValue.c_str(), settingCollection->settings[i]->prompt);
 		}
 	}
 	saveSettings();
-	snprintf(webPageBuffer, bufferSize, replyPageFooter, webPageBuffer);
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, replyPageFooter, webPageBuffer);
 }
 
 void serveHome(WebServer *webServer)
@@ -191,9 +209,7 @@ void serveHome(WebServer *webServer)
 
 	if (webServer->args() == 0) {
 		// Serial.println("Serving the home page");
-		struct AllSystemSettings * allSystemSettings = getAllSystemSettings();
-		buildHomePage(webPageBuffer, WEB_PAGE_BUFFER_SIZE,
-			allSystemSettings->collections, allSystemSettings->noOfCollections);
+		buildHomePage();
 		webServer->sendHeader("Content-Length", String(strlen(webPageBuffer)));
 		webServer->send(200, "text/html", webPageBuffer);
 	}
@@ -228,13 +244,13 @@ void pageNotFound(WebServer *webServer)
 		{
 			// Not a post - just serve out the settings form
 			//Serial.printf("Got settings request for %s\n", items->collectionName);
-			buildCollectionSettingsPage(items, webPageBuffer, WEB_PAGE_BUFFER_SIZE);
+			buildCollectionSettingsPage(items);
 		}
 		else
 		{
 			// Posting new values - now we need to read them
 			//Serial.printf("Got new data for %s\n", items->collectionName);
-			updateSettings(webServer, items, webPageBuffer, WEB_PAGE_BUFFER_SIZE);
+			updateSettings(webServer, items);
 		}
 		webServer->sendHeader("Content-Length", String(strlen(webPageBuffer)));
 		webServer->send(200, "text/html", webPageBuffer);

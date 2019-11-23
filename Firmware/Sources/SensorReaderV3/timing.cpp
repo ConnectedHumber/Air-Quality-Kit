@@ -16,6 +16,82 @@
 
 String loggingStateNames [] = { "off", "particles", "temp", "pressure", "humidity", "all"};
 
+struct TimingSettings timingSettings;
+
+void setDefaultPowerControlPinNo(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 21;
+}
+
+
+struct SettingItem powerControlPinSetting = {
+		"Power Control Pin",
+		"powercontrolpin",
+		& timingSettings.powerControlPin,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPowerControlPinNo,
+		validateInt };
+
+struct SettingItem powerControlFittedSetting = {
+		"Power Control fitted (yes or no)",
+		"powercontrolfitted",
+		& timingSettings.powerControlFitted,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setFalse,
+		validateYesNo };
+
+boolean validateLoggingState(void* dest, const char* newValueStr)
+{
+	int value;
+
+	if (sscanf(newValueStr, "%d", &value) != 1)
+	{
+		return false;
+	}
+
+	if (value < 0)
+	{
+		return false;
+	}
+
+	if (value > 5)
+	{
+		return false;
+	}
+
+	*(Logging_State*)dest = (Logging_State)value;
+	return true;
+}
+
+void setDefaultLoggingState(void* dest)
+{
+	*(Logging_State*)dest = loggingOff;
+}
+
+struct SettingItem loggingSetting = {
+		"Logging (0=off,1=air,2=temp,3=pres,4=hum,5=all)", "logging", &timingSettings.logging, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoggingState, validateLoggingState };
+
+struct SettingItem* timingSettingItemPointers[] =
+{
+	&powerControlPinSetting,
+	&powerControlFittedSetting,
+	&loggingSetting
+};
+
+struct SettingItemCollection timingSettingItems = {
+	"timing",
+	"Set logging options and power control setting for external devices",
+	timingSettingItemPointers,
+	sizeof(timingSettingItemPointers) / sizeof(struct SettingItem*)
+};
+
+
+
+
+
 unsigned long mqtt_reading_retry_interval_in_millis;
 unsigned long mqtt_reading_interval_in_millis;
 unsigned long milliseconds_at_last_mqtt_update;
@@ -74,7 +150,7 @@ bool lora_interval_has_expired()
 
 unsigned long time_to_next_mqtt_update()
 {
-	if (settings.mqtt_enabled)
+	if (mqttSettings.mqtt_enabled)
 	{
 		unsigned long millis_since_last_mqtt_update = ulongDiff(millis(), milliseconds_at_last_mqtt_update);
 
@@ -105,7 +181,7 @@ unsigned long time_to_next_lora_update()
 bool updates_active()
 {
 	if(loRaSettings.loraOn) return true;
-	if(settings.mqtt_enabled) return true;
+	if(mqttSettings.mqtt_enabled) return true;
 
 	return false;
 }
@@ -147,7 +223,7 @@ void sendReadings()
 {
 	unsigned long time_in_millis = millis();
 
-	if (settings.mqtt_enabled)
+	if (mqttSettings.mqtt_enabled)
 	{
 		unsigned long millis_since_last_mqtt_update = ulongDiff(time_in_millis, milliseconds_at_last_mqtt_update);
 
@@ -158,11 +234,11 @@ void sendReadings()
 
 			if (send_to_mqtt())
 			{
-				mqtt_reading_interval_in_millis = settings.mqttSecsPerUpdate * 1000;
+				mqtt_reading_interval_in_millis = mqttSettings.mqttSecsPerUpdate * 1000;
 			}
 			else
 			{
-				mqtt_reading_interval_in_millis = settings.seconds_per_mqtt_retry * 1000;
+				mqtt_reading_interval_in_millis = mqttSettings.seconds_per_mqtt_retry * 1000;
 			}
 		}
 	}
@@ -229,11 +305,11 @@ bool can_power_off_sensor()
 {
 	// can never power off the sensor if the display is on
 
-	if (settings.logging != loggingOff)
+	if (timingSettings.logging != loggingOff)
 		return false;
 
-	long milliseconds_for_sensor_warmup = settings.airqSecnondsSensorWarmupTime * 1000;
-	long milliseconds_for_averaging = (settings.airqNoOfAverages / 2) * 1000;
+	long milliseconds_for_sensor_warmup = airqualitySettings.airqSecnondsSensorWarmupTime * 1000;
+	long milliseconds_for_averaging = (airqualitySettings.airqNoOfAverages / 2) * 1000;
 
 	if (time_to_next_update() > (milliseconds_for_sensor_warmup + milliseconds_for_averaging)) {
 		return true;
@@ -245,7 +321,7 @@ bool can_power_off_sensor()
 bool can_start_reading()
 {
 	// take two readings a second
-	long milliseconds_for_averaging = (settings.airqNoOfAverages / 2) * 1000;
+	long milliseconds_for_averaging = (airqualitySettings.airqNoOfAverages / 2) * 1000;
 
 	if (time_to_next_update() > milliseconds_for_averaging) {
 		return false;
@@ -319,7 +395,7 @@ void print_dump_values()
     airqualityReading *airq = (airqualityReading *)airqSensor.activeReading;
     bme280Reading *env = (bme280Reading *)bme280Sensor.activeReading;
 
-	switch(settings.logging)
+	switch(timingSettings.logging)
 	{
 		case loggingOff:
 		return;
@@ -351,7 +427,7 @@ void print_dump_values()
 
 void updateSerialDump()
 {
-	if(settings.logging == loggingOff) return;
+	if(timingSettings.logging == loggingOff) return;
 
 	if((dump_air_values_reading_count != airqSensor.readingNumber) &&
 		(dump_bme_values_reading_count != bme280Sensor.readingNumber)) 
@@ -367,7 +443,7 @@ int startTiming(struct process * timingProcess)
 {
 	unsigned long time_in_millis = millis();
 
-	mqtt_reading_interval_in_millis = settings.mqttSecsPerUpdate * 1000;
+	mqtt_reading_interval_in_millis = mqttSettings.mqttSecsPerUpdate * 1000;
 	milliseconds_at_last_mqtt_update = time_in_millis - mqtt_reading_interval_in_millis;
 	lora_reading_interval_in_millis = loRaSettings.seconds_per_lora_update * 1000;
 	milliseconds_at_last_lora_update = time_in_millis - lora_reading_interval_in_millis;
@@ -399,16 +475,16 @@ int updateTiming(struct process * timingProcess)
 	{
 		unsigned long time_in_millis = millis();
 		milliseconds_at_last_lora_update = time_in_millis - 
-			((loRaSettings.seconds_per_lora_update * 1000) - (settings.airqSecnondsSensorWarmupTime * 1000));
+			((loRaSettings.seconds_per_lora_update * 1000) - (airqualitySettings.airqSecnondsSensorWarmupTime * 1000));
 		loraForceSend = false;
 	}
 
 	if (mqttForceSend)
 	{
-		long milliseconds_for_sensor_warmup = settings.airqSecnondsSensorWarmupTime * 1000;
+		long milliseconds_for_sensor_warmup = airqualitySettings.airqSecnondsSensorWarmupTime * 1000;
 		unsigned long time_in_millis = millis();
 		milliseconds_at_last_mqtt_update = time_in_millis -
-			((settings.mqttSecsPerUpdate * 1000) - (settings.airqSecnondsSensorWarmupTime * 1000));
+			((mqttSettings.mqttSecsPerUpdate * 1000) - (airqualitySettings.airqSecnondsSensorWarmupTime * 1000));
 		mqttForceSend = false;
 	}
 	return PROCESS_OK;

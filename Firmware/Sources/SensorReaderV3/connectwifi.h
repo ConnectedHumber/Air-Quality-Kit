@@ -57,19 +57,6 @@ int stopWiFi(struct process * wifiProcess);
 int updateWifi(struct process * wifiProcess);
 void wifiStatusMessage(struct process * wifiProcess, char * buffer, int bufferLength);
 
-extern struct SettingItem wifi1SSIDSetting;
-extern struct SettingItem wifi1PWDSetting;
-
-extern struct SettingItem wifi2SSIDSetting;
-extern struct SettingItem wifi2PWDSetting;
-
-extern struct SettingItem wifi3SSIDSetting;
-extern struct SettingItem wifi3PWDSetting;
-
-extern struct SettingItem wifi4SSIDSetting;
-extern struct SettingItem wifi4PWDSetting;
-
-extern struct SettingItem wifi5SSIDSetting;
-extern struct SettingItem wifi5PWDSetting;
+extern struct SettingItemCollection wifiConnectionSettingItems;
 
 #endif

@@ -22,6 +22,10 @@
 
 #define MQTT_CONNECT_RETRY_INTERVAL_MSECS 5000
 
+#define MQTT_USER_NAME_LENGTH 100
+#define MQTT_PASSWORD_LENGTH 200
+#define MQTT_TOPIC_LENGTH 150
+
 struct MqttSettings
 {
 	char mqttServer[SERVER_NAME_LENGTH];
@@ -40,17 +44,7 @@ struct MqttSettings
 
 extern struct MqttSettings mqttSettings;
 
-extern struct SettingItem mqttOnOffSetting;
-extern struct SettingItem mqttServerSetting;
-extern struct SettingItem mqttPortSetting;
-extern struct SettingItem mqttSecureSocketsSetting;
-extern struct SettingItem mqttUserSetting;
-extern struct SettingItem mqttPasswordSetting;
-extern struct SettingItem mqttPublishTopicSetting;
-extern struct SettingItem mqttReportTopicSetting;
-extern struct SettingItem mqttSecsPerUpdateSetting;
-extern struct SettingItem seconds_per_mqtt_retrySetting;
-
+extern struct SettingItemCollection mqttSettingItems;
 
 boolean publishBufferToMQTT(char * buffer);
 extern struct process * activeMQTTProcess;

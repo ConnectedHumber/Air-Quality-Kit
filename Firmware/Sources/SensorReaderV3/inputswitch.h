@@ -14,5 +14,13 @@ int updateInputSwitch(struct process * inputSwitchProcess);
 int stopInputSwitch(struct process * inputSwitchProcess);
 void inputSwitchStatusMessage(struct process * inputSwitchProcess, char * buffer, int bufferLength);
 
+struct InputSwitchSettings {
+	int controlInputPin;
+	boolean controlInputPinActiveLow;
+};
+
+extern struct InputSwitchSettings inputSwitchSettings;
+
+extern struct SettingItemCollection inputSwitchSettingItems;
 
 #endif

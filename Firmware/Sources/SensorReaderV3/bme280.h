@@ -44,6 +44,15 @@ struct bme280Reading {
   unsigned long lastEnvqAverageMillis;
 };
 
+struct Bme280Settings {
+	boolean bme280Fitted;
+	int envNoOfAverages;
+};
+
+extern struct Bme280Settings bmeSettings;
+
+extern struct SettingItemCollection bme280SettingItems;
+
 int startBme280(struct sensor * bme280Sensor);
 int updateBME280Reading(struct sensor * bme280Sensor);
 void startBME280Reading(struct sensor * bme280Sensor);

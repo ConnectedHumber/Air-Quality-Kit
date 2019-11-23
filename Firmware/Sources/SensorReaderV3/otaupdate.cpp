@@ -9,8 +9,34 @@
 #include "processes.h"
 #include "otaupdate.h"
 
-struct process * otaWiFiProcess = NULL;
+struct OtaUpdateSettings otaUpdateSettings;
 
+struct SettingItem autoUpdateImageServerSetting = {
+"Auto update image server", "autoupdimage", otaUpdateSettings.autoUpdateImageServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName };
+
+struct SettingItem autoUpdateStatusServerSetting = {
+"Auto update status server", "autoupdstatus", otaUpdateSettings.autoUpdateStatusServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName };
+
+struct SettingItem autoUpdateEnabledSetting = {
+	"Auto update on", "autoupdon", &otaUpdateSettings.autoUpdateEnabled, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff};
+
+struct SettingItem* otaUpdateSettingItemPointers[] =
+{
+&autoUpdateImageServerSetting,
+&autoUpdateStatusServerSetting,
+&autoUpdateEnabledSetting
+};
+
+struct SettingItemCollection otaUpdateSettingItems = {
+	"OTAUpdate",
+	"Over the air update server settings",
+	otaUpdateSettingItemPointers,
+	sizeof(otaUpdateSettingItemPointers) / sizeof(struct SettingItem*)
+};
+
+
+
+struct process * otaWiFiProcess = NULL;
 
 int startOtaUpdate(struct process * otaUpdateProcess)
 {

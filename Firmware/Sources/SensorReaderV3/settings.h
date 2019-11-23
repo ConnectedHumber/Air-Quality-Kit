@@ -22,16 +22,11 @@
 #define WIFI_SSID_LENGTH 30
 #define WIFI_PASSWORD_LENGTH 30
 
-#define SERVER_NAME_LENGTH 200
-#define MQTT_USER_NAME_LENGTH 100
-#define MQTT_PASSWORD_LENGTH 200
-#define MQTT_TOPIC_LENGTH 150
 #define NUMBER_INPUT_LENGTH 20
 #define YESNO_INPUT_LENGTH 0
 #define ONOFF_INPUT_LENGTH 0
 #define SETTING_ERROR_MESSAGE_LENGTH 120
-
-#define SPLASH_LINE_LENGTH 15
+#define SERVER_NAME_LENGTH 200
 
 #define MAX_SETTING_LENGTH 300
 
@@ -51,44 +46,9 @@ struct Device_Settings
 
 	boolean indoorDevice;
 
-	// WiFi settings
-
-	// Auto update settings
-
-	char autoUpdateImageServer[SERVER_NAME_LENGTH];
-	char autoUpdateStatusServer[SERVER_NAME_LENGTH];
-	boolean autoUpdateEnabled;
-
-	// MQTT settings
-
-	// Hardware settings
-
-	int airqSensorType;
-	int airqSecnondsSensorWarmupTime;
-	int airqRXPinNo;
-	int airqTXPinNo;
-	boolean bme280Fitted;
-
-	boolean powerControlFitted;
-	int powerControlPin;
-	int controlInputPin;
-	boolean controlInputPinActiveLow;
-	
-	boolean gpsFitted;
-	int gpsRXPinNo;
-
 	boolean fixedLocation;
 	double lattitude;
 	double longitude;
-
-	int airqNoOfAverages;
-
-	int envNoOfAverages;
-
-	Logging_State logging;
-
-	char splash_screen_top_line[SPLASH_LINE_LENGTH];
-	char splash_screen_bottom_line[SPLASH_LINE_LENGTH];
 
 	byte checkByte2;
 };
@@ -111,14 +71,8 @@ struct SettingItemCollection
 {
 	char * collectionName;
 	char * collectionDescription;
-	SettingItem * settings;
+	SettingItem ** settings;
 	int noOfSettings;
-};
-
-struct AllSystemSettings
-{
-	SettingItemCollection * collections;
-	int noOfCollections;
 };
 
 enum processSettingCommandResult { displayedOK, setOK, settingNotFound, settingValueInvalid };
@@ -128,8 +82,9 @@ void loadSettings();
 void resetSettings();
 void PrintAllSettings();
 
+SettingItem* findSettingByName(const char* settingName);
+
 SettingItemCollection * findSettingItemCollectionByName(const char * name);
-AllSystemSettings * getAllSystemSettings();
 
 processSettingCommandResult processSettingCommand(char * command);
 
@@ -160,16 +115,7 @@ boolean validateInt(void *dest, const char *newValueStr);
 
 boolean validateDouble(void *dest, const char *newValueStr);
 
-boolean validateColour(void* dest, const char* newValueStr);
-
-void setDefaultDevname(void* dest);
-
 boolean validateDevName(void* dest, const char* newValueStr);
 
 boolean validateServerName(void* dest, const char* newValueStr);
-
-boolean validateWifiSSID(void* dest, const char* newValueStr);
-
-boolean validateWifiPWD(void* dest, const char* newValueStr);
-
 #endif

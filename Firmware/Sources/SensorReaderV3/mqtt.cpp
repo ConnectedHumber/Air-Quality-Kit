@@ -120,6 +120,29 @@ struct SettingItem mqttSecsPerUpdateSetting = {
 struct SettingItem seconds_per_mqtt_retrySetting = {
 "MQTT Seconds per retry", "mqttsecsperretry", &mqttSettings.seconds_per_mqtt_retry, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerRetry, validateInt };
 
+
+struct SettingItem* mqttSettingItemPointers[] =
+{
+&mqttOnOffSetting,
+&mqttServerSetting,
+&mqttPortSetting,
+&mqttSecureSocketsSetting,
+&mqttUserSetting,
+&mqttPasswordSetting,
+&mqttPublishTopicSetting,
+&mqttReportTopicSetting,
+&mqttSecsPerUpdateSetting,
+&seconds_per_mqtt_retrySetting
+};
+
+struct SettingItemCollection mqttSettingItems = {
+	"MQTT",
+	"MQTT host, username, password and connection topics",
+	mqttSettingItemPointers,
+	sizeof(mqttSettingItemPointers) / sizeof(struct SettingItem*)
+};
+
+
 unsigned long mqtt_timer_start;
 
 Client* espClient = NULL;
@@ -208,7 +231,7 @@ int restartMQTT()
 		mqttPubSubClient->setCallback(callback);
 	}
 
-	if (!mqttPubSubClient->connect(mqttSettings.deviceName, mqttSettings.mqttUser, mqttSettings.mqttPassword))
+	if (!mqttPubSubClient->connect(settings.deviceName, mqttSettings.mqttUser, mqttSettings.mqttPassword))
 	{
 		switch (mqttPubSubClient->state())
 		{

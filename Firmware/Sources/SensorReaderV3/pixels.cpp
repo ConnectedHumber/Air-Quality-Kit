@@ -6,6 +6,25 @@
 
 struct PixelSettings pixelSettings;
 
+boolean validateColour(void* dest, const char* newValueStr)
+{
+	int value;
+
+	if (sscanf(newValueStr, "%d", &value) == 1)
+	{
+		*(int*)dest = value;
+		return true;
+	}
+
+	if (value < 0)
+		return false;
+
+	if (value > 255)
+		return false;
+
+	return true;
+}
+
 void setDefaultPixelControlPinNo(void* dest)
 {
 	int* destInt = (int*)dest;
@@ -155,6 +174,34 @@ void setDefaultAirqHighAlertLimit(void *dest)
 	int *destInt = (int *)dest;
 	*destInt = 250;
 }
+
+struct SettingItem pixelAirqHighAlertLimit = {
+		"AirQ High Alert Limit",
+		"airqhighalertlimit",
+		&pixelSettings.airqHighAlertLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqHighAlertLimit,
+		validateInt
+};
+
+struct SettingItem* pixelSettingItemPointers[] =
+{
+  &pixelControlPinSetting,
+  &pixelNoOfPixelsSetting,
+  &pixelAirQLowLimit,
+  &pixelAirqLowWarnLimit,
+  &pixelAirqMidWarnLimit,
+  &pixelAirqHighWarnLimit,
+  &pixelAirqHighAlertLimit
+};
+
+struct SettingItemCollection pixelSettingItems = {
+	"pixel",
+	"Settings for the NeoPixel output from the device",
+	pixelSettingItemPointers,
+	sizeof(pixelSettingItemPointers) / sizeof(struct SettingItem*)
+};
 
 Adafruit_NeoPixel * strip;
 

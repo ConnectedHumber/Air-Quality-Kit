@@ -5,10 +5,20 @@
 #include "debug.h"
 #include "settings.h"
 
+boolean validateWifiSSID(void* dest, const char* newValueStr)
+{
+	return (validateString((char*)dest, newValueStr, WIFI_SSID_LENGTH));
+}
+
+boolean validateWifiPWD(void* dest, const char* newValueStr)
+{
+	return (validateString((char*)dest, newValueStr, WIFI_PASSWORD_LENGTH));
+}
+
 struct WifiConnectionSettings wifiConnectionSettings;
 
 struct SettingItem wifiOnOff = {
-	"Wifi on", "wifionon",&wifiConnectionSettings.wiFiOn, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff 
+	"Wifi on", "wifionon",&wifiConnectionSettings.wiFiOn, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff
 };
 
 struct SettingItem wifi1SSIDSetting = {
@@ -35,6 +45,34 @@ struct SettingItem wifi5SSIDSetting = {
 	"WiFiSSID5", "wifissid5", wifiConnectionSettings.wifi5SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID };
 struct SettingItem wifi5PWDSetting = {
 	"WiFiPassword5", "wifipwd5", wifiConnectionSettings.wifi5PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD };
+
+
+struct SettingItem* wifiConnectionSettingItemPointers[] =
+{
+&wifi1SSIDSetting,
+&wifi1PWDSetting,
+
+&wifi2SSIDSetting,
+&wifi2PWDSetting,
+
+&wifi3SSIDSetting,
+&wifi3PWDSetting,
+
+&wifi4SSIDSetting,
+&wifi4PWDSetting,
+
+&wifi5SSIDSetting,
+&wifi5PWDSetting 
+};
+
+
+struct SettingItemCollection wifiConnectionSettingItems = {
+	"WiFi",
+	"WiFi configuration options",
+	wifiConnectionSettingItemPointers,
+	sizeof(wifiConnectionSettingItemPointers) / sizeof(struct SettingItem*)
+};
+
 
 // Note that if we add new WiFi passwords into the settings
 // we will have to update this table. 
@@ -74,9 +112,9 @@ int wifiError;
 boolean firstRun = true;
 unsigned long lastWiFiConnectAtteptMillis;
 
-int * wifiStatusAddress;
+int* wifiStatusAddress;
 
-int startWifi(struct process * wifiProcess)
+int startWifi(struct process* wifiProcess)
 {
 	if (!wifiConnectionSettings.wiFiOn)
 	{
@@ -132,7 +170,7 @@ int startWifi(struct process * wifiProcess)
 				delay(500);
 				if (ulongDiff(millis(), connectStartTime) > WIFI_CONNECT_TIMEOUT_MILLIS)
 				{
-//					WiFi.disconnect();
+					//					WiFi.disconnect();
 					wifiProcess->status = WIFI_ERROR_CONNECT_TIMEOUT;
 					TRACELN("Timeout");
 					return WIFI_ERROR_CONNECT_TIMEOUT;
@@ -162,7 +200,7 @@ int startWifi(struct process * wifiProcess)
 	return WIFI_ERROR_NO_MATCHING_NETWORKS;
 }
 
-int stopWiFi(struct process * wifiProcess)
+int stopWiFi(struct process* wifiProcess)
 {
 	TRACELN("WiFi turned off");
 	wifiProcess->status = WIFI_TURNED_OFF;
@@ -203,7 +241,7 @@ void displayWiFiStatus(int status)
 	}
 }
 
-int updateWifi(struct process * wifiProcess)
+int updateWifi(struct process* wifiProcess)
 {
 	if (!wifiConnectionSettings.wiFiOn)
 		return WIFI_OFF;
@@ -233,7 +271,7 @@ int updateWifi(struct process * wifiProcess)
 	return wifiProcess->status;
 }
 
-void wifiStatusMessage(struct process * wifiProcess, char * buffer, int bufferLength)
+void wifiStatusMessage(struct process* wifiProcess, char* buffer, int bufferLength)
 {
 	switch (wifiProcess->status)
 	{

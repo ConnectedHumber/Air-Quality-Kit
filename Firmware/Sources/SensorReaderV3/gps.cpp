@@ -8,12 +8,72 @@
 #include "processes.h"
 #include "gps.h"
 
+struct GpsSetting gpsSetting;
+
+void setDefaultGpsPinNo(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 22;
+}
+
+struct SettingItem gpsFittedSetting = {
+"GPS fitted (yes or no)",
+"gpsfitted",
+& gpsSetting.gpsFitted,
+ONOFF_INPUT_LENGTH,
+yesNo,
+setFalse,
+validateYesNo };
+
+struct SettingItem gpsRXPinNoSetting = {
+"GPS RX Pin",
+"gpsrxpin",
+& gpsSetting.gpsRXPinNo,
+NUMBER_INPUT_LENGTH,
+integerValue,
+setDefaultGpsPinNo,
+validateInt };
+
+void setDefaultPositionValue(void* dest)
+{
+	double* destDouble = (double*)dest;
+	*destDouble = -1000;
+}
+
+struct SettingItem fixedLocationSetting = {
+		"Fixed location", "fixedlocation", &settings.fixedLocation, ONOFF_INPUT_LENGTH, yesNo, setTrue, validateYesNo };
+
+struct SettingItem lattitudeSetting = {
+		"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble };
+
+struct SettingItem longitudeSetting = {
+		"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble };
+
+struct SettingItem indoorDeviceSetting = {
+		"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo };
+
+struct SettingItem* GpsSettingItemPointers[] =
+{
+	&gpsFittedSetting,
+	&gpsRXPinNoSetting,
+	&fixedLocationSetting,
+	&lattitudeSetting,
+	&longitudeSetting,
+	&indoorDeviceSetting
+};
+
+struct SettingItemCollection gpsSettingItems = {
+	"gps",
+	"Set the GPS RX pin and operating mode",
+	GpsSettingItemPointers,
+	sizeof(GpsSettingItemPointers) / sizeof(struct SettingItem*)
+};
+
+
 char nmeaBuffer[100];
 MicroNMEA nmea(nmeaBuffer, sizeof(nmeaBuffer));
 
-HardwareSerial GPS_Serial(2);
-
-HardwareSerial * gpsSerial = &GPS_Serial;
+HardwareSerial * gpsSerial ;
 
 unsigned long gpsReadingStartTime;
 
@@ -46,6 +106,7 @@ int startGps(struct sensor * gpsSensor)
 	// Open the serial port
 	if (gpsSerial == NULL)
 	{
+		gpsSerial = new HardwareSerial(gpsSetting.gpsRXPinNo);
 		gpsSerial->begin(9600);
 	}
 

@@ -1,6 +1,7 @@
 #include "clock.h"
 #include "connectwifi.h"
 
+
 struct process * clockWiFiProcess = NULL;
 
 char * dayNames[] = { "", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };

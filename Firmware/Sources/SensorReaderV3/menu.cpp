@@ -462,14 +462,14 @@ void menuLoggingStateSelected(int stateValue)
 	char buffer[100];
 	sprintf(buffer, "State %s", loggingStateNames[stateValue]);
 	displayMessage("Logging", buffer, 2000, messageDisplayComplete);
-	settings.logging = (Logging_State) stateValue;
+	timingSettings.logging = (Logging_State) stateValue;
 	saveSettings();
 }
 
 void selectLoggingState()
 {
 	TRACELN("Set logging state called");
-	getSelectionFromString("Set Logging", settings.logging, "off\nparticles\ntemp\npressure\nhumidity\nall",menuLoggingStateSelected);
+	getSelectionFromString("Set Logging", timingSettings.logging, "off\nparticles\ntemp\npressure\nhumidity\nall",menuLoggingStateSelected);
 }
 
 Menu logingMenu = {0, "State\nBack", {selectLoggingState, doBackFromMenu}};

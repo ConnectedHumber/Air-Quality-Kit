@@ -11,7 +11,103 @@
 
 #define AIRQ_SERIAL_DATA_TIMEOUT_MILLIS 2000
 
-HardwareSerial * airqSensorSerial = NULL;
+struct AirqualitySettings airqualitySettings;
+
+void setDefaultAirQSensorType(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = UNKNOWN_SENSOR;
+}
+
+void setDefaultAirQWarmupTime(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 30;
+}
+
+void setDefaultAirqRXpin(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 17;
+}
+
+void setDefaultAirqTXpin(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 13;
+}
+
+void setDefaultAirqnoOfAverages(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 25;
+}
+
+
+struct SettingItem airqSensorTypeSetting = {
+"AirQ Sensor type (0 = not fitted 1=SDS011, 2=ZPH01)",
+"airqsensortype",
+&airqualitySettings.airqSensorType,
+NUMBER_INPUT_LENGTH,
+integerValue,
+setDefaultAirQSensorType,
+validateInt };
+
+struct SettingItem airqSecondsSensorWarmupTimeSetting = {
+"AirQ Seconds for sensor warmup",
+"airqsensorwarmup",
+&airqualitySettings.airqSecnondsSensorWarmupTime,
+NUMBER_INPUT_LENGTH,
+integerValue,
+setDefaultAirQWarmupTime,
+validateInt
+};
+
+struct SettingItem airqRXPinNoSetting = {
+"AirQ RX Pin",
+"airqrxpinno",
+&airqualitySettings.airqRXPinNo,
+NUMBER_INPUT_LENGTH,
+integerValue,
+setDefaultAirqRXpin,
+validateInt
+};
+
+struct SettingItem airqTXPinNoSetting = {
+"AirQ TX Pin",
+"airqtxpinno",
+&airqualitySettings.airqTXPinNo,
+NUMBER_INPUT_LENGTH,
+integerValue,
+setDefaultAirqTXpin,
+validateInt };
+
+struct SettingItem airqNoOfAveragesSetting = {
+"AirQ Number of averages",
+"airqnoOfAverages",
+&airqualitySettings.airqNoOfAverages,
+NUMBER_INPUT_LENGTH,
+integerValue,
+setDefaultAirqnoOfAverages,
+validateInt };
+
+struct SettingItem* airQualitySettingItemPointers[] =
+{
+	&airqSensorTypeSetting,
+	&airqRXPinNoSetting,
+	&airqTXPinNoSetting,
+	&airqNoOfAveragesSetting
+};
+
+struct SettingItemCollection airQualitySettingItems = {
+	"airq",
+	"Set pin assignments and number of averages for the air quality sensor",
+	airQualitySettingItemPointers,
+	sizeof(airQualitySettingItemPointers) / sizeof(struct SettingItem*)
+};
+
+
+HardwareSerial* airqSensorSerial = NULL;
 
 unsigned long lastAirqSerialDataReceived;
 
@@ -28,18 +124,18 @@ struct airqSensorStartSequence airqStartSequences[] =
 {
 	{ SDS011_SENSOR, {170,192}, 0 },
 	{ ZPH01_SENSOR, {0xFF,0x18}, 0 },
-    { PMS5003_SENSOR, {0x42, 0x4D}, 0}
+	{ PMS5003_SENSOR, {0x42, 0x4D}, 0}
 };
 
 
-void resetAirqAverages(airqualityReading * reading)
+void resetAirqAverages(airqualityReading* reading)
 {
 	reading->pm10AvgTotal = 0;
 	reading->pm25AvgTotal = 0;
 	reading->averageCount = 0;
 }
 
-void updateAirqAverages(airqualityReading * reading)
+void updateAirqAverages(airqualityReading* reading)
 {
 
 	reading->pm10AvgTotal += reading->pm10;
@@ -47,17 +143,17 @@ void updateAirqAverages(airqualityReading * reading)
 
 	reading->averageCount++;
 
-	if (reading->averageCount == settings.airqNoOfAverages)
+	if (reading->averageCount == airqualitySettings.airqNoOfAverages)
 	{
-		reading->pm10Average = reading->pm10AvgTotal / settings.airqNoOfAverages;
-		reading->pm25Average = reading->pm25AvgTotal / settings.airqNoOfAverages;
+		reading->pm10Average = reading->pm10AvgTotal / airqualitySettings.airqNoOfAverages;
+		reading->pm25Average = reading->pm25AvgTotal / airqualitySettings.airqNoOfAverages;
 		reading->lastAirqAverageMillis = millis();
 		reading->airNoOfAveragesCalculated++;
 		resetAirqAverages(reading);
 	}
 }
 
-int getSensorType(int * sensorType)
+int getSensorType(int* sensorType)
 {
 	byte buffer;
 	int value;
@@ -113,9 +209,9 @@ int getSensorType(int * sensorType)
 	}
 }
 
-int startAirq(struct sensor * airqSensor)
+int startAirq(struct sensor* airqSensor)
 {
-	struct airqualityReading * airqualityActiveReading;
+	struct airqualityReading* airqualityActiveReading;
 
 	if (airqSensor->activeReading == NULL)
 	{
@@ -125,7 +221,7 @@ int startAirq(struct sensor * airqSensor)
 	else
 	{
 		airqualityActiveReading =
-			(struct airqualityReading *) airqSensor->activeReading;
+			(struct airqualityReading*) airqSensor->activeReading;
 	}
 
 	airqualityActiveReading->errors = 0;
@@ -137,7 +233,7 @@ int startAirq(struct sensor * airqSensor)
 		airqSensorSerial = new HardwareSerial(1);
 
 		// airqSensorSerial->begin(9600, SERIAL_8N1, 17, 13);  // badud, mode, rx, tx
-		airqSensorSerial->begin(9600, SERIAL_8N1, settings.airqRXPinNo, settings.airqTXPinNo);  // badud, mode, rx, tx
+		airqSensorSerial->begin(9600, SERIAL_8N1, airqualitySettings.airqRXPinNo, airqualitySettings.airqTXPinNo);  // badud, mode, rx, tx
 	}
 
 	int sensorType;
@@ -149,9 +245,9 @@ int startAirq(struct sensor * airqSensor)
 		return getSensorTypeResult;
 	}
 
-	if (sensorType != settings.airqSensorType)
+	if (sensorType != airqualitySettings.airqSensorType)
 	{
-		settings.airqSensorType = sensorType;
+		airqualitySettings.airqSensorType = sensorType;
 		saveSettings();
 	}
 
@@ -168,7 +264,7 @@ byte sds011CalcChecksum;
 byte sds011RecChecksum;
 int sds011ChecksumOK = 0;
 
-boolean pumpSDS011Byte(airqualityReading * result, byte sds011Value)
+boolean pumpSDS011Byte(airqualityReading* result, byte sds011Value)
 {
 	//Serial.print(sds011Value, HEX);
 	//Serial.print(' ');
@@ -183,7 +279,7 @@ boolean pumpSDS011Byte(airqualityReading * result, byte sds011Value)
 	case (6): sds011CalcChecksum += sds011Value; break;
 	case (7): sds011CalcChecksum += sds011Value; break;
 	case (8): sds011RecChecksum = sds011Value; if (sds011Value == (sds011CalcChecksum % 256)) { sds011ChecksumOK = 1; }
-			  else { sds011Len = -1; }; break;
+			else { sds011Len = -1; }; break;
 	case (9): if (sds011Value != 171) { sds011Len = -1; }; break;
 	}
 
@@ -219,20 +315,20 @@ byte zph01CalcChecksum;
 byte zph01RecChecksum;
 float zph01Pm25Serial = 0;
 
-boolean pumpZPH01Byte(airqualityReading * result, byte zph01Value)
+boolean pumpZPH01Byte(airqualityReading* result, byte zph01Value)
 {
 	boolean gotResult = false;
 
 	switch (zph01Len) {
 	case (0): if (zph01Value != 0xFF) { zph01Len = -1; }; break;
 	case (1): if (zph01Value != 0x18) { zph01Len = -1; }
-			  else { zph01CalcChecksum = zph01Value; }; break;
+			else { zph01CalcChecksum = zph01Value; }; break;
 	case (2): if (zph01Value != 0) { zph01Len = -1; }; break;
 	case (3): zph01Pm25Serial = zph01Value; zph01CalcChecksum += zph01Value; break;
 	case (4): zph01Pm25Serial += (zph01Value / 100.0); zph01CalcChecksum += zph01Value; break;
 	case (5): zph01CalcChecksum += zph01Value; break;
 	case (6): if (zph01Value != 0x01) { zph01Len = -1; }
-			  else { zph01CalcChecksum += zph01Value; }; break;
+			else { zph01CalcChecksum += zph01Value; }; break;
 	case (7): zph01CalcChecksum += zph01Value; break;
 	case (8):  break;
 	}
@@ -272,7 +368,7 @@ int pms5003Pm25Serial = 0;
 unsigned int pms5003CalcChecksum;
 unsigned int pms5003RecChecksum;
 
-boolean pumppms5003Byte(airqualityReading * result, byte pms5003Value)
+boolean pumppms5003Byte(airqualityReading* result, byte pms5003Value)
 {
 	switch (pms5003Len) {
 	case (0): if (pms5003Value != 0x42) { pms5003Len = -1; }; pms5003CalcChecksum = 0x42; break;
@@ -286,7 +382,7 @@ boolean pumppms5003Byte(airqualityReading * result, byte pms5003Value)
 	case (8): /* PM10 standard particle High:*/  pms5003CalcChecksum += pms5003Value; break;
 	case (9): /* PM10 standard particle Low:*/  pms5003CalcChecksum += pms5003Value; break;
 	case (10): /* PM10 mgram/m3 High:*/ pms5003Pm10Serial = pms5003Value; pms5003CalcChecksum += pms5003Value; break;
-	case (11): /* PM10 mgram/m3 Low:*/ pms5003Pm10Serial = (pms5003Pm10Serial<<8) + pms5003Value; pms5003CalcChecksum += pms5003Value; break;
+	case (11): /* PM10 mgram/m3 Low:*/ pms5003Pm10Serial = (pms5003Pm10Serial << 8) + pms5003Value; pms5003CalcChecksum += pms5003Value; break;
 	case (12): /* PM25 mgram/m3 High:*/  pms5003Pm25Serial = pms5003Value;  pms5003CalcChecksum += pms5003Value; break;
 	case (13): /* PM25 mgram/m3 Low:*/  pms5003Pm25Serial = (pms5003Pm25Serial << 8) + pms5003Value;  pms5003CalcChecksum += pms5003Value; break;
 	case (14): /* Cocentration Unit High:*/  pms5003CalcChecksum += pms5003Value; break;
@@ -306,8 +402,8 @@ boolean pumppms5003Byte(airqualityReading * result, byte pms5003Value)
 	case (28): /* Reserved High:*/  pms5003CalcChecksum += pms5003Value; break;
 	case (29): /* Reserved Low:*/  pms5003CalcChecksum += pms5003Value; break;
 	case (30): /* Check High:*/  pms5003RecChecksum = pms5003Value; break;
-	case (31): /* Check Low:*/  
-		pms5003RecChecksum = (pms5003RecChecksum <<8) + pms5003Value; break;
+	case (31): /* Check Low:*/
+		pms5003RecChecksum = (pms5003RecChecksum << 8) + pms5003Value; break;
 	}
 
 	pms5003Len++;
@@ -332,7 +428,7 @@ boolean pumppms5003Byte(airqualityReading * result, byte pms5003Value)
 	return false;
 }
 
-uint8_t get_checksum(uint8_t * byte_buffer, int byte_buffer_length)
+uint8_t get_checksum(uint8_t* byte_buffer, int byte_buffer_length)
 {
 	uint8_t check_sum = 0;
 
@@ -369,7 +465,7 @@ uint8_t reporting_mode_command[] = {
   0xAB  //  18  tail
 };
 
-void send_block(uint8_t * block_base, int block_length)
+void send_block(uint8_t* block_base, int block_length)
 {
 	int checksum_pos = block_length - 2;
 	uint8_t checksum = get_checksum(reporting_mode_command, checksum_pos);
@@ -413,7 +509,7 @@ void set_sensor_working(bool working)
 		TRACELN("Setting sensor asleep");
 	}
 
-	switch (settings.airqSensorType)
+	switch (airqualitySettings.airqSensorType)
 	{
 	case UNKNOWN_SENSOR:
 		break;
@@ -422,7 +518,7 @@ void set_sensor_working(bool working)
 		set_sds011_working(working);
 		break;
 
-	case PMS5003_SENSOR: 
+	case PMS5003_SENSOR:
 		break;
 
 	case ZPH01_SENSOR:
@@ -430,12 +526,12 @@ void set_sensor_working(bool working)
 	}
 }
 
-int updateAirqReading(struct sensor * airqSensor)
+int updateAirqReading(struct sensor* airqSensor)
 {
 	unsigned long updateMillis = millis();
 
-	struct airqualityReading * airqualityActiveReading =
-		(airqualityReading *)airqSensor->activeReading;
+	struct airqualityReading* airqualityActiveReading =
+		(airqualityReading*)airqSensor->activeReading;
 
 	int ch;
 	boolean gotReading;
@@ -468,13 +564,13 @@ int updateAirqReading(struct sensor * airqSensor)
 
 				ch = airqSensorSerial->read();
 
-				switch (settings.airqSensorType)
+				switch (airqualitySettings.airqSensorType)
 				{
 				case SDS011_SENSOR:
 					gotReading = pumpSDS011Byte(airqualityActiveReading, (byte)ch);
 					break;
 				case ZPH01_SENSOR:
-					gotReading = pumpZPH01Byte(airqualityActiveReading, (byte) ch);
+					gotReading = pumpZPH01Byte(airqualityActiveReading, (byte)ch);
 					break;
 				case PMS5003_SENSOR:
 					gotReading = pumppms5003Byte(airqualityActiveReading, (byte)ch);
@@ -500,26 +596,26 @@ int updateAirqReading(struct sensor * airqSensor)
 	return airqSensor->status;
 }
 
-void startAirqReading(struct sensor * airqSensor)
+void startAirqReading(struct sensor* airqSensor)
 {
-    airqualityReading *airq = (airqualityReading *) airqSensor->activeReading;
-    resetAirqAverages(airq);
+	airqualityReading* airq = (airqualityReading*)airqSensor->activeReading;
+	resetAirqAverages(airq);
 }
 
-int addAirqReading(struct sensor * airqSensor, char * jsonBuffer, int jsonBufferSize)
+int addAirqReading(struct sensor* airqSensor, char* jsonBuffer, int jsonBufferSize)
 {
-	struct airqualityReading * airqualityActiveReading =
-		(airqualityReading *)airqSensor->activeReading;
+	struct airqualityReading* airqualityActiveReading =
+		(airqualityReading*)airqSensor->activeReading;
 
 	if (ulongDiff(millis(), airqSensor->millisAtLastReading) < AIRQ_READING_LIFETIME_MSECS)
 	{
-		struct airqualityReading * airqualityActiveReading =
-			(airqualityReading *)airqSensor->activeReading;
+		struct airqualityReading* airqualityActiveReading =
+			(airqualityReading*)airqSensor->activeReading;
 
-		switch (settings.airqSensorType)
+		switch (airqualitySettings.airqSensorType)
 		{
 		case SDS011_SENSOR:
-		case PMS5003_SENSOR: 
+		case PMS5003_SENSOR:
 			snprintf(jsonBuffer, jsonBufferSize, "%s,\"PM10\":%.2f,\"PM25\":%.2f",
 				jsonBuffer,
 				airqualityActiveReading->pm10Average, airqualityActiveReading->pm25Average);
@@ -536,12 +632,12 @@ int addAirqReading(struct sensor * airqSensor, char * jsonBuffer, int jsonBuffer
 	return airqSensor->status;
 }
 
-void airqStatusMessage(struct sensor * airqSensor, char * buffer, int bufferLength)
+void airqStatusMessage(struct sensor* airqSensor, char* buffer, int bufferLength)
 {
-	struct airqualityReading * airqualityActiveReading =
-		(airqualityReading *)airqSensor->activeReading;
+	struct airqualityReading* airqualityActiveReading =
+		(airqualityReading*)airqSensor->activeReading;
 
-	switch (settings.airqSensorType)
+	switch (airqualitySettings.airqSensorType)
 	{
 	case ZPH01_SENSOR:
 		snprintf(buffer, bufferLength, "ZPH01 sensor ");
@@ -596,4 +692,9 @@ void airqStatusMessage(struct sensor * airqSensor, char * buffer, int bufferLeng
 		snprintf(buffer, bufferLength, "%s Airq status invalid", buffer);
 		break;
 	}
+}
+
+void resetAllAirqualitySettings()
+{
+
 }

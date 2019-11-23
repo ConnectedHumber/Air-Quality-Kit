@@ -97,16 +97,41 @@ void setDefaultLoRaAbpDevAddrKey(void *dest)
 	validateLoRaID(dest, "26011DAB");
 }
 
-struct SettingItem loraSettingItems[] =
-	{
-		"LoRa Active (yes or no)", "loraactive", &loRaSettings.loraOn, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo,
-		"LoRa Seconds per update", "lorasecsperupdate", &loRaSettings.seconds_per_lora_update, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoRasecsPerUpdate, validateInt,
-		"LoRa Using ABP (yes or no)", "lorausingabp", &loRaSettings.loraAbp, YESNO_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
-		"Lora ABP App Key", "loraabpappkey", &loRaSettings.lora_abp_APPSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpAppKey, validateLoRAKey,
-		"Lora ABP Nwk Key", "loraabpnwkkey", &loRaSettings.lora_abp_NWKSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpNwkKey, validateLoRAKey,
-		"Lora ABP Dev. addr", "loraabpdevaddr", &loRaSettings.lora_abp_DEVADDR, LORA_EUI_LENGTH, loraID, setDefaultLoRaAbpDevAddrKey, validateLoRaID};
+struct SettingItem loraactiveSetting = {
+	"LoRa Active (yes or no)", "loraactive", &loRaSettings.loraOn, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo };
 
-int noOfLoraSettingItems = sizeof(loraSettingItems) / sizeof(struct SettingItem);
+struct SettingItem lorasecsperupdateSetting = {
+		"LoRa Seconds per update", "lorasecsperupdate", &loRaSettings.seconds_per_lora_update, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoRasecsPerUpdate, validateInt };
+
+
+struct SettingItem lorausingabpSetting = {
+	"LoRa Using ABP (yes or no)", "lorausingabp", &loRaSettings.loraAbp, YESNO_INPUT_LENGTH, yesNo, setTrue, validateYesNo };
+
+struct SettingItem loraabpappkeySetting = { "Lora ABP App Key", "loraabpappkey", &loRaSettings.lora_abp_APPSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpAppKey, validateLoRAKey };
+
+struct SettingItem loraabpnwkkeySetting = {
+		"Lora ABP Nwk Key", "loraabpnwkkey", &loRaSettings.lora_abp_NWKSKEY, LORA_KEY_LENGTH, loraKey, setDefaultLoRaAbpNwkKey, validateLoRAKey };
+
+struct SettingItem loraabpdevaddr = {
+		"Lora ABP Dev. addr", "loraabpdevaddr", &loRaSettings.lora_abp_DEVADDR, LORA_EUI_LENGTH, loraID, setDefaultLoRaAbpDevAddrKey, validateLoRaID };
+
+struct SettingItem * loraSettingItemPointers[] =
+{
+	&loraactiveSetting,
+	&lorasecsperupdateSetting,
+	&lorausingabpSetting,
+	&loraabpappkeySetting,
+	&loraabpnwkkeySetting,
+	&loraabpdevaddr
+};
+
+struct SettingItemCollection loraSettingItems = {
+	"lora",
+	"Set access keys and access type for a LoRa connection",
+	loraSettingItemPointers,
+	sizeof(loraSettingItemPointers) / sizeof(struct SettingItem*)
+};
+
 
 void os_getArtEui(u1_t *buf)
 {

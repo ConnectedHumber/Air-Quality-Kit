@@ -6,10 +6,36 @@
 #include "pixels.h"
 #include "settings.h"
 
-struct sensor gpsSensor = { "GPS", 0, 0, 0, startGps, updateGpsReading, startGPSReading, addGpsReading, gpsStatusMessage, -1, false, NULL, 0 };
-struct sensor bme280Sensor = { "BME280", 0, 0, 0, startBme280, updateBME280Reading, startBME280Reading, addBME280Reading, bme280StatusMessage, -1, false, NULL, 0 };
-struct sensor airqSensor = { "Air quality", 0, 0, 0, startAirq, updateAirqReading, startAirqReading, addAirqReading, airqStatusMessage, -1, false, NULL, 0 };
-struct sensor clockSensor = { "Clock", 0, 0, 0, startClock, updateClockReading, startClockReading, addClockReading, clockStatusMessage, -1, false, NULL, 0 };
+struct sensor airqSensor = { 
+	"Air quality",	// sensor name
+	0,				// millis at last reading
+	0,				// reading number
+	0,				// 
+	startAirq,		// start function
+	updateAirqReading,	// update function
+	startAirqReading,	// begin a reading sequence
+	addAirqReading,		// add a reading to the JSON object
+	airqStatusMessage,	// get a status messsage
+	-1,					// get a status value
+	false,				// sensor is active
+	NULL,				// active sensor reading
+	0,					// active time
+	(unsigned char *) &airqualitySettings,// settings storage block
+	sizeof(struct AirqualitySettings),	// number of bytes in the setting
+	&airQualitySettingItems	// sensor setting items
+	};
+
+
+struct sensor gpsSensor = 
+{ "GPS", 0, 0, 0, startGps, updateGpsReading, startGPSReading, addGpsReading, gpsStatusMessage, -1, false, NULL, 0, 
+(unsigned char *) &gpsSetting, sizeof(struct GpsSetting), &gpsSettingItems };
+
+struct sensor bme280Sensor = { "BME280", 0, 0, 0, startBme280, updateBME280Reading, startBME280Reading, addBME280Reading, bme280StatusMessage, -1, false, NULL, 0,
+	(unsigned char*)&bmeSettings, sizeof(struct Bme280Settings), &bme280SettingItems };
+
+struct sensor clockSensor = { "Clock", 0, 0, 0, startClock, updateClockReading, startClockReading, addClockReading, clockStatusMessage, -1, false, NULL, 0,
+	NULL, 0, NULL 
+};
 
 struct sensor * sensorList[] =
 {
@@ -19,7 +45,7 @@ struct sensor * sensorList[] =
 	&gpsSensor
 };
 
-struct sensor * findSensorByName(char * name)
+struct sensor * findSensorByName(const char * name)
 {
 	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor *); i++)
 	{
@@ -114,9 +140,81 @@ void createSensorJson(char * buffer, int bufferLength)
 
 void displaySensorStatus()
 {
-	for (int i = 0; i < sizeof(sensorList) / sizeof(struct process *); i++)
+	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor *); i++)
 	{
 		sensor * displayProcess = sensorList[i];
 		addStatusItem(displayProcess->status == SENSOR_OK);
 	}
+}
+
+void iterateThroughSensors ( void (*func) (sensor * s) )
+{
+	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor*); i++)
+	{
+		func(sensorList[i]);
+	}
+}
+
+void iterateThroughSensorSettingCollections(void (*func) (SettingItemCollection* s))
+{
+	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor*); i++)
+	{
+		if (sensorList[i]->settingItems != NULL)
+		{
+			func(sensorList[i]->settingItems);
+		}
+	}
+}
+
+
+void iterateThroughSensorSettings(void (*func) (SettingItem* s))
+{
+	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor*); i++)
+	{
+		if (sensorList[i]->settingItems != NULL)
+		{
+			for (int j = 0; j++; j < sensorList[i]->settingItems->noOfSettings)
+			{
+				func(sensorList[i]->settingItems->settings[j]);
+			}
+		}
+	}
+}
+
+void resetSensorsToDefaultSettings()
+{
+	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor*); i++)
+	{
+		if (sensorList[i]->settingItems != NULL)
+		{
+			for (int j = 0; j < sensorList[i]->settingItems->noOfSettings; j++)
+			{
+				void* dest = sensorList[i]->settingItems->settings[j]->value;
+				sensorList[i]->settingItems->settings[j]->setDefault(dest);
+			}
+		}
+	}
+}
+
+SettingItem* FindSensorSettingByFormName(const char* settingName)
+{
+	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor*); i++)
+	{
+		sensor* testSensor = sensorList[i];
+
+		if (testSensor->settingItems != NULL)
+		{
+			SettingItemCollection* testItems = testSensor->settingItems;
+
+			for (int j = 0; j++; j < testSensor->settingItems->noOfSettings)
+			{
+				SettingItem * testSetting = testItems->settings[j];
+				if (strcasecmp(settingName, testSetting->formName))
+				{
+					return testSetting;
+				}
+			}
+		}
+	}
+	return NULL;
 }

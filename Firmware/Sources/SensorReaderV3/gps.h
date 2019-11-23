@@ -23,4 +23,13 @@ int addGpsReading(struct sensor * gpsSensor, char * jsonBuffer, int jsonBufferSi
 void startGPSReading(struct sensor * gpsSensor);
 void gpsStatusMessage(struct sensor * gpsSensor, char * buffer, int bufferLength);
 
+struct GpsSetting {
+	boolean gpsFitted;
+	int gpsRXPinNo;
+};
+
+extern struct GpsSetting gpsSetting;
+
+extern struct SettingItemCollection gpsSettingItems;
+
 #endif

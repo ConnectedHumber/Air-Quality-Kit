@@ -63,14 +63,8 @@ struct PixelSettings
 
 extern struct PixelSettings pixelSettings;
 
-extern struct SettingItem pixelControlPinSetting;
+extern struct SettingItemCollection pixelSettingItems;
 
-extern struct SettingItem pixelNoOfPixelsSetting;
-
-extern struct SettingItem pixelAirQLowLimit;
-extern struct SettingItem pixelAirqLowWarnLimit;
-extern struct SettingItem pixelAirqMidWarnLimit;
-extern struct SettingItem pixelAirqHighWarnLimit;
-extern struct SettingItem pixelAirqHighAlertLimit;
+boolean validateColour(void* dest, const char* newValueStr);
 
 #endif
