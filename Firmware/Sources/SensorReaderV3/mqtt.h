@@ -28,6 +28,7 @@
 
 struct MqttSettings
 {
+	char mqttDeviceName[DEVICE_NAME_LENGTH];
 	char mqttServer[SERVER_NAME_LENGTH];
 	boolean mqttSecureSockets;
 	int mqttPort;

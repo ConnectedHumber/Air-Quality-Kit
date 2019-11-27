@@ -45,8 +45,7 @@ void setup() {
 
 	setupSettings();
 
-	Serial.printf("\nConnected Humber Sensor %s\nVersion %d.%d\n\n", settings.deviceName, 
-		MAJOR_VERSION, MINOR_VERSION);
+	PrintSystemDetails();
 
 	startDevice();
 

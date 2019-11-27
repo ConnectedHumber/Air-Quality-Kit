@@ -23,7 +23,7 @@
 
 //								name	 start		update		  stop        status             activeAtStart beingUpdated status activeTime processDetails
 struct process PixelProcess = { "Pixel", startPixel, updatePixel, stopPixel, pixelStatusMessage, true,		   false,		0,		0,		NULL, 
-	(unsigned char *) &pixelSettings, sizeof(pixelSettings), & pixelSettingItems };
+	(unsigned char *) &pixelSettings, sizeof(PixelSettings), & pixelSettingItems };
 
 struct process WiFiProcessDescriptor = { "WiFi", startWifi, updateWifi, stopWiFi, wifiStatusMessage, true, false, 0, 0, NULL,
 	(unsigned char *) &wifiConnectionSettings, sizeof(WifiConnectionSettings), &wifiConnectionSettingItems };

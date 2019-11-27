@@ -469,8 +469,15 @@ void PrintSettingCollection(SettingItemCollection * settingCollection)
 	}
 }
 
+void PrintSystemDetails()
+{
+	Serial.printf("%s\nVersion %d.%d\n\n", settings.deviceName, settings.majorVersion, settings.minorVersion);
+}
+
+
 void PrintAllSettings()
 {
+	PrintSystemDetails();
 	Serial.println("Sensors");
 	iterateThroughSensorSettingCollections(PrintSettingCollection);
 	Serial.println("Processes");
@@ -479,14 +486,12 @@ void PrintAllSettings()
 
 void resetSettings()
 {
+	snprintf(settings.deviceName, DEVICE_NAME_LENGTH, "Sensor-%06x", (unsigned long) ESP.getEfuseMac());
 	settings.majorVersion = MAJOR_VERSION;
 	settings.minorVersion = MINOR_VERSION;
 
 	resetProcessesToDefaultSettings();
-
 	resetSensorsToDefaultSettings();
-
-	PrintAllSettings();
 }
 
 unsigned char checksum;
@@ -498,8 +503,6 @@ void writeByteToEEPROM(byte b, int address)
 	checksum = checksum + b;
 
 	unsigned char rb = EEPROM.read(address);
-
-	Serial.print("  r:"); Serial.print(rb); Serial.print(" w:"); Serial.print(b);
 
 	if (EEPROM.read(address) != b)
 	{
@@ -515,7 +518,7 @@ void writeBytesToEEPROM(unsigned char *bytesToStore, int address, int length)
 	{
 		byte b = *bytesToStore;
 
-		writeByteToEEPROM(b, address);
+		writeByteToEEPROM(b, i);
 
 		bytesToStore++;
 	}
@@ -554,15 +557,15 @@ void saveSettingsBLockToEEPROM(unsigned char * block, int size)
 
 void saveSettings()
 {
-	int saveAddr = SETTINGS_EEPROM_OFFSET;
+	saveAddr = SETTINGS_EEPROM_OFFSET;
 
 	checksum = 0;
+
+	saveSettingsBLockToEEPROM((unsigned char *) & settings, sizeof(struct Device_Settings));
 
 	iterateThroughProcessSecttings(saveSettingsBLockToEEPROM);
 
 	iterateThroughSensorSecttings(saveSettingsBLockToEEPROM);
-
-	Serial.print("Save checksum:"); Serial.println(checksum);
 
 	writeByteToEEPROM(checksum, saveAddr);
 
@@ -571,9 +574,11 @@ void saveSettings()
 
 void loadSettings()
 {
-	int loadAddr = SETTINGS_EEPROM_OFFSET;
+	loadAddr = SETTINGS_EEPROM_OFFSET;
 
 	checksum = 0;
+
+	readSettingsBLockFromEEPROM((unsigned char*)&settings, sizeof(struct Device_Settings));
 
 	iterateThroughProcessSecttings(readSettingsBLockFromEEPROM);
 
@@ -600,9 +605,11 @@ void checkSettingsBLockFromEEPROM(unsigned char* block, int size)
 
 boolean validStoredSettings()
 {
-	int loadAddr = SETTINGS_EEPROM_OFFSET;
+	loadAddr = SETTINGS_EEPROM_OFFSET;
 
 	checksum = 0;
+
+	checkSettingsBLockFromEEPROM((unsigned char*)&settings, sizeof(struct Device_Settings));
 
 	iterateThroughProcessSecttings(checkSettingsBLockFromEEPROM);
 
@@ -611,10 +618,6 @@ boolean validStoredSettings()
 	unsigned char calcChecksum = checksum;
 
 	unsigned char readChecksum = readByteFromEEPROM(loadAddr);
-
-	Serial.print("calc:"); Serial.println(calcChecksum);
-
-	Serial.print("read:"); Serial.println(readChecksum);
 
 	return (calcChecksum == readChecksum);
 }
@@ -964,46 +967,22 @@ void setupSettings()
 
 	EEPROM.begin(EEPROM_SIZE);
 
-	Serial.println("reset");
-
-	resetSettings();
-
-	Serial.println("saving");
-
-	saveSettings();
-
-	saveSettings();
-
 	if (validStoredSettings())
+	{
 		Serial.println("settings valid");
+		loadSettings();
+		Serial.println("settings loaded");
+	}
 	else
+	{
 		Serial.println("settings invalid");
-
-	loadSettings();
-
-	if (validStoredSettings())
-		Serial.println("loaded settings valid");
-	else
-		Serial.println("loaded settings invalid");
-
-	while (true) delay(10);
-
-	//loadSettings();
-
-	//if (!validStoredSettings())
-	//{
-	//	Serial.println("Stored settings reset");
-	//	resetSettings();
-	//	saveSettings();
-	//}
+		resetSettings();
+		Serial.println("settings reset");
+		saveSettings();
+		Serial.println("settings saved");
+	}
 
 	PrintAllSettings();
-}
-
-void createSettingsJson(char *jsonBuffer, int length)
-{
-	snprintf(jsonBuffer, length, "{ \"dev\":\"%s\",\"plat\":\ESP32\"",
-			 settings.deviceName);
 }
 
 void testFindSettingByName()

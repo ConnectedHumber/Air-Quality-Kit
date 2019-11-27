@@ -18,7 +18,7 @@ boolean validateWifiPWD(void* dest, const char* newValueStr)
 struct WifiConnectionSettings wifiConnectionSettings;
 
 struct SettingItem wifiOnOff = {
-	"Wifi on", "wifionon",&wifiConnectionSettings.wiFiOn, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff
+	"Wifi on", "wifiactive",&wifiConnectionSettings.wiFiOn, YESNO_INPUT_LENGTH, yesNo, setFalse, validateYesNo
 };
 
 struct SettingItem wifi1SSIDSetting = {
@@ -49,6 +49,7 @@ struct SettingItem wifi5PWDSetting = {
 
 struct SettingItem* wifiConnectionSettingItemPointers[] =
 {
+	&wifiOnOff,
 &wifi1SSIDSetting,
 &wifi1PWDSetting,
 
@@ -62,7 +63,7 @@ struct SettingItem* wifiConnectionSettingItemPointers[] =
 &wifi4PWDSetting,
 
 &wifi5SSIDSetting,
-&wifi5PWDSetting 
+&wifi5PWDSetting
 };
 
 

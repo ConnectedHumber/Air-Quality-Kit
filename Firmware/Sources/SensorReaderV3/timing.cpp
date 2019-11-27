@@ -382,7 +382,6 @@ void start_sensor()
 {
 	mqttForceSend=false;
 	loraForceSend=false;
-	set_sensor_working(true);
 }
 
 unsigned long dump_air_values_reading_count = 0;

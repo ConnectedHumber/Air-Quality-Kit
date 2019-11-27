@@ -41,16 +41,16 @@ void setDefaultPositionValue(void* dest)
 }
 
 struct SettingItem fixedLocationSetting = {
-		"Fixed location", "fixedlocation", &settings.fixedLocation, ONOFF_INPUT_LENGTH, yesNo, setTrue, validateYesNo };
+		"Fixed location", "fixedlocation", & gpsSetting.fixedLocation, ONOFF_INPUT_LENGTH, yesNo, setTrue, validateYesNo };
 
 struct SettingItem lattitudeSetting = {
-		"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble };
+		"Device lattitude", "lattitude", & gpsSetting.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble };
 
 struct SettingItem longitudeSetting = {
-		"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble };
+		"Device longitude", "longitude", & gpsSetting.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble };
 
 struct SettingItem indoorDeviceSetting = {
-		"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo };
+		"Device indoors", "indoorDevice", & gpsSetting.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo };
 
 struct SettingItem* GpsSettingItemPointers[] =
 {

@@ -42,11 +42,6 @@ struct Device_Settings
 
 	char deviceName[DEVICE_NAME_LENGTH];
 
-	boolean indoorDevice;
-
-	boolean fixedLocation;
-	double lattitude;
-	double longitude;
 };
 
 extern struct Device_Settings settings;
@@ -87,12 +82,13 @@ processSettingCommandResult processSettingCommand(char * command);
 
 void setupSettings();
 
+void PrintSystemDetails();
+
+
 void dumpHexString(char *dest, uint8_t *pos, int length);
 void dumpUnsignedLong(char *dest, uint32_t value);
 int decodeHexValueIntoBytes(uint8_t *dest, const char *newVal, int length);
 int decodeHexValueIntoUnsignedLong(u4_t *dest, const char *newVal);
-
-void sendSettingItemToString(struct SettingItem * item, char * bufffer, int bufferLength);
 
 void act_onJson_command(const char *json, void (*deliverResult)(char *resultText));
 

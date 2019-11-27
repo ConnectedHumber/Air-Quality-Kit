@@ -599,6 +599,7 @@ int updateAirqReading(struct sensor* airqSensor)
 void startAirqReading(struct sensor* airqSensor)
 {
 	airqualityReading* airq = (airqualityReading*)airqSensor->activeReading;
+
 	resetAirqAverages(airq);
 }
 

@@ -129,17 +129,19 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_3
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Arduino.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\variants\heltec_wifi_lora_32_V2/pins_arduino.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WebServer\src/HTTP_Method.h \
- C:\Users\Rob\Documents\Arduino\libraries\MicroNMEA\src/MicroNMEA.h \
+ C:\Users\Rob\Documents\Arduino\libraries\MicroNMEA-master\src/MicroNMEA.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\DNSServer\src/DNSServer.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiUdp.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Udp.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/cbuf.h \
  C:\Users\Rob\Documents\Arduino\libraries\ezTime\src/ezTime.h \
- C:\Users\Rob\Documents\Arduino\libraries\pubsubclient\src/PubSubClient.h \
+ C:\Users\Rob\Documents\Arduino\libraries\PubSubClient\src/PubSubClient.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Client.h \
  C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library/Adafruit_BME280.h \
- C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Unified_Sensor/Adafruit_Sensor.h \
+ C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Sensor/Adafruit_Sensor.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Print.h \
+ C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
+ C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\Wire\src/Wire.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/freertos/freertos/queue.h \
@@ -154,8 +156,6 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_3
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\processes.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\sensors.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\bme280.h \
- C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
- C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\airquality.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\connectwifi.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFi.h \

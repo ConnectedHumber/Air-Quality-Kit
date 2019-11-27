@@ -24,6 +24,12 @@ void startGPSReading(struct sensor * gpsSensor);
 void gpsStatusMessage(struct sensor * gpsSensor, char * buffer, int bufferLength);
 
 struct GpsSetting {
+	boolean indoorDevice;
+
+	boolean fixedLocation;
+	double lattitude;
+	double longitude;
+
 	boolean gpsFitted;
 	int gpsRXPinNo;
 };

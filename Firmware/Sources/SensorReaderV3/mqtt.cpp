@@ -21,7 +21,7 @@ char* defaultMQTTHost = "mqtt.connectedhumber.org";
 void setDefaultMQTTTname(void* dest)
 {
 	char* destStr = (char*)dest;
-	snprintf(destStr, DEVICE_NAME_LENGTH, "Sensor-%06x", ESP.getEfuseMac());
+	snprintf(destStr, DEVICE_NAME_LENGTH, "Sensor-%06x", (unsigned long) ESP.getEfuseMac());
 }
 
 void setDefaultMQTThost(void* dest)
@@ -62,17 +62,17 @@ boolean validateMQTTPWD(void* dest, const char* newValueStr)
 
 void setDefaultMQTTpublishTopic(void* dest)
 {
-	snprintf((char*)dest, MQTT_TOPIC_LENGTH, "airquality/data/Monitair-%06x", ESP.getEfuseMac());
+	snprintf((char*)dest, MQTT_TOPIC_LENGTH, "airquality/data/Sensor-%06x", (unsigned long) ESP.getEfuseMac());
 }
 
 void setDefaultMQTTsubscribeTopic(void* dest)
 {
-	snprintf((char*)dest, MQTT_TOPIC_LENGTH, "airquality/command/Monitair-%06x", ESP.getEfuseMac());
+	snprintf((char*)dest, MQTT_TOPIC_LENGTH, "airquality/command/Sensor-%06x", (unsigned long)ESP.getEfuseMac());
 }
 
 void setDefaultMQTTreportTopic(void* dest)
 {
-	snprintf((char*)dest, MQTT_TOPIC_LENGTH, "airquality/report/Monitair-%06x", ESP.getEfuseMac());
+	snprintf((char*)dest, MQTT_TOPIC_LENGTH, "airquality/report/Sensor-%06x", (unsigned long)ESP.getEfuseMac());
 }
 
 void setDefaultMQTTsecsPerUpdate(void* dest)
@@ -87,6 +87,20 @@ void setDefaultMQTTsecsPerRetry(void* dest)
 	*destInt = 10;
 }
 
+void setDefaultMQTTDeviceName(void* dest)
+{
+	char* destStr = (char*)dest;
+	snprintf(destStr, DEVICE_NAME_LENGTH, "Sensor-%06x", ESP.getEfuseMac());
+}
+
+boolean validateMQTTDeviceName(void* dest, const char* newValueStr)
+{
+	return (validateString((char*)dest, newValueStr, DEVICE_NAME_LENGTH));
+}
+
+struct SettingItem mqttDeviceNameSetting = {
+	"MQTT Device name", "mqttdevicename", mqttSettings.mqttDeviceName, DEVICE_NAME_LENGTH, text, setDefaultMQTTDeviceName , validateMQTTDeviceName };
+
 struct SettingItem mqttOnOffSetting = {
 	"MQTT Active (yes or no)", "mqttactive",&mqttSettings.mqtt_enabled, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo };
 
@@ -97,7 +111,7 @@ struct SettingItem mqttPortSetting = {
 	"MQTT Port number", "mqttport", &mqttSettings.mqttPort, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTport, validateInt };
 
 struct SettingItem mqttSecureSocketsSetting = {
-	"MQTT Secure sockets (on or off)", "mqttsecure", &mqttSettings.mqttSecureSockets, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff };
+	"MQTT Secure sockets active (yes or no)", "mqttsecure", &mqttSettings.mqttSecureSockets, YESNO_INPUT_LENGTH, onOff, setFalse, validateYesNo };
 
 struct SettingItem mqttUserSetting = {
 	"MQTT UserName", "mqttuser", mqttSettings.mqttUser, MQTT_USER_NAME_LENGTH, text, setDefaultMQTTusername, validateMQTTusername };
@@ -123,6 +137,7 @@ struct SettingItem seconds_per_mqtt_retrySetting = {
 
 struct SettingItem* mqttSettingItemPointers[] =
 {
+&mqttDeviceNameSetting,
 &mqttOnOffSetting,
 &mqttServerSetting,
 &mqttPortSetting,
@@ -130,6 +145,7 @@ struct SettingItem* mqttSettingItemPointers[] =
 &mqttUserSetting,
 &mqttPasswordSetting,
 &mqttPublishTopicSetting,
+& mqttSubscribeTopicSetting,
 &mqttReportTopicSetting,
 &mqttSecsPerUpdateSetting,
 &seconds_per_mqtt_retrySetting
@@ -231,7 +247,7 @@ int restartMQTT()
 		mqttPubSubClient->setCallback(callback);
 	}
 
-	if (!mqttPubSubClient->connect(settings.deviceName, mqttSettings.mqttUser, mqttSettings.mqttPassword))
+	if (!mqttPubSubClient->connect(mqttSettings.mqttDeviceName, mqttSettings.mqttUser, mqttSettings.mqttPassword))
 	{
 		switch (mqttPubSubClient->state())
 		{

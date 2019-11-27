@@ -18,7 +18,7 @@ struct SettingItem autoUpdateStatusServerSetting = {
 "Auto update status server", "autoupdstatus", otaUpdateSettings.autoUpdateStatusServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName };
 
 struct SettingItem autoUpdateEnabledSetting = {
-	"Auto update on", "autoupdon", &otaUpdateSettings.autoUpdateEnabled, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff};
+	"Auto update active", "autoupdon", &otaUpdateSettings.autoUpdateEnabled, YESNO_INPUT_LENGTH, yesNo, setFalse, validateYesNo};
 
 struct SettingItem* otaUpdateSettingItemPointers[] =
 {
