@@ -568,7 +568,8 @@ void lcdSleep()
 
 void lcdWake()
 {
-    display.wakeup();
+	display.init();
+	display.wakeup();
 }
 
 void drawClearFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
@@ -641,6 +642,8 @@ int updateLCD(struct process * lcdProcess)
 
 int stopLCD(struct process * lcdProcess)
 {
+	lcdSleep();
+
 	return PROCESS_OK;
 }
 

@@ -11,6 +11,7 @@
 #include "timing.h"
 #include "control.h"
 #include "lora.h"
+#include "mqtt.h"
 
 enum MenuState
 {
@@ -412,7 +413,7 @@ void menuMQTTOff()
 {
 	TRACELN("MQTT off called");
 	displayMessage("MQTT", "Off", 2000, messageDisplayComplete);
-	settings.mqtt_enabled = false;
+	mqttSettings.mqtt_enabled = false;
 	saveSettings();
 }
 
@@ -420,7 +421,7 @@ void menuMQTTOn()
 {
 	TRACELN("MQTT on called");
 	displayMessage("MQTT", "On", 2000, messageDisplayComplete);
-	settings.mqtt_enabled = true;
+	mqttSettings.mqtt_enabled = true;
 	saveSettings();
 }
 
@@ -433,7 +434,7 @@ void mqtt_send()
 
 void menuMQTTGapDone (int readGap)
 {
-	settings.mqttSecsPerUpdate = readGap;
+	mqttSettings.mqttSecsPerUpdate = readGap;
 	saveSettings();
 	displayMessage("MQTT", "Gap set", 2000, messageDisplayComplete);
 }
@@ -441,7 +442,7 @@ void menuMQTTGapDone (int readGap)
 void menuMQTTGap()
 {
 	TRACELN("Set Lora gap called");
-	getNumber("Set gap", settings.mqttSecsPerUpdate, 60, 3600, menuMQTTGapDone);
+	getNumber("Set gap", mqttSettings.mqttSecsPerUpdate, 60, 3600, menuMQTTGapDone);
 }
 
 
@@ -461,14 +462,14 @@ void menuLoggingStateSelected(int stateValue)
 	char buffer[100];
 	sprintf(buffer, "State %s", loggingStateNames[stateValue]);
 	displayMessage("Logging", buffer, 2000, messageDisplayComplete);
-	settings.logging = (Logging_State) stateValue;
+	timingSettings.logging = (Logging_State) stateValue;
 	saveSettings();
 }
 
 void selectLoggingState()
 {
 	TRACELN("Set logging state called");
-	getSelectionFromString("Set Logging", settings.logging, "off\nparticles\ntemp\npressure\nhumidity\nall",menuLoggingStateSelected);
+	getSelectionFromString("Set Logging", timingSettings.logging, "off\nparticles\ntemp\npressure\nhumidity\nall",menuLoggingStateSelected);
 }
 
 Menu logingMenu = {0, "State\nBack", {selectLoggingState, doBackFromMenu}};
@@ -485,35 +486,39 @@ void mqttLoraSetup()
 	enterAMenu(&mqttLoRaMenu);
 }
 
-boolean powerOn = true;
-
-void powerTest()
+void powerControlOff()
 {
-	displayMessage("Web", "Web Host", 2000, messageDisplayComplete);
-	if(powerOn)
-	{		
-		Serial.println("turning off");
-		displayMessage("Power", "Off", 2000, messageDisplayComplete);
-		delay(500);
-		digitalWrite(21, LOW);
-		lcdSleep();
-		powerOn=false;
-	}
-	else
-	{
-		Serial.println("turning on");
-		displayMessage("Power", "On", 2000, messageDisplayComplete);
-		delay(500);
-		digitalWrite(21, HIGH);
-		lcdWake();
-		powerOn=true;
-	}
-	
-
-
+	TRACELN("Power control off called");
+	displayMessage("Power Control", "Off", 2000, messageDisplayComplete);
+	timingSettings.powerControlFitted = false;
+	saveSettings();
 }
 
-Menu mainMenu = {0, "Power Toggle\nMQTT+LoRa\nData\nBack", {powerTest, mqttLoraSetup, loggingSetup, doBackFromMenu}};
+void powerControlOn()
+{
+	TRACELN("Power control on called");
+	displayMessage("Power control", "On", 2000, messageDisplayComplete);
+	timingSettings.powerControlFitted = true;
+	saveSettings();
+}
+
+void powerSleep()
+{
+	displayMessage("Power", "Off", 2000, messageDisplayComplete);
+	delay(1000);
+	turn_sensor_power_off(10);
+}
+
+Menu powerMenu = { 0, "Control on\nControl off\nSleep\nBack", {powerControlOn, powerControlOff, powerSleep, doBackFromMenu} };
+
+void powerSetup()
+{
+	enterAMenu(&powerMenu);
+}
+
+
+
+Menu mainMenu = {0, "Power Control\nMQTT+LoRa\nData\nBack", {powerSetup, mqttLoraSetup, loggingSetup, doBackFromMenu}};
 
 void updatePopupMessage(String title, String text)
 {

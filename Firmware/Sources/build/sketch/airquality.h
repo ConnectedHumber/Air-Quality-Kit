@@ -14,6 +14,20 @@
 #define AIRQ_SERIAL_DATA_TIMEOUT_MILLIS 500
 #define AIRQ_AVERAGE_LIFETIME_MSECS 10000
 
+struct AirqualitySettings {
+	int airqSensorType;
+	int airqSecnondsSensorWarmupTime;
+	int airqRXPinNo;
+	int airqTXPinNo;
+	int airqNoOfAverages;
+};
+
+extern struct AirqualitySettings airqualitySettings;
+
+extern struct SettingItemCollection airQualitySettingItems;
+
+extern int noOfAirQualitySettingItems;
+
 struct airqualityReading {
 	float pm25;
 	float pm10;

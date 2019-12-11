@@ -14,8 +14,8 @@ int stopLoRa(struct process * loraProcess);
 
 void loraStatusMessage(struct process * loraProcess, char * buffer, int bufferLength);
 
-extern struct SettingItem loraSettingItems [];
-extern int noOfLoraSettingItems;
+extern struct SettingItemCollection loraSettingItems;
+
 
 #define LORA_KEY_LENGTH 16
 #define LORA_EUI_LENGTH 8
@@ -34,7 +34,8 @@ struct LoRaSettings
 	u1_t lora_otaa_APPKEY[LORA_KEY_LENGTH];
 	u1_t lora_otaa_DEVEUI[LORA_EUI_LENGTH];
 	u1_t lora_otaa_APPEUI[LORA_EUI_LENGTH];
-} loRaSettings;
+} ;
 
+extern LoRaSettings loRaSettings;
 
 #endif

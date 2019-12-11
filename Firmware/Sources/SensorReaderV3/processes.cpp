@@ -77,6 +77,29 @@ struct process * runningProcessList[] =
 	&LoRaProcess
 };
 
+
+// This list is ordered in the sequence of processes that 
+// should be stopped, making sure that WiFi is stopped after 
+// MQTT
+
+struct process* stoppingProcessList[] =
+{
+	&MQTTProcessDescriptor,
+	&LoRaProcess,
+	&WebServerProcessDescriptor,
+	&PixelProcess,
+	&WiFiProcessDescriptor,
+	&ConsoleProcessDescriptor,
+	&OTAUpdateProcess,
+	&InputSwitchProcess,
+	&LCDProcess,
+	&TimingProcess,
+	&InputKeysProcess,
+	&MenuProcess
+};
+
+
+
 struct process * wifiConfigProcessList[] =
 {
 	&WiFiConfigProcess,
@@ -206,6 +229,15 @@ void iterateThroughProcesses(void (*func) (process * p))
 		func(runningProcessList[i]);
 	}
 }
+
+void stopProcesses()
+{
+	for (int i = 0; i < sizeof(stoppingProcessList) / sizeof(struct process*); i++)
+	{
+		runningProcessList[i]->stopProcess(runningProcessList[i]);
+	}
+}
+
 
 void iterateThroughProcessSecttings(void (*func) (unsigned char * settings, int size))
 {

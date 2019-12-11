@@ -34,14 +34,9 @@ void setup() {
 	Serial.begin(115200);
 	delay(500);
 
-	pinMode(16,OUTPUT);
-	digitalWrite(16, LOW);
-	delay(50);
-	digitalWrite(16, HIGH);
-	pinMode(16, INPUT_PULLUP);
+	Serial.printf("Boot count: %d\n", bootCount);
 
-	pinMode(21, OUTPUT);
-	digitalWrite(21, HIGH);
+	bootCount++;
 
 	setupSettings();
 

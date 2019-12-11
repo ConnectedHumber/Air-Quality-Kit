@@ -2,6 +2,17 @@
 
 #define LCD_H
 
+#define SPLASH_LINE_LENGTH 15
+
+struct LcdSettings {
+	char splash_screen_top_line[SPLASH_LINE_LENGTH];
+	char splash_screen_bottom_line[SPLASH_LINE_LENGTH];
+};
+
+extern struct LcdSettings lcdSettings;
+
+extern struct SettingItemCollection lcdSettingItems;
+
 void setWorkingDisplay();
 void set_message_display(String title, String text);
 void setPopupMessage(String title, String text);

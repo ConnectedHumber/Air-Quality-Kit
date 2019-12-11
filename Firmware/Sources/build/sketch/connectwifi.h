@@ -11,6 +11,7 @@
 
 #include "utils.h"
 #include "processes.h"
+#include "settings.h"
 
 #define WIFI_CONNECT_TIMEOUT_MILLIS 20000
 
@@ -24,15 +25,38 @@
 
 #define WIFI_CONNECT_RETRY_MILLS 500000
 
+struct WifiConnectionSettings
+{
+	boolean wiFiOn;
+	char wifi1SSID[WIFI_SSID_LENGTH];
+	char wifi1PWD[WIFI_PASSWORD_LENGTH];
+
+	char wifi2SSID[WIFI_SSID_LENGTH];
+	char wifi2PWD[WIFI_PASSWORD_LENGTH];
+
+	char wifi3SSID[WIFI_SSID_LENGTH];
+	char wifi3PWD[WIFI_PASSWORD_LENGTH];
+
+	char wifi4SSID[WIFI_SSID_LENGTH];
+	char wifi4PWD[WIFI_PASSWORD_LENGTH];
+
+	char wifi5SSID[WIFI_SSID_LENGTH];
+	char wifi5PWD[WIFI_PASSWORD_LENGTH];
+};
+
 struct WiFiSetting
 {
 	char * wifiSsid;
 	char * wifiPassword;
 };
 
+extern struct WifiConnectionSettings wifiConnectionSettings;
+
 int startWifi(struct process * wifiProcess);
 int stopWiFi(struct process * wifiProcess);
 int updateWifi(struct process * wifiProcess);
 void wifiStatusMessage(struct process * wifiProcess, char * buffer, int bufferLength);
+
+extern struct SettingItemCollection wifiConnectionSettingItems;
 
 #endif

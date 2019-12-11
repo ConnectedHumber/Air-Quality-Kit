@@ -3,6 +3,7 @@
 #define	PROCESSES_H
 
 #include <Arduino.h>
+#include "settings.h"
 
 #define PROCESS_OK 0
 
@@ -18,8 +19,10 @@ struct process
 	int status;      // zero means OK - any other value is an error state
 	unsigned long activeTime;
 	void * processDetails;
+	unsigned char* settingsStoreBase;
+	int settingsStoreLength;
+	SettingItemCollection * settingItems;
 };
-
 
 extern struct process PixelProcess;
 extern struct process WiFiProcessDescriptor;
@@ -34,10 +37,14 @@ extern struct process TimingProcess;
 extern struct process InputKeysProcess; 
 extern struct process LoRaProcess;
 
-struct process * findProcessByName(char * name);
+SettingItem* FindProcesSettingByFormName(const char* settingName);
+void resetProcessesToDefaultSettings();
+
+struct process * findProcessByName(const char * name);
 struct process * startProcessByName(char * name);
 void startProcess(process * proc);
 void startDeviceProcesses();
+void stopProcesses();
 void startWifiConfigProcesses();
 void updateWifiConfigProcesses();
 void dumpProcessStatus();
@@ -45,4 +52,8 @@ void updateProcess(struct process * process);
 void updateProcesses();
 void displayProcessStatus();
 
+void iterateThroughProcessSettings(void (*func) (SettingItem* s));
+void iterateThroughProcesses(void (*func) (process* p));
+void iterateThroughProcessSettingCollections(void (*func) (SettingItemCollection* s));
+void iterateThroughProcessSecttings(void (*func) (unsigned char* settings, int size));
 #endif

@@ -1,0 +1,6 @@
+{
+    "board": "CubeCell:CubeCell:CubeCell-Board",
+    "configuration": "LORAWAN_REGION=5,LORAWAN_CLASS=0,LORAWAN_NETMODE=1,LORAWAN_ADR=0,LORAWAN_Net_Reserve=0,LORAWAN_AT_SUPPORT=1,LORAWAN_RGB=1",
+    "sketch": "LoraWanTest.ino",
+    "port": "COM4"
+}

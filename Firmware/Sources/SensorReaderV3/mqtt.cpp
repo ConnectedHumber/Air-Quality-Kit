@@ -313,6 +313,7 @@ boolean publishBufferToMQTT(char* buffer)
 
 int stopMQTT(struct process* mqttProcess)
 {
+	mqttPubSubClient->disconnect();
 	mqttProcess->status = MQTT_OFF;
 	return MQTT_OFF;
 }

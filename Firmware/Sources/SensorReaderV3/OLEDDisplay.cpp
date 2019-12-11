@@ -69,7 +69,7 @@ bool OLEDDisplay::init()
   }
 #endif
 
-  //  resetDisplay(16);
+  //resetDisplay(16);
   sendInitCommands();
   resetDisplay();
 

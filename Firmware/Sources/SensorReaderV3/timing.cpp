@@ -13,6 +13,8 @@
 #include "processes.h"
 #include "menu.h"
 #include "lora.h"
+#include "lcd.h"
+#include "control.h"
 
 String loggingStateNames [] = { "off", "particles", "temp", "pressure", "humidity", "all"};
 
@@ -87,10 +89,6 @@ struct SettingItemCollection timingSettingItems = {
 	timingSettingItemPointers,
 	sizeof(timingSettingItemPointers) / sizeof(struct SettingItem*)
 };
-
-
-
-
 
 unsigned long mqtt_reading_retry_interval_in_millis;
 unsigned long mqtt_reading_interval_in_millis;
@@ -271,12 +269,19 @@ void sendReadings()
 	}
 }
 
+
 void turn_sensor_on()
 {
 	if (timing_state != sensorWarmingUp)
 	{
-		Serial.println("Turning sensor on");
-		set_sensor_working(true);
+		if (timingSettings.powerControlFitted)
+		{
+			turn_sensor_power_on();
+		}
+		else {
+			Serial.println("Turning sensor on");
+			set_sensor_working(true);
+		}
 		timing_state = sensorWarmingUp;
 	}
 }
@@ -285,8 +290,14 @@ void turn_sensor_off()
 {
 	if (timing_state != sensorOff)
 	{
-		Serial.println("Turning sensor off");
-		set_sensor_working(false);
+		if (timingSettings.powerControlFitted)
+		{
+//			turn_sensor_power_off();
+		}
+		else {
+			Serial.println("Turning sensor off");
+			set_sensor_working(false);
+		}
 		timing_state = sensorOff;
 	}
 }

@@ -4,6 +4,7 @@
 
 #include "processes.h"
 #include "connectwifi.h"
+#include "settings.h"
 
 #define MQTT_OK 0
 #define MQTT_OFF 1
@@ -20,6 +21,31 @@
 #define MQTT_ERROR_LOOP_FAILED -10
 
 #define MQTT_CONNECT_RETRY_INTERVAL_MSECS 5000
+
+#define MQTT_USER_NAME_LENGTH 100
+#define MQTT_PASSWORD_LENGTH 200
+#define MQTT_TOPIC_LENGTH 150
+
+struct MqttSettings
+{
+	char mqttDeviceName[DEVICE_NAME_LENGTH];
+	char mqttServer[SERVER_NAME_LENGTH];
+	boolean mqttSecureSockets;
+	int mqttPort;
+	char mqttUser[MQTT_USER_NAME_LENGTH];
+	char mqttPassword[MQTT_PASSWORD_LENGTH];
+	char mqttPublishTopic[MQTT_TOPIC_LENGTH];
+	char mqttSubscribeTopic[MQTT_TOPIC_LENGTH];
+	char mqttReportTopic[MQTT_TOPIC_LENGTH];
+
+	int mqttSecsPerUpdate;
+	int seconds_per_mqtt_retry;
+	boolean mqtt_enabled;
+};
+
+extern struct MqttSettings mqttSettings;
+
+extern struct SettingItemCollection mqttSettingItems;
 
 boolean publishBufferToMQTT(char * buffer);
 extern struct process * activeMQTTProcess;

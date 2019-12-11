@@ -1,10 +1,6 @@
 #line 1 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
+#include <HTTP_Method.h>
 #include <Arduino.h>
-
-#include <WiFi.h>
-#include <WiFiClient.h>
-#include <WebServer.h>
-#include <ESPmDNS.h>
 
 #include <MicroNMEA.h>
 #include <DNSServer.h>
@@ -35,28 +31,22 @@
 #include "console.h"
 #include "control.h"
 
-#line 37 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
+#line 33 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
 void setup();
-#line 60 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
+#line 50 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
 void loop();
-#line 37 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
+#line 33 "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\SensorReaderV3\\SensorReaderV3.ino"
 void setup() {
 	Serial.begin(115200);
 	delay(500);
 
-	pinMode(16,OUTPUT);
-	digitalWrite(16, LOW);
-	delay(50);
-	digitalWrite(16, HIGH);
-	pinMode(16, INPUT_PULLUP);
+	Serial.printf("Boot count: %d\n", bootCount);
 
-	pinMode(21, OUTPUT);
-	digitalWrite(21, HIGH);
+	bootCount++;
 
 	setupSettings();
 
-	Serial.printf("\nConnected Humber Sensor %s\nVersion %d.%d\n\n", settings.deviceName, 
-		MAJOR_VERSION, MINOR_VERSION);
+	PrintSystemDetails();
 
 	startDevice();
 

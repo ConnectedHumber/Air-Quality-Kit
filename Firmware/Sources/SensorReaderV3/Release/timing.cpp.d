@@ -198,4 +198,6 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_3
  C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Sensor/Adafruit_Sensor.h \
  C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library/Adafruit_BME280.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\menu.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\lora.h
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\lora.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\lcd.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\control.h

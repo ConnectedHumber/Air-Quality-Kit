@@ -44,6 +44,7 @@ struct process * findProcessByName(const char * name);
 struct process * startProcessByName(char * name);
 void startProcess(process * proc);
 void startDeviceProcesses();
+void stopProcesses();
 void startWifiConfigProcesses();
 void updateWifiConfigProcesses();
 void dumpProcessStatus();

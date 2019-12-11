@@ -3,6 +3,48 @@
 #include "sensors.h"
 #include "settings.h"
 
+struct Bme280Settings bmeSettings;
+
+void setDefaultEnvnoOfAverages(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 25;
+}
+
+struct SettingItem bme280FittedSetting = {
+"BME 280 fitted (yes or no)",
+"bme280fitted",
+& bmeSettings.bme280Fitted,
+ONOFF_INPUT_LENGTH,
+yesNo,
+setTrue,
+validateYesNo };
+
+struct SettingItem envNoOfAveragesSetting = {
+"Environment Number of averages",
+"envnoOfAverages",
+&bmeSettings.envNoOfAverages,
+NUMBER_INPUT_LENGTH,
+integerValue,
+setDefaultEnvnoOfAverages,
+validateInt };
+
+struct SettingItem* bme280SettingItemPointers[] =
+{
+	&bme280FittedSetting,
+	& envNoOfAveragesSetting
+};
+
+struct SettingItemCollection bme280SettingItems = {
+	"bme280",
+	"Number of averages for the environmental sensor",
+	bme280SettingItemPointers,
+	sizeof(bme280SettingItemPointers) / sizeof(struct SettingItem*)
+};
+
+
+
+
 Adafruit_BME280 bme;
 
 int bmeAddresses[] = { 0x76, 0x77 };
@@ -53,11 +95,11 @@ void updateEnvAverages(bme280Reading * reading)
 
 	reading->averageCount++;
 
-	if (reading->averageCount == settings.envNoOfAverages)
+	if (reading->averageCount == bmeSettings.envNoOfAverages)
 	{
-		reading->temperatureAverage = reading->temperatureTotal / settings.airqNoOfAverages;
-		reading->pressureAverage = reading->pressureTotal / settings.airqNoOfAverages;
-		reading->humidityAverage = reading->humidityTotal / settings.airqNoOfAverages;
+		reading->temperatureAverage = reading->temperatureTotal / bmeSettings.envNoOfAverages;
+		reading->pressureAverage = reading->pressureTotal / bmeSettings.envNoOfAverages;
+		reading->humidityAverage = reading->humidityTotal / bmeSettings.envNoOfAverages;
 		reading->lastEnvqAverageMillis = millis();
 		reading->envNoOfAveragesCalculated++;
 	}

@@ -22,16 +22,11 @@
 #define WIFI_SSID_LENGTH 30
 #define WIFI_PASSWORD_LENGTH 30
 
-#define SERVER_NAME_LENGTH 200
-#define MQTT_USER_NAME_LENGTH 100
-#define MQTT_PASSWORD_LENGTH 200
-#define MQTT_TOPIC_LENGTH 150
 #define NUMBER_INPUT_LENGTH 20
 #define YESNO_INPUT_LENGTH 0
 #define ONOFF_INPUT_LENGTH 0
 #define SETTING_ERROR_MESSAGE_LENGTH 120
-
-#define SPLASH_LINE_LENGTH 15
+#define SERVER_NAME_LENGTH 200
 
 #define MAX_SETTING_LENGTH 300
 
@@ -45,94 +40,8 @@ struct Device_Settings
 	int majorVersion;
 	int minorVersion;
 
-	byte checkByte1;
-
 	char deviceName[DEVICE_NAME_LENGTH];
 
-	boolean indoorDevice;
-
-	// WiFi settings
-
-	char wifi1SSID[WIFI_SSID_LENGTH];
-	char wifi1PWD[WIFI_PASSWORD_LENGTH];
-
-	char wifi2SSID[WIFI_SSID_LENGTH];
-	char wifi2PWD[WIFI_PASSWORD_LENGTH];
-
-	char wifi3SSID[WIFI_SSID_LENGTH];
-	char wifi3PWD[WIFI_PASSWORD_LENGTH];
-
-	char wifi4SSID[WIFI_SSID_LENGTH];
-	char wifi4PWD[WIFI_PASSWORD_LENGTH];
-
-	char wifi5SSID[WIFI_SSID_LENGTH];
-	char wifi5PWD[WIFI_PASSWORD_LENGTH];
-
-	boolean wiFiOn;
-
-	// Auto update settings
-
-	char autoUpdateImageServer[SERVER_NAME_LENGTH];
-	char autoUpdateStatusServer[SERVER_NAME_LENGTH];
-	boolean autoUpdateEnabled;
-
-	// MQTT settings
-
-	char mqttServer[SERVER_NAME_LENGTH];
-	boolean mqttSecureSockets;
-	int mqttPort;
-	char mqttUser[MQTT_USER_NAME_LENGTH];
-	char mqttPassword[MQTT_PASSWORD_LENGTH];
-	char mqttPublishTopic[MQTT_TOPIC_LENGTH];
-	char mqttSubscribeTopic[MQTT_TOPIC_LENGTH];
-	char mqttReportTopic[MQTT_TOPIC_LENGTH];
-
-	int mqttSecsPerUpdate;
-	int seconds_per_mqtt_retry;
-	boolean mqtt_enabled;
-
-	// Hardware settings
-
-	int airqSensorType;
-	int airqSecnondsSensorWarmupTime;
-	int airqRXPinNo;
-	int airqTXPinNo;
-	boolean bme280Fitted;
-
-	boolean powerControlFitted;
-	int powerControlPin;
-	int controlInputPin;
-	boolean controlInputPinActiveLow;
-	
-	boolean gpsFitted;
-	int gpsRXPinNo;
-
-	boolean fixedLocation;
-	double lattitude;
-	double longitude;
-
-	int pixelControlPinNo;
-	int noOfPixels;
-
-	int airqLowLimit;
-	int airqLowWarnLimit;
-	int airqMidWarnLimit;
-	int airqHighWarnLimit;
-	int airqHighAlertLimit;
-	int airqNoOfAverages;
-
-	int envNoOfAverages;
-
-	Logging_State logging;
-
-	int pixelRed;
-	int pixelGreen;
-	int pixelBlue;
-
-	char splash_screen_top_line[SPLASH_LINE_LENGTH];
-	char splash_screen_bottom_line[SPLASH_LINE_LENGTH];
-
-	byte checkByte2;
 };
 
 extern struct Device_Settings settings;
@@ -153,14 +62,8 @@ struct SettingItemCollection
 {
 	char * collectionName;
 	char * collectionDescription;
-	SettingItem * settings;
+	SettingItem ** settings;
 	int noOfSettings;
-};
-
-struct AllSystemSettings
-{
-	SettingItemCollection * collections;
-	int noOfCollections;
 };
 
 enum processSettingCommandResult { displayedOK, setOK, settingNotFound, settingValueInvalid };
@@ -170,19 +73,22 @@ void loadSettings();
 void resetSettings();
 void PrintAllSettings();
 
-SettingItemCollection * findSettingItemCollectionByName(const char * name);
-AllSystemSettings * getAllSystemSettings();
+SettingItem* findSettingByName(const char* settingName);
 
+SettingItemCollection * findSettingItemCollectionByName(const char * name);
+boolean matchSettingCollectionName(SettingItemCollection* settingCollection, const char* name);
+boolean matchSettingName(SettingItem* setting, const char* name);
 processSettingCommandResult processSettingCommand(char * command);
 
 void setupSettings();
+
+void PrintSystemDetails();
+
 
 void dumpHexString(char *dest, uint8_t *pos, int length);
 void dumpUnsignedLong(char *dest, uint32_t value);
 int decodeHexValueIntoBytes(uint8_t *dest, const char *newVal, int length);
 int decodeHexValueIntoUnsignedLong(u4_t *dest, const char *newVal);
-
-void sendSettingItemToString(struct SettingItem * item, char * bufffer, int bufferLength);
 
 void act_onJson_command(const char *json, void (*deliverResult)(char *resultText));
 
@@ -202,4 +108,7 @@ boolean validateInt(void *dest, const char *newValueStr);
 
 boolean validateDouble(void *dest, const char *newValueStr);
 
+boolean validateDevName(void* dest, const char* newValueStr);
+
+boolean validateServerName(void* dest, const char* newValueStr);
 #endif

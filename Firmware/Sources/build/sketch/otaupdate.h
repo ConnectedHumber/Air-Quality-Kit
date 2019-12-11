@@ -14,4 +14,14 @@ int updateOtaUpdate(struct process * otaUpdateProcess);
 int stopOtaUpdate(struct process * otaUpdateProcess);
 void otaUpdateStatusMessage(struct process * otaUpdateProcess, char * buffer, int bufferLength);
 
+struct OtaUpdateSettings {
+	char autoUpdateImageServer[SERVER_NAME_LENGTH];
+	char autoUpdateStatusServer[SERVER_NAME_LENGTH];
+	boolean autoUpdateEnabled;
+};
+
+extern struct OtaUpdateSettings otaUpdateSettings;
+
+extern struct SettingItemCollection otaUpdateSettingItems;
+
 #endif

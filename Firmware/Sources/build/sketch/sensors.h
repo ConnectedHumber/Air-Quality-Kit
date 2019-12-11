@@ -3,13 +3,10 @@
 #define SENSORS_H
 
 #include <Arduino.h>
+#include "settings.h"
 
 #define SENSOR_OK 0
 #define SENSOR_OFF 1
-
-void setNoOfAverages(struct average * averages, int noOfValuesToAverage, int noOfAverageValues);
-
-void resetAverages(struct average * averages, int noOfAverageValues);
 
 struct sensor
 {
@@ -26,9 +23,12 @@ struct sensor
 	boolean beingUpdated;  // active means that the sensor will be updated 
 	void * activeReading;
 	unsigned int activeTime;
+	unsigned char* settingsStoreBase;
+	int settingsStoreLength;
+	struct SettingItemCollection* settingItems;
 };
 
-struct sensor * findSensorByName(char * name);
+struct sensor * findSensorByName(const char * name);
 
 extern struct sensor gpsSensor;
 extern struct sensor bme280Sensor;
@@ -46,5 +46,13 @@ void updateSensors();
 void createSensorJson(char * buffer, int bufferLength);
 
 void displaySensorStatus();
+
+SettingItem* FindSensorSettingByFormName(const char* settingName);
+void resetSensorsToDefaultSettings();
+
+void iterateThroughSensors(void (*func) (sensor* s));
+void iterateThroughSensorSettings(void (*func) (SettingItem* s));
+void iterateThroughSensorSettingCollections(void (*func) (SettingItemCollection* s));
+void iterateThroughSensorSecttings(void (*func) (unsigned char* settings, int size));
 
 #endif

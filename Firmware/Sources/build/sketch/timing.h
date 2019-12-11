@@ -14,7 +14,18 @@ enum Logging_State {
 	loggingAll=5
 };
 
-extern String loggingStateNames [];
+extern String loggingStateNames[];
+
+
+struct TimingSettings {
+	boolean powerControlFitted;
+	int powerControlPin;
+	Logging_State logging;
+};
+
+extern struct TimingSettings timingSettings;
+
+extern struct SettingItemCollection timingSettingItems;
 
 bool mqtt_interval_has_expired();
 bool lora_interval_has_expired();
@@ -22,7 +33,6 @@ unsigned long time_to_next_mqtt_update();
 unsigned long time_to_next_lora_update();
 bool updates_active();
 unsigned long time_to_next_update();
-void readings_ready();
 void turn_sensor_on();
 void turn_sensor_off();
 void start_getting_readings();

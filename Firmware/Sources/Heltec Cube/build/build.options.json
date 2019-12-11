@@ -1,0 +1,11 @@
+{
+  "additionalFiles": "",
+  "builtInLibrariesFolders": "C:\\Program Files (x86)\\Arduino\\libraries",
+  "customBuildProperties": "build.path=c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\Heltec Cube\\build,build.warn_data_percentage=75,runtime.tools.CubeCellelftool.path=C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\CubeCell\\tools\\CubeCellelftool\\0.0.1,runtime.tools.CubeCellelftool-0.0.1.path=C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\CubeCell\\tools\\CubeCellelftool\\0.0.1,runtime.tools.CubeCellflash.path=C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\CubeCell\\tools\\CubeCellflash\\0.0.1,runtime.tools.CubeCellflash-0.0.1.path=C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\CubeCell\\tools\\CubeCellflash\\0.0.1,runtime.tools.gcc-arm-none-eabi.path=C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\CubeCell\\tools\\gcc-arm-none-eabi\\8-2019-q3,runtime.tools.gcc-arm-none-eabi-8-2019-q3.path=C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\CubeCell\\tools\\gcc-arm-none-eabi\\8-2019-q3",
+  "fqbn": "CubeCell:CubeCell:CubeCell-Board:LORAWAN_REGION=5,LORAWAN_CLASS=0,LORAWAN_NETMODE=1,LORAWAN_ADR=0,LORAWAN_Net_Reserve=0,LORAWAN_AT_SUPPORT=1,LORAWAN_RGB=1",
+  "hardwareFolders": "C:\\Program Files (x86)\\Arduino\\hardware,C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages,C:\\Users\\Rob\\Documents\\Arduino\\hardware",
+  "otherLibrariesFolders": "C:\\Users\\Rob\\Documents\\Arduino\\libraries",
+  "runtime.ide.version": "10810",
+  "sketchLocation": "c:\\Users\\Rob\\Documents\\GitHub\\Air-Quality-Kit\\Firmware\\Sources\\Heltec Cube\\LoraWanTest\\LoraWanTest.ino",
+  "toolsFolders": "C:\\Program Files (x86)\\Arduino\\tools-builder,C:\\Program Files (x86)\\Arduino\\hardware\\tools\\avr,C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages"
+}

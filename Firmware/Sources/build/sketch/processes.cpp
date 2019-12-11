@@ -9,7 +9,7 @@
 #include "inputswitch.h"
 #include "mqtt.h"
 #include "otaupdate.h"
-#include "webserver.h"
+#include "settingsWebServer.h"
 #include "timing.h"
 #include "lcd.h"
 #include "inputkeys.h"
@@ -22,35 +22,83 @@
 
 
 //								name	 start		update		  stop        status             activeAtStart beingUpdated status activeTime processDetails
-struct process PixelProcess = { "Pixel", startPixel, updatePixel, stopPixel, pixelStatusMessage, true, false, 0, 0, NULL };
-struct process WiFiProcessDescriptor = { "WiFi", startWifi, updateWifi, stopWiFi, wifiStatusMessage, true, false, 0, 0, NULL  };
-struct process ConsoleProcessDescriptor = { "Console", startConsole, updateConsole, stopConsole, consoleStatusMessage, true, false, 0, 0, NULL  };
-struct process WebServerProcessDescriptor = { "Webserver", startWebServer, updateWebServer, stopWebserver, webserverStatusMessage, false, false, 0, 0, NULL  }; // don't start the web server by default
-struct process MQTTProcessDescriptor = { "MQTT", startMQTT, updateMQTT, stopMQTT, mqttStatusMessage, true,  false, 0, 0, NULL  };
-struct process OTAUpdateProcess = { "OTA", startOtaUpdate, updateOtaUpdate, stopOtaUpdate, otaUpdateStatusMessage, false, false, 0, 0, NULL  }; // don't start the ota update by default
-struct process InputSwitchProcess = { "Input switch", startInputSwitch, updateInputSwitch, stopInputSwitch, inputSwitchStatusMessage, true, false, 0, 0, NULL  };
-struct process WiFiConfigProcess = { "Wifi Config", startWifiConfig, updateWifiConfig, stopWifiConfig, wifiConfigStatusMessage, true, false, 0, 0, NULL  };
-struct process LCDProcess = { "LCD", startLCD, updateLCD, stopLCD, LCDStatusMessage, true, false, 0, 0, NULL  };
-struct process TimingProcess = { "Timing", startTiming, updateTiming, stopTiming, timingStatusMessage , true, false, 0, 0, NULL  };
-struct process InputKeysProcess = { "Input keys", startInputKeys, updateInputKeys, stopInputKeys, inputKeysStatusMessage , true, false, 0, 0, NULL  };
-struct process MenuProcess = { "Menu", startMenu, updateMenu, stopMenu, menuStatusMessage , true, false, 0, 0, NULL  };
-struct process LoRaProcess= { "LoRa", startLoRa, updateLoRa, stopLoRa, loraStatusMessage , true, false, 0, 0, NULL  };
+struct process PixelProcess = { "Pixel", startPixel, updatePixel, stopPixel, pixelStatusMessage, true,		   false,		0,		0,		NULL, 
+	(unsigned char *) &pixelSettings, sizeof(PixelSettings), & pixelSettingItems };
+
+struct process WiFiProcessDescriptor = { "WiFi", startWifi, updateWifi, stopWiFi, wifiStatusMessage, true, false, 0, 0, NULL,
+	(unsigned char *) &wifiConnectionSettings, sizeof(WifiConnectionSettings), &wifiConnectionSettingItems };
+
+struct process ConsoleProcessDescriptor = { "Console", startConsole, updateConsole, stopConsole, consoleStatusMessage, true, false, 0, 0, NULL,
+	NULL, 0, NULL};
+
+struct process WebServerProcessDescriptor = { "Settingswebserver", startWebServer, updateWebServer, stopWebserver, webserverStatusMessage, false, false, 0, 0, NULL,
+	NULL, 0, NULL };// don't start the web server by default
+
+struct process MQTTProcessDescriptor = { "MQTT", startMQTT, updateMQTT, stopMQTT, mqttStatusMessage, true,  false, 0, 0, NULL,
+	(unsigned char*)&mqttSettings, sizeof(MqttSettings), &mqttSettingItems };
+
+struct process OTAUpdateProcess = { "OTA", startOtaUpdate, updateOtaUpdate, stopOtaUpdate, otaUpdateStatusMessage, false, false, 0, 0, NULL,
+	(unsigned char *) &otaUpdateSettings, sizeof(OtaUpdateSettings), &otaUpdateSettingItems }; // don't start the ota update by default
+
+struct process InputSwitchProcess = { "Input switch", startInputSwitch, updateInputSwitch, stopInputSwitch, inputSwitchStatusMessage, true, false, 0, 0, NULL,
+	(unsigned char*) &inputSwitchSettings, sizeof(InputSwitchSettings), &inputSwitchSettingItems};
+
+struct process WiFiConfigProcess = { "Wifi Config", startWifiConfig, updateWifiConfig, stopWifiConfig, wifiConfigStatusMessage, true, false, 0, 0, NULL,
+	NULL, 0, NULL }; 
+
+struct process LCDProcess = { "LCD", startLCD, updateLCD, stopLCD, LCDStatusMessage, true, false, 0, 0, NULL,
+	(unsigned char *) &lcdSettings, sizeof(LcdSettings), &lcdSettingItems };
+
+struct process TimingProcess = { "Timing", startTiming, updateTiming, stopTiming, timingStatusMessage , true, false, 0, 0, NULL,
+	(unsigned char *) &timingSettings, sizeof(TimingSettings), &timingSettingItems};
+
+struct process InputKeysProcess = { "Input keys", startInputKeys, updateInputKeys, stopInputKeys, inputKeysStatusMessage , true, false, 0, 0, NULL,
+	NULL, 0, NULL};
+
+struct process MenuProcess = { "Menu", startMenu, updateMenu, stopMenu, menuStatusMessage , true, false, 0, 0, NULL,
+	NULL, 0, NULL};
+
+struct process LoRaProcess= { "LoRa", startLoRa, updateLoRa, stopLoRa, loraStatusMessage , true, false, 0, 0, NULL,
+	(unsigned char *) &loRaSettings, sizeof(LoRaSettings), & loraSettingItems };
 
 struct process * runningProcessList[] =
 {
-//	&PixelProcess,
+	&PixelProcess,
 	&WiFiProcessDescriptor,
 	&ConsoleProcessDescriptor,
 	&WebServerProcessDescriptor,
 	&MQTTProcessDescriptor,
-//	&OTAUpdateProcess,
-//	&InputSwitchProcess,
+	&OTAUpdateProcess,
+	&InputSwitchProcess,
 	&LCDProcess,
 	&TimingProcess,
 	&InputKeysProcess,
 	&MenuProcess,
 	&LoRaProcess
 };
+
+
+// This list is ordered in the sequence of processes that 
+// should be stopped, making sure that WiFi is stopped after 
+// MQTT
+
+struct process* stoppingProcessList[] =
+{
+	&MQTTProcessDescriptor,
+	&LoRaProcess,
+	&WebServerProcessDescriptor,
+	&PixelProcess,
+	&WiFiProcessDescriptor,
+	&ConsoleProcessDescriptor,
+	&OTAUpdateProcess,
+	&InputSwitchProcess,
+	&LCDProcess,
+	&TimingProcess,
+	&InputKeysProcess,
+	&MenuProcess
+};
+
+
 
 struct process * wifiConfigProcessList[] =
 {
@@ -61,7 +109,7 @@ struct process * wifiConfigProcessList[] =
 	&MenuProcess
 };
 
-struct process * findProcessByName(char * name)
+struct process * findProcessByName(const char * name)
 {
 	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process *); i++)
 	{
@@ -174,3 +222,93 @@ void displayProcessStatus()
 	}
 }
 
+void iterateThroughProcesses(void (*func) (process * p))
+{
+	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process*); i++)
+	{
+		func(runningProcessList[i]);
+	}
+}
+
+void stopProcesses()
+{
+	for (int i = 0; i < sizeof(stoppingProcessList) / sizeof(struct process*); i++)
+	{
+		runningProcessList[i]->stopProcess(runningProcessList[i]);
+	}
+}
+
+
+void iterateThroughProcessSecttings(void (*func) (unsigned char * settings, int size))
+{
+	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process*); i++)
+	{
+		func(runningProcessList[i]->settingsStoreBase, 
+			runningProcessList[i]->settingsStoreLength);
+	}
+}
+
+
+void iterateThroughProcessSettingCollections(void (*func) (SettingItemCollection* s))
+{
+	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process*); i++)
+	{
+		if (runningProcessList[i]->settingItems != NULL)
+		{
+			func(runningProcessList[i]->settingItems);
+		}
+	}
+}
+
+void iterateThroughProcessSettings(void (*func) (SettingItem* s))
+{
+	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process*); i++)
+	{
+		if (runningProcessList[i]->settingItems != NULL)
+		{
+			for (int j = 0; j < runningProcessList[i]->settingItems->noOfSettings; j++)
+			{
+				func(runningProcessList[i]->settingItems->settings[j]);
+			}
+		}
+	}
+}
+
+void resetProcessesToDefaultSettings()
+{
+	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process*); i++)
+	{
+		if (runningProcessList[i]->settingItems != NULL)
+		{
+			for (int j = 0; j < runningProcessList[i]->settingItems->noOfSettings; j++)
+			{
+				void* dest = runningProcessList[i]->settingItems->settings[j]->value;
+				runningProcessList[i]->settingItems->settings[j]->setDefault(dest);
+			}
+		}
+	}
+}
+
+
+SettingItem* FindProcesSettingByFormName(const char* settingName)
+{
+	for (int i = 0; i < sizeof(runningProcessList) / sizeof(struct process*); i++)
+	{
+		process * testProcess = runningProcessList[i];
+
+		if (testProcess->settingItems != NULL)
+		{
+			SettingItemCollection* testItems = testProcess->settingItems;
+
+			for (int j = 0; j < testProcess->settingItems->noOfSettings; j++)
+			{
+				SettingItem* testSetting = testItems->settings[j];
+				if (matchSettingName(testSetting, settingName))
+				{
+					return testSetting;
+				}
+			}
+		}
+	}
+	return NULL;
+}

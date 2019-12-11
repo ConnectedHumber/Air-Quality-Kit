@@ -4,6 +4,205 @@
 #include "settings.h"
 #include "airquality.h"
 
+struct PixelSettings pixelSettings;
+
+boolean validateColour(void* dest, const char* newValueStr)
+{
+	int value;
+
+	if (sscanf(newValueStr, "%d", &value) == 1)
+	{
+		*(int*)dest = value;
+		return true;
+	}
+
+	if (value < 0)
+		return false;
+
+	if (value > 255)
+		return false;
+
+	return true;
+}
+
+void setDefaultPixelControlPinNo(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 25;
+}
+
+struct SettingItem pixelControlPinSetting = { "Pixel Control Pin",
+		"pixelcontrolpin",
+		&pixelSettings.pixelControlPinNo,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelControlPinNo,
+		validateInt };
+
+void setDefaultNoOfPixels(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 12;
+}
+
+struct SettingItem pixelNoOfPixelsSetting = { "Number of pixels (0 for pixels not fitted)",
+		"noofpixels",
+		&pixelSettings.noOfPixels,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultNoOfPixels,
+		validateInt };
+
+
+void setDefaultPixelRed(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 0;
+}
+
+struct SettingItem pixelRedLevel = {
+		"Pixel red (0-255)",
+		"pixelred",
+		&pixelSettings.pixelRed,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelRed,
+		validateColour
+};
+
+void setDefaultPixelGreen(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 255;
+}
+
+struct SettingItem pixelGreenLevel = {
+		"Pixel green (0-255)",
+		"pixelgreen",
+		&pixelSettings.pixelGreen,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelGreen,
+		validateColour
+};
+
+void setDefaultPixelBlue(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 0;
+}
+
+struct SettingItem pixelBlueLevel = {
+		"Pixel blue (0-255)",
+		"pixelblue",
+		&pixelSettings.pixelBlue,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPixelBlue,
+		validateColour
+};
+
+void setDefaultAirqLowLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 15;
+}
+
+struct SettingItem pixelAirQLowLimit = {
+		"AirQ Low Limit",
+		"airqlowlimit",
+		&pixelSettings.airqLowLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqLowLimit,
+		validateInt,
+};
+
+
+void setDefaultAirqLowWarnLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 40;
+}
+
+struct SettingItem pixelAirqLowWarnLimit = {
+		"AirQ Low Warning Limit",
+		"airqlowwarnlimit",
+		& pixelSettings.airqLowWarnLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqLowWarnLimit,
+		validateInt,
+};
+
+void setDefaultAirqMidWarnLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 65;
+}
+
+struct SettingItem pixelAirqMidWarnLimit = {
+		"AirQ Mid Warning Limit",
+		"airqmidwarnlimit",
+		&pixelSettings.airqMidWarnLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqMidWarnLimit,
+		validateInt,
+};
+
+
+void setDefaultAirqHighWarnLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 150;
+}
+
+struct SettingItem pixelAirqHighWarnLimit = {
+		"AirQ High Warning Limit",
+		"airqhighwarnlimit",
+		&pixelSettings.airqHighWarnLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqHighWarnLimit,
+		validateInt
+};
+
+
+void setDefaultAirqHighAlertLimit(void *dest)
+{
+	int *destInt = (int *)dest;
+	*destInt = 250;
+}
+
+struct SettingItem pixelAirqHighAlertLimit = {
+		"AirQ High Alert Limit",
+		"airqhighalertlimit",
+		&pixelSettings.airqHighAlertLimit,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultAirqHighAlertLimit,
+		validateInt
+};
+
+struct SettingItem* pixelSettingItemPointers[] =
+{
+  &pixelControlPinSetting,
+  &pixelNoOfPixelsSetting,
+  &pixelAirQLowLimit,
+  &pixelAirqLowWarnLimit,
+  &pixelAirqMidWarnLimit,
+  &pixelAirqHighWarnLimit,
+  &pixelAirqHighAlertLimit
+};
+
+struct SettingItemCollection pixelSettingItems = {
+	"pixel",
+	"Settings for the NeoPixel output from the device",
+	pixelSettingItemPointers,
+	sizeof(pixelSettingItemPointers) / sizeof(struct SettingItem*)
+};
+
 Adafruit_NeoPixel * strip;
 
 // All the brightness values are between 0 and 1
@@ -149,7 +348,7 @@ struct ColourValue color_list[] =
 
 void clear_pixels()
 {
-	for (int i = 0; i < settings.noOfPixels; i++)
+	for (int i = 0; i < pixelSettings.noOfPixels; i++)
 	{
 		pixels[i].r = 0;
 		pixels[i].g = 0;
@@ -183,7 +382,7 @@ void renderVirtualPixel(VirtualPixel * lamp)
 
 	// Map the position value from 360 degrees to a pixel number
 
-	float pixel_pos = (lamp->factors[POSITION_FACTOR].factor_value / 360 * settings.noOfPixels);
+	float pixel_pos = (lamp->factors[POSITION_FACTOR].factor_value / 360 * pixelSettings.noOfPixels);
 
 	int pos = (int)(pixel_pos);
 
@@ -201,7 +400,7 @@ void renderVirtualPixel(VirtualPixel * lamp)
 	g = (byte)(lamp->factors[GREEN_FACTOR].factor_value * brightness * diff);
 	b = (byte)(lamp->factors[BLUE_FACTOR].factor_value * brightness * diff);
 
-	add_color_to_pixel((pos + 1) % settings.noOfPixels, r, g, b);
+	add_color_to_pixel((pos + 1) % pixelSettings.noOfPixels, r, g, b);
 
 }
 
@@ -219,7 +418,7 @@ void renderVirtualPixels(struct VirtualPixel * lamps)
 		renderVirtualPixel(&lamps[i]);
 	}
 
-	for (int i = 0; i < settings.noOfPixels; i++)
+	for (int i = 0; i < pixelSettings.noOfPixels; i++)
 	{
 		setPixelFromStruct(i, { pixels[i].r,pixels[i].g,pixels[i].b });
 	}
@@ -368,19 +567,19 @@ readingDisplayStates displayState;
 
 readingDisplayStates getDisplayStateFromValue(float value)
 {
-	if (value < settings.airqLowLimit)
+	if (value < pixelSettings.airqLowLimit)
 		return veryLow;
 
-	if (value < settings.airqLowWarnLimit)
+	if (value < pixelSettings.airqLowWarnLimit)
 		return lowWarn;
 
-	if (value < settings.airqMidWarnLimit)
+	if (value < pixelSettings.airqMidWarnLimit)
 		return lowMid;
 
-	if (value < settings.airqHighWarnLimit)
+	if (value < pixelSettings.airqHighWarnLimit)
 		return lowHigh;
 
-	if (value < settings.airqHighAlertLimit)
+	if (value < pixelSettings.airqHighAlertLimit)
 		return highHigh;
 
 	return alert;
@@ -498,7 +697,7 @@ void startPixelStrip()
 	if (strip != NULL)
 		return;
 
-	strip = new Adafruit_NeoPixel(60, settings.pixelControlPinNo, NEO_GRB + NEO_KHZ800);
+	strip = new Adafruit_NeoPixel(60, pixelSettings.pixelControlPinNo, NEO_GRB + NEO_KHZ800);
 	strip->begin();
 	setPixelFromStruct(0, { 255,0,0 });
 	setPixelFromStruct(1, { 255,0,255 });
@@ -517,7 +716,7 @@ void initialiseStatusDisplay(byte r, byte g, byte b)
 
 	startPixelStrip();
 
-	for (int i = 0; i < settings.noOfPixels; i++)
+	for (int i = 0; i < pixelSettings.noOfPixels; i++)
 	{
 		setPixelFromStruct(i, { r,g,b });
 	}
@@ -526,7 +725,7 @@ void initialiseStatusDisplay(byte r, byte g, byte b)
 
 boolean setStatusDisplayPixel(int pixelNumber, boolean statusOK)
 {
-	if (pixelNumber >= settings.noOfPixels)
+	if (pixelNumber >= pixelSettings.noOfPixels)
 		return false;
 
 	if (statusOK)
@@ -559,7 +758,7 @@ void renderStatusDisplay()
 
 boolean addStatusItem(boolean status)
 {
-	if (statusPixelNo >= settings.noOfPixels)
+	if (statusPixelNo >= pixelSettings.noOfPixels)
 		return false;
 
 	setStatusDisplayPixel(statusPixelNo, status);
@@ -571,7 +770,7 @@ boolean addStatusItem(boolean status)
 
 int startPixel(struct process * pixelProcess)
 {
-	if (settings.noOfPixels == 0)
+	if (pixelSettings.noOfPixels == 0)
 	{
 		pixelProcess->status = PIXEL_ERROR_NO_PIXELS;
 		return PIXEL_ERROR_NO_PIXELS;

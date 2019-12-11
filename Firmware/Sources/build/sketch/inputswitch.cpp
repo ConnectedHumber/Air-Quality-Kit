@@ -4,6 +4,50 @@
 #include "inputswitch.h"
 #include "settings.h"
 
+struct InputSwitchSettings inputSwitchSettings;
+
+void setDefaultControlInputPin(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 36;
+}
+
+struct SettingItem controlInputPinSetting = {
+		"Control Input Pin",
+		"controlinputpin",
+		& inputSwitchSettings.controlInputPin,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultControlInputPin,
+		validateInt };
+
+struct SettingItem controlInputPinActiveLowSetting = {
+		"Control Input Active Low",
+		"controlinputlow",
+		& inputSwitchSettings.controlInputPinActiveLow,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setFalse,
+		validateYesNo
+};
+
+
+struct SettingItem* inputSwitchSettingItemPointers[] =
+{
+&controlInputPinSetting,
+&controlInputPinActiveLowSetting
+};
+
+struct SettingItemCollection inputSwitchSettingItems = {
+	"inputswitch",
+	"Pin assignment, level (high or low) and enable/disable for hardware configuration switch",
+	inputSwitchSettingItemPointers,
+	sizeof(inputSwitchSettingItemPointers) / sizeof(struct SettingItem*)
+};
+
+
+
+
 int lastInputValue;
 long inputDebounceStartTime;
 
@@ -24,13 +68,13 @@ unsigned long millisAtLastInputChange;
 
 int startInputSwitch(struct process * inputSwitchProcess)
 {
-	pinMode(settings.controlInputPin, INPUT_PULLUP);
+	pinMode(inputSwitchSettings.controlInputPin, INPUT_PULLUP);
 	return PROCESS_OK;
 }
 
 int updateInputSwitch(struct process * inputSwitchProcess)
 {
-	int newInputValue = digitalRead(settings.controlInputPin);
+	int newInputValue = digitalRead(inputSwitchSettings.controlInputPin);
 
 	if (newInputValue == lastInputValue)
 	{
@@ -44,9 +88,9 @@ int updateInputSwitch(struct process * inputSwitchProcess)
 		if (++millisSinceChange > INPUT_DEBOUNCE_TIME)
 		{
 			if (newInputValue)
-				switchValue = !settings.controlInputPinActiveLow;
+				switchValue = !inputSwitchSettings.controlInputPinActiveLow;
 			else
-				switchValue = settings.controlInputPinActiveLow;
+				switchValue = inputSwitchSettings.controlInputPinActiveLow;
 			lastInputValue = newInputValue;
 		}
 	}
@@ -70,12 +114,12 @@ void inputSwitchStatusMessage(struct process * inputSwitchProcess, char * buffer
 boolean readInputSwitch()
 {
 	int newInputValue;
-	int lastInputValue = digitalRead(settings.controlInputPin);
+	int lastInputValue = digitalRead(inputSwitchSettings.controlInputPin);
 	long inputDebounceStartTime = millis();
 
 	while (true)
 	{
-		int newInputValue = digitalRead(settings.controlInputPin);
+		int newInputValue = digitalRead(inputSwitchSettings.controlInputPin);
 
 		if (newInputValue != lastInputValue)
 		{
@@ -90,9 +134,9 @@ boolean readInputSwitch()
 			if (++millisSinceChange > INPUT_DEBOUNCE_TIME)
 			{
 				if (newInputValue)
-					return !settings.controlInputPinActiveLow;
+					return !inputSwitchSettings.controlInputPinActiveLow;
 				else
-					return settings.controlInputPinActiveLow;
+					return inputSwitchSettings.controlInputPinActiveLow;
 			}
 		}
 	}

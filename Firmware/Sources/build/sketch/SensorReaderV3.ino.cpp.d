@@ -1,5 +1,6 @@
 c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\SensorReaderV3.ino.cpp.o: \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\SensorReaderV3.ino.cpp \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WebServer\src/HTTP_Method.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Arduino.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/stdint.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/machine/_default_types.h \
@@ -127,15 +128,42 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\Sens
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/HardwareSerial.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Esp.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\heltec_wifi_lora_32_V2/pins_arduino.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFi.h \
+ C:\Users\Rob\Documents\Arduino\libraries\MicroNMEA-master\src/MicroNMEA.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\DNSServer\src/DNSServer.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiUdp.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Udp.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/cbuf.h \
+ C:\Users\Rob\Documents\Arduino\libraries\ezTime\src/ezTime.h \
+ C:\Users\Rob\Documents\Arduino\libraries\PubSubClient\src/PubSubClient.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Client.h \
+ C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library/Adafruit_BME280.h \
+ C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Sensor/Adafruit_Sensor.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Print.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\Wire\src/Wire.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/freertos/freertos/queue.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiServer.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Server.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiClient.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiClient.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\EEPROM\src/EEPROM.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\utils.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\processes.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\sensors.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\bme280.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\airquality.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\connectwifi.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFi.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/IPv6Address.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiType.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiSTA.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiGeneric.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/esp32/esp_event_loop.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/esp_event/esp_event.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/freertos/freertos/queue.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/esp_event/esp_event_base.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/esp32/esp_event_legacy.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/esp32/esp_wifi_types.h \
@@ -170,42 +198,12 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\Sens
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/lwip/dhcpserver/dhcpserver.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiAP.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiScan.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiClient.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Client.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiServer.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Server.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiUdp.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Udp.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/cbuf.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiClient.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WebServer\src/WebServer.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\configwifi.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WebServer\src/webserver.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WebServer\src/HTTP_Method.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WebServer\src/detail/RequestHandler.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\ESPmDNS\src/ESPmDNS.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/mdns/mdns.h \
- C:\Users\Rob\Documents\Arduino\libraries\MicroNMEA-master\src/MicroNMEA.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\DNSServer\src/DNSServer.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiUdp.h \
- C:\Users\Rob\Documents\Arduino\libraries\ezTime\src/ezTime.h \
- C:\Users\Rob\Documents\Arduino\libraries\PubSubClient\src/PubSubClient.h \
- C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library/Adafruit_BME280.h \
- C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Sensor/Adafruit_Sensor.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\Wire\src/Wire.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiServer.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\EEPROM\src/EEPROM.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\utils.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\settings.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\processes.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\sensors.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\bme280.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\airquality.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\connectwifi.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\configwifi.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\webserver.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\otaupdate.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\pixels.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\inputswitch.h \

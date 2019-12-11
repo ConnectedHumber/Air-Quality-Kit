@@ -12,12 +12,52 @@
 #include "bme280.h"
 #include "debug.h"
 #include "lora.h"
+#include "mqtt.h"
 #include "processes.h"
+#include "lcd.h"
+
 
 //OLED pins to ESP32 GPIOs via this connecthin:
 //OLED_SDA -- GPIO4
 //OLED_SCL -- GPIO15
 //OLED_RST -- GPIO16
+
+struct LcdSettings lcdSettings;
+
+boolean validateSplashScreen(void* dest, const char* newValueStr)
+{
+	return (validateString((char*)dest, newValueStr, SPLASH_LINE_LENGTH));
+}
+
+void setDefaultSplashTopLine(void* dest)
+{
+	Serial.println("setting default top line");
+	snprintf((char*)dest, SPLASH_LINE_LENGTH, "Connected");
+}
+
+void setDefaultSplashBottomLine(void* dest)
+{
+	snprintf((char*)dest, SPLASH_LINE_LENGTH, "Humber");
+}
+
+struct SettingItem splash_screen_top_lineSetting = {
+"Splash screen top line", "splashTop", lcdSettings.splash_screen_top_line, SPLASH_LINE_LENGTH, text, setDefaultSplashTopLine, validateSplashScreen };
+
+struct SettingItem splash_screen_bottom_lineSetting = {
+"Splash screen bottom line", "splashBtm", lcdSettings.splash_screen_bottom_line, SPLASH_LINE_LENGTH, text, setDefaultSplashBottomLine, validateSplashScreen };
+
+struct SettingItem* lcdSettingItemPointers[] =
+{
+&splash_screen_bottom_lineSetting,
+&splash_screen_top_lineSetting };
+
+struct SettingItemCollection lcdSettingItems = {
+	"lcd",
+	"LCD settings for top and bottom line of home screen",
+	lcdSettingItemPointers,
+	sizeof(lcdSettingItemPointers) / sizeof(struct SettingItem*)
+};
+
 
 // later version of display constructor nominates a pin for reset which must be added to the
 // constructor call
@@ -65,10 +105,10 @@ void drawSplashScreen(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x
     display->setTextAlignment(TEXT_ALIGN_CENTER);
 
     display->setFont(ArialMT_Plain_16);
-    display->drawString(64 + x, 10 + y, settings.splash_screen_top_line);
+    display->drawString(64 + x, 10 + y, lcdSettings.splash_screen_top_line);
 
     display->setFont(ArialMT_Plain_16);
-    display->drawString(64 + x, 30 + y, settings.splash_screen_bottom_line);
+    display->drawString(64 + x, 30 + y, lcdSettings.splash_screen_bottom_line);
 }
 
 void drawAirQuality(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
@@ -132,7 +172,7 @@ void drawDiagnostics(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x,
 
     display->drawString(0 + x, 20 + y, status_buffer);
 
-    sprintf(status_buffer, "MQTT gap: %d", settings.mqttSecsPerUpdate);
+    sprintf(status_buffer, "MQTT gap: %d", mqttSettings.mqttSecsPerUpdate);
 
     display->drawString(0 + x, 30 + y, status_buffer);
 
@@ -245,7 +285,7 @@ void setWorkingDisplay()
     ui.setFrameAnimation(SLIDE_LEFT);
 
     // Add frames
-    if ((settings.splash_screen_bottom_line[0] == 0) && (settings.splash_screen_top_line[0] == 0))
+    if ((lcdSettings.splash_screen_bottom_line[0] == 0) && (lcdSettings.splash_screen_top_line[0] == 0))
     {
         // If the splash screen text is empty - don't display the splash screen
         ui.setFrames(workingFramesNoSplash, workingFrameCount - 1);
@@ -528,7 +568,8 @@ void lcdSleep()
 
 void lcdWake()
 {
-    display.wakeup();
+	display.init();
+	display.wakeup();
 }
 
 void drawClearFrame(OLEDDisplay *display, OLEDDisplayUiState *state, int16_t x, int16_t y)
@@ -601,6 +642,8 @@ int updateLCD(struct process * lcdProcess)
 
 int stopLCD(struct process * lcdProcess)
 {
+	lcdSleep();
+
 	return PROCESS_OK;
 }
 

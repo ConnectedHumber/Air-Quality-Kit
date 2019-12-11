@@ -3,10 +3,14 @@
 #include "string.h"
 #include "errors.h"
 #include "settings.h"
+#include "sensors.h"
+#include "processes.h"
 #include "debug.h"
 #include "ArduinoJson-v5.13.2.h"
 #include "utils.h"
 #include "lora.h"
+#include "pixels.h"
+
 
 struct Device_Settings settings;
 
@@ -290,531 +294,9 @@ boolean validateDevName(void *dest, const char *newValueStr)
 	return (validateString((char *)dest, newValueStr, DEVICE_NAME_LENGTH));
 }
 
-boolean validateWifiSSID(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, WIFI_SSID_LENGTH));
-}
-
-boolean validateWifiPWD(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, WIFI_PASSWORD_LENGTH));
-}
-
-struct SettingItem wifiSettingItems[] =
-	{
-		"Device name", "devname", settings.deviceName, DEVICE_NAME_LENGTH, text, setDefaultDevname, validateDevName,
-		"WiFiSSID1", "wifissid1", settings.wifi1SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword1", "wifipwd1", settings.wifi1PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFiSSID2", "wifissid2", settings.wifi2SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword2", "wifipwd2", settings.wifi2PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFiSSID3", "wifissid3", settings.wifi3SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword3", "wifipwd3", settings.wifi3PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFiSSID4", "wifissid4", settings.wifi4SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword4", "wifipwd4", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFiSSID5", "wifissid5", settings.wifi5SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFiPassword5", "wifipwd5", settings.wifi4PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"WiFi On", "wifion", &settings.wiFiOn, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff};
-
 boolean validateServerName(void *dest, const char *newValueStr)
 {
 	return (validateString((char *)dest, newValueStr, SERVER_NAME_LENGTH));
-}
-
-struct SettingItem autoUpdateSettingItems[] =
-	{
-		"Auto update image server", "autoupdimage", settings.autoUpdateImageServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName,
-		"Auto update status server", "autoupdstatus", settings.autoUpdateStatusServer, SERVER_NAME_LENGTH, text, setEmptyString, validateServerName,
-		"Auto update on", "autoupdon", &settings.autoUpdateEnabled, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff};
-
-char *defaultMQTTName = "NewMQTTDevice";
-char *defaultMQTTHost = "mqtt.connectedhumber.org";
-
-void setDefaultMQTTTname(void *dest)
-{
-	char *destStr = (char *)dest;
-	snprintf(destStr, DEVICE_NAME_LENGTH, "Sensor-%06x", ESP.getEfuseMac());
-}
-
-void setDefaultMQTThost(void *dest)
-{
-	strcpy((char *)dest, "mqtt.connectedhumber.org");
-}
-
-boolean validateMQTThost(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, SERVER_NAME_LENGTH));
-}
-
-void setDefaultMQTTport(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 1883; // use 8883 for secure connection to Azure IoT hub
-}
-
-boolean validateMQTTtopic(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, MQTT_TOPIC_LENGTH));
-}
-
-void setDefaultMQTTusername(void *dest)
-{
-	strcpy((char *)dest, "connectedhumber");
-}
-
-boolean validateMQTTusername(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, MQTT_USER_NAME_LENGTH));
-}
-
-boolean validateMQTTPWD(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, MQTT_PASSWORD_LENGTH));
-}
-
-void setDefaultMQTTpublishTopic(void *dest)
-{
-	snprintf((char *)dest, MQTT_TOPIC_LENGTH, "airquality/data/Monitair-%06x", ESP.getEfuseMac());
-}
-
-void setDefaultMQTTsubscribeTopic(void *dest)
-{
-	snprintf((char *)dest, MQTT_TOPIC_LENGTH, "airquality/command/Monitair-%06x", ESP.getEfuseMac());
-}
-
-void setDefaultMQTTreportTopic(void *dest)
-{
-	snprintf((char *)dest, MQTT_TOPIC_LENGTH, "airquality/report/Monitair-%06x", ESP.getEfuseMac());
-}
-
-void setDefaultMQTTsecsPerUpdate(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 360;
-}
-
-void setDefaultMQTTsecsPerRetry(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 10;
-}
-
-struct SettingItem mqtttSettingItems[] =
-	{
-		"MQTT Host", "mqtthost", settings.mqttServer, SERVER_NAME_LENGTH, text, setDefaultMQTThost, validateServerName,
-		"MQTT Port number", "mqttport", &settings.mqttPort, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTport, validateInt,
-		"MQTT Secure sockets (on or off)", "mqttsecure", &settings.mqttSecureSockets, ONOFF_INPUT_LENGTH, onOff, setFalse, validateOnOff,
-		"MQTT Active (yes or no)", "mqttactive", &settings.mqtt_enabled, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo,
-		"MQTT UserName", "mqttuser", settings.mqttUser, MQTT_USER_NAME_LENGTH, text, setDefaultMQTTusername, validateMQTTusername,
-		"MQTT Password", "mqttpwd", settings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString, validateMQTTPWD,
-		"MQTT Publish topic", "mqttpub", settings.mqttPublishTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTpublishTopic, validateMQTTtopic,
-		"MQTT Subscribe topic", "mqttsub", settings.mqttSubscribeTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTsubscribeTopic, validateMQTTtopic,
-		"MQTT Reporting topic", "mqttreport", settings.mqttReportTopic, MQTT_TOPIC_LENGTH, text, setDefaultMQTTreportTopic, validateMQTTtopic,
-		"MQTT Seconds per update", "mqttsecsperupdate", &settings.mqttSecsPerUpdate, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerUpdate, validateInt,
-		"MQTT Seconds per retry", "mqttsecsperretry", &settings.seconds_per_mqtt_retry, NUMBER_INPUT_LENGTH, integerValue, setDefaultMQTTsecsPerRetry, validateInt};
-
-void setDefaultPixelRed(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 0;
-}
-
-void setDefaultPixelGreen(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 255;
-}
-
-void setDefaultPixelBlue(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 0;
-}
-
-boolean validateColour(void *dest, const char *newValueStr)
-{
-	int value;
-
-	if (sscanf(newValueStr, "%d", &value) == 1)
-	{
-		*(int *)dest = value;
-		return true;
-	}
-
-	if (value < 0)
-		return false;
-
-	if (value > 255)
-		return false;
-
-	return true;
-}
-
-void setDefaultAirqLowLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 15;
-}
-
-void setDefaultAirqLowWarnLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 40;
-}
-
-void setDefaultAirqMidWarnLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 65;
-}
-
-void setDefaultAirqHighWarnLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 150;
-}
-
-void setDefaultAirqHighAlertLimit(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 250;
-}
-
-void setDefault(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 0;
-}
-
-struct SettingItem pixelSettingItems[] =
-	{
-		"Pixel red (0-255)",
-		"pixelred",
-		&settings.pixelRed,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultPixelRed,
-		validateColour,
-		"Pixel green (0-255)",
-		"pixelgreen",
-		&settings.pixelGreen,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultPixelGreen,
-		validateColour,
-		"Pixel blue (0-255)",
-		"pixelblue",
-		&settings.pixelBlue,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultPixelBlue,
-		validateColour,
-		"AirQ Low Limit",
-		"airqlowlimit",
-		&settings.airqLowLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqLowLimit,
-		validateInt,
-		"AirQ Low Warning Limit",
-		"airqlowwarnlimit",
-		&settings.airqLowWarnLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqLowWarnLimit,
-		validateInt,
-		"AirQ Mid Warning Limit",
-		"airqmidwarnlimit",
-		&settings.airqMidWarnLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqMidWarnLimit,
-		validateInt,
-		"AirQ High Warning Limit",
-		"airqhighwarnlimit",
-		&settings.airqHighWarnLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqHighWarnLimit,
-		validateInt,
-		"AirQ High Alert Limit",
-		"airqhighalertlimit",
-		&settings.airqHighAlertLimit,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqHighAlertLimit,
-		validateInt,
-};
-
-void setDefaultAirQSensorType(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = UNKNOWN_SENSOR;
-}
-
-void setDefaultAirQWarmupTime(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 30;
-}
-
-void setDefaultAirqRXpin(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 17;
-}
-
-void setDefaultAirqTXpin(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 13;
-}
-
-void setDefaultGpsPinNo(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 22;
-}
-
-void setDefaultPowerControlPinNo(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 21;
-}
-
-void setDefaultControlInputPin(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 36;
-}
-
-void setDefaultPixelControlPinNo(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 25;
-}
-
-void setDefaultNoOfPixels(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 12;
-}
-
-void setDefaultAirqnoOfAverages(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 25;
-}
-
-void setDefaultEnvnoOfAverages(void *dest)
-{
-	int *destInt = (int *)dest;
-	*destInt = 25;
-}
-
-struct SettingItem hardwareSettingItems[] =
-	{
-		"AirQ Sensor type (0 = not fitted 1=SDS011, 2=ZPH01)",
-		"airqsensortype",
-		&settings.airqSensorType,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirQSensorType,
-		validateInt,
-		"AirQ Seconds for sensor warmup",
-		"airqsensorwarmup",
-		&settings.airqSecnondsSensorWarmupTime,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirQWarmupTime,
-		validateInt,
-		"AirQ RX Pin",
-		"airqrxpinno",
-		&settings.airqRXPinNo,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqRXpin,
-		validateInt,
-		"AirQ TX Pin",
-		"airqtxpinno",
-		&settings.airqTXPinNo,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqTXpin,
-		validateInt,
-		"BME 280 fitted (yes or no)",
-		"bme280fitted",
-		&settings.bme280Fitted,
-		ONOFF_INPUT_LENGTH,
-		yesNo,
-		setTrue,
-		validateYesNo,
-		"Power Control fitted (yes or no)",
-		"powercontrolfitted",
-		&settings.powerControlFitted,
-		ONOFF_INPUT_LENGTH,
-		yesNo,
-		setFalse,
-		validateYesNo,
-		"Power Control Pin",
-		"powercontrolpin",
-		&settings.powerControlPin,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultPowerControlPinNo,
-		validateInt,
-		"Control Input Pin",
-		"controlinputpin",
-		&settings.controlInputPin,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultControlInputPin,
-		validateInt,
-		"Control Input Active Low",
-		"controlinputlow",
-		&settings.controlInputPinActiveLow,
-		ONOFF_INPUT_LENGTH,
-		yesNo,
-		setFalse,
-		validateYesNo,
-		"GPS fitted (yes or no)",
-		"gpsfitted",
-		&settings.gpsFitted,
-		ONOFF_INPUT_LENGTH,
-		yesNo,
-		setFalse,
-		validateYesNo,
-		"GPS RX Pin",
-		"gpsrxpin",
-		&settings.gpsRXPinNo,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultGpsPinNo,
-		validateInt,
-		"Number of pixels (0 for pixels not fitted)",
-		"noofpixels",
-		&settings.noOfPixels,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultNoOfPixels,
-		validateInt,
-		"Pixel Control Pin",
-		"pixelcontrolpin",
-		&settings.pixelControlPinNo,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultPixelControlPinNo,
-		validateInt,
-		"AirQ Number of averages",
-		"airqnoOfAverages",
-		&settings.airqNoOfAverages,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultAirqnoOfAverages,
-		validateInt,
-		"Environment Number of averages",
-		"envnoOfAverages",
-		&settings.envNoOfAverages,
-		NUMBER_INPUT_LENGTH,
-		integerValue,
-		setDefaultEnvnoOfAverages,
-		validateInt,
-};
-
-void setDefaultPositionValue(void *dest)
-{
-	double *destDouble = (double *)dest;
-	*destDouble = -1000;
-}
-
-struct SettingItem locationSettingItems[] =
-	{
-		"Fixed location", "fixedlocation", &settings.fixedLocation, ONOFF_INPUT_LENGTH, yesNo, setTrue, validateYesNo,
-		"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-		"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-		"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo};
-
-boolean validateSplashScreen(void *dest, const char *newValueStr)
-{
-	return (validateString((char *)dest, newValueStr, SPLASH_LINE_LENGTH));
-}
-
-void setDefaultSplashTopLine(void *dest)
-{
-	snprintf((char *)dest, SPLASH_LINE_LENGTH, "Connected");
-}
-
-void setDefaultSplashBottomLine(void *dest)
-{
-	snprintf((char *)dest, SPLASH_LINE_LENGTH, "Humber");
-}
-
-boolean validateLoggingState(void *dest, const char *newValueStr)
-{
-	int value;
-
-	if (sscanf(newValueStr, "%d", &value) != 1)
-	{
-		return false;
-	}
-
-	if (value < 0)
-	{
-		return false;
-	}
-
-	if (value > 5)
-	{
-		return false;
-	}
-
-	*(Logging_State *)dest = (Logging_State)value;
-	return true;
-}
-
-void setDefaultLoggingState(void *dest)
-{
-	*(Logging_State *)dest = loggingOff;
-}
-
-struct SettingItem displaySettingItems[] =
-	{
-		"Splash screen top line", "splashTop", settings.splash_screen_top_line, SPLASH_LINE_LENGTH, text, setDefaultSplashTopLine, validateSplashScreen,
-		"Splash screen bottom line", "splashBtm", settings.splash_screen_bottom_line, SPLASH_LINE_LENGTH, text, setDefaultSplashBottomLine, validateSplashScreen,
-		"Logging (0=off,1=air,2=temp,3=pres,4=hum,5=all)", "logging", &settings.logging, NUMBER_INPUT_LENGTH, integerValue, setDefaultLoggingState, validateLoggingState};
-
-struct SettingItem quickSettingItems[] =
-	{
-		"WiFi access point name", "wifissid1", settings.wifi1SSID, WIFI_SSID_LENGTH, text, setEmptyString, validateWifiSSID,
-		"WiFi password", "wifipwd1", settings.wifi1PWD, WIFI_PASSWORD_LENGTH, password, setEmptyString, validateWifiPWD,
-		"MQTT Password", "mqttpwd", settings.mqttPassword, MQTT_PASSWORD_LENGTH, password, setEmptyString, validateMQTTPWD,
-		"Device lattitude", "lattitude", &settings.lattitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-		"Device longitude", "longitude", &settings.longitude, NUMBER_INPUT_LENGTH, doubleValue, setDefaultPositionValue, validateDouble,
-		"Device indoors", "indoorDevice", &settings.indoorDevice, ONOFF_INPUT_LENGTH, yesNo, setFalse, validateYesNo};
-
-SettingItemCollection allSettings[] = {
-	{"Quick", "Just the settings to get you started", quickSettingItems, sizeof(quickSettingItems) / sizeof(SettingItem)},
-	{"Output", "Display and logging settings", displaySettingItems, sizeof(displaySettingItems) / sizeof(SettingItem)},
-	{"Wifi", "Set the SSID and password for wifi connections", wifiSettingItems, sizeof(wifiSettingItems) / sizeof(SettingItem)},
-	{"MQTT", "Set the device, user, site, password and topic for MQTT", mqtttSettingItems, sizeof(mqtttSettingItems) / sizeof(SettingItem)},
-	{"LoRa", "Set the authentication and data rate for LoRa", loraSettingItems, noOfLoraSettingItems},
-	{"Pixel", "Set the pixel colours and display levels", pixelSettingItems, sizeof(pixelSettingItems) / sizeof(SettingItem)},
-	{"Hardware", "Set the hardware pins and configuration", hardwareSettingItems, sizeof(hardwareSettingItems) / sizeof(SettingItem)},
-	{"Location", "Set the fixed location of the device", locationSettingItems, sizeof(locationSettingItems) / sizeof(SettingItem)}};
-
-SettingItem *FindSetting(char *settingName)
-{
-	// Start the search at setting collection 1 so that the quick settings are not used in the search
-	for (int collectionNo = 1; collectionNo < sizeof(allSettings) / sizeof(SettingItemCollection); collectionNo++)
-	{
-		for (int settingNo = 0; settingNo < allSettings[collectionNo].noOfSettings; settingNo++)
-		{
-			if (strcasecmp(settingName, allSettings[collectionNo].settings[settingNo].formName))
-			{
-				return &allSettings[collectionNo].settings[settingNo];
-			}
-		}
-	}
-	return NULL;
 }
 
 void printSetting(SettingItem *item)
@@ -974,52 +456,80 @@ void resetSettingCollection(SettingItemCollection *settingCollection)
 {
 	for (int settingNo = 0; settingNo < settingCollection->noOfSettings; settingNo++)
 	{
-		resetSetting(&settingCollection->settings[settingNo]);
+		resetSetting(settingCollection->settings[settingNo]);
 	}
+}
+
+void PrintSettingCollection(SettingItemCollection * settingCollection)
+{
+	Serial.printf("\n%s\n", settingCollection->collectionName);
+	for (int settingNo = 0; settingNo < settingCollection->noOfSettings; settingNo++)
+	{
+		printSetting(settingCollection->settings[settingNo]);
+	}
+}
+
+void PrintSystemDetails()
+{
+	Serial.printf("%s\nVersion %d.%d\n\n", settings.deviceName, settings.majorVersion, settings.minorVersion);
+}
+
+
+void PrintAllSettings()
+{
+	PrintSystemDetails();
+	Serial.println("Sensors");
+	iterateThroughSensorSettingCollections(PrintSettingCollection);
+	Serial.println("Processes");
+	iterateThroughProcessSettingCollections(PrintSettingCollection);
 }
 
 void resetSettings()
 {
+	snprintf(settings.deviceName, DEVICE_NAME_LENGTH, "Sensor-%06x", (unsigned long) ESP.getEfuseMac());
 	settings.majorVersion = MAJOR_VERSION;
 	settings.minorVersion = MINOR_VERSION;
 
-	for (int collectionNo = 0; collectionNo < sizeof(allSettings) / sizeof(SettingItemCollection); collectionNo++)
-	{
-		resetSettingCollection(&allSettings[collectionNo]);
-	}
-
-	PrintAllSettings();
-	settings.checkByte1 = CHECK_BYTE_O1;
-	settings.checkByte2 = CHECK_BYTE_O2;
+	resetProcessesToDefaultSettings();
+	resetSensorsToDefaultSettings();
 }
 
-void PrintSettingCollection(SettingItemCollection settingCollection)
+unsigned char checksum;
+int saveAddr;
+int loadAddr;
+
+void writeByteToEEPROM(byte b, int address)
 {
-	Serial.printf("\n%s\n", settingCollection.collectionName);
-	for (int settingNo = 0; settingNo < settingCollection.noOfSettings; settingNo++)
+	checksum = checksum + b;
+
+	unsigned char rb = EEPROM.read(address);
+
+	if (EEPROM.read(address) != b)
 	{
-		printSetting(&settingCollection.settings[settingNo]);
+		EEPROM.write(address, b);
 	}
 }
 
-void PrintAllSettings()
-{
-	// Start the search at setting collection 1 so that the quick settings are not printed
-	for (int collectionNo = 1; collectionNo < sizeof(allSettings) / sizeof(SettingItemCollection); collectionNo++)
-	{
-		PrintSettingCollection(allSettings[collectionNo]);
-	}
-}
-
-void writeBytesToEEPROM(byte *bytesToStore, int address, int length)
+void writeBytesToEEPROM(unsigned char *bytesToStore, int address, int length)
 {
 	int endAddress = address + length;
+
 	for (int i = address; i < endAddress; i++)
 	{
-		EEPROM.write(i, *bytesToStore);
+		byte b = *bytesToStore;
+
+		writeByteToEEPROM(b, i);
+
 		bytesToStore++;
 	}
-	EEPROM.commit();
+}
+
+byte readByteFromEEPROM(int address)
+{
+	byte result;
+	result = EEPROM.read(address);
+	checksum += result;
+	return result;
 }
 
 void readBytesFromEEPROM(byte *destination, int address, int length)
@@ -1028,30 +538,88 @@ void readBytesFromEEPROM(byte *destination, int address, int length)
 
 	for (int i = address; i < endAddress; i++)
 	{
-		*destination = EEPROM.read(i);
-
+		*destination = readByteFromEEPROM(i);
 		destination++;
 	}
 }
 
+void readSettingsBLockFromEEPROM(unsigned char* block, int size)
+{
+	readBytesFromEEPROM(block, loadAddr, size);
+	loadAddr = loadAddr + size;
+}
+
+void saveSettingsBLockToEEPROM(unsigned char * block, int size)
+{
+	writeBytesToEEPROM(block, saveAddr,size);
+	saveAddr = saveAddr + size;
+}
+
 void saveSettings()
 {
-	int addr = SETTINGS_EEPROM_OFFSET;
+	saveAddr = SETTINGS_EEPROM_OFFSET;
 
-	byte *settingPtr = (byte *)&settings;
+	checksum = 0;
 
-	writeBytesToEEPROM(settingPtr, SETTINGS_EEPROM_OFFSET, sizeof(Device_Settings));
+	saveSettingsBLockToEEPROM((unsigned char *) & settings, sizeof(struct Device_Settings));
+
+	iterateThroughProcessSecttings(saveSettingsBLockToEEPROM);
+
+	iterateThroughSensorSecttings(saveSettingsBLockToEEPROM);
+
+	writeByteToEEPROM(checksum, saveAddr);
+
+	EEPROM.commit();
 }
 
 void loadSettings()
 {
-	byte *settingPtr = (byte *)&settings;
-	readBytesFromEEPROM(settingPtr, SETTINGS_EEPROM_OFFSET, sizeof(Device_Settings));
+	loadAddr = SETTINGS_EEPROM_OFFSET;
+
+	checksum = 0;
+
+	readSettingsBLockFromEEPROM((unsigned char*)&settings, sizeof(struct Device_Settings));
+
+	iterateThroughProcessSecttings(readSettingsBLockFromEEPROM);
+
+	iterateThroughSensorSecttings(readSettingsBLockFromEEPROM);
+
+	unsigned char readChecksum = readByteFromEEPROM(loadAddr);
+}
+
+void checksumBytesFromEEPROM(byte* destination, int address, int length)
+{
+	int endAddress = address + length;
+
+	for (int i = address; i < endAddress; i++)
+	{
+		readByteFromEEPROM(i);
+	}
+}
+
+void checkSettingsBLockFromEEPROM(unsigned char* block, int size)
+{
+	checksumBytesFromEEPROM(block, loadAddr, size);
+	loadAddr = loadAddr + size;
 }
 
 boolean validStoredSettings()
 {
-	return (settings.checkByte1 == CHECK_BYTE_O1 && settings.checkByte2 == CHECK_BYTE_O2);
+	loadAddr = SETTINGS_EEPROM_OFFSET;
+
+	checksum = 0;
+
+	checkSettingsBLockFromEEPROM((unsigned char*)&settings, sizeof(struct Device_Settings));
+
+	iterateThroughProcessSecttings(checkSettingsBLockFromEEPROM);
+
+	iterateThroughSensorSecttings(checkSettingsBLockFromEEPROM);
+
+	unsigned char calcChecksum = checksum;
+
+	unsigned char readChecksum = readByteFromEEPROM(loadAddr);
+
+	return (calcChecksum == readChecksum);
 }
 
 boolean matchSettingCollectionName(SettingItemCollection *settingCollection, const char *name)
@@ -1075,13 +643,14 @@ boolean matchSettingCollectionName(SettingItemCollection *settingCollection, con
 
 SettingItemCollection *findSettingItemCollectionByName(const char *name)
 {
-	for (int collectionNo = 0; collectionNo < sizeof(allSettings) / sizeof(SettingItemCollection); collectionNo++)
-	{
-		if (matchSettingCollectionName(&allSettings[collectionNo], name))
-		{
-			return &allSettings[collectionNo];
-		}
-	}
+	sensor * s = findSensorByName(name);
+	if (s != NULL)
+		return s->settingItems;
+
+	process* p = findProcessByName(name);
+	if (p != NULL)
+		return p->settingItems;
+
 	return NULL;
 }
 
@@ -1111,31 +680,28 @@ SettingItem *findSettingByNameInCollection(SettingItemCollection settingCollecti
 {
 	for (int settingNo = 0; settingNo < settingCollection.noOfSettings; settingNo++)
 	{
-		if (matchSettingName(&settingCollection.settings[settingNo], name))
-			return &settingCollection.settings[settingNo];
+		if (matchSettingName(settingCollection.settings[settingNo], name))
+			return settingCollection.settings[settingNo];
 	}
 	return NULL;
 }
 
-SettingItem *findSettingByName(const char *name)
+
+
+SettingItem* findSettingByName(const char* settingName)
 {
-	for (int collectionNo = 0; collectionNo < sizeof(allSettings) / sizeof(SettingItemCollection); collectionNo++)
-	{
-		SettingItem *result;
-		result = findSettingByNameInCollection(allSettings[collectionNo], name);
-		if (result != NULL)
-			return result;
-	}
+	SettingItem* result;
+
+	result = FindSensorSettingByFormName(settingName);
+
+	if (result != NULL)
+		return result;
+
+	result = FindProcesSettingByFormName(settingName);
+	if (result != NULL)
+		return result;
+
 	return NULL;
-}
-
-struct AllSystemSettings allSystemSettings = {
-	allSettings,
-	sizeof(allSettings) / sizeof(SettingItemCollection)};
-
-AllSystemSettings *getAllSystemSettings()
-{
-	return &allSystemSettings;
 }
 
 processSettingCommandResult processSettingCommand(char *command)
@@ -1237,6 +803,8 @@ void testSettingsStorage()
 	resetSettings();
 	PrintAllSettings();
 	Serial.println("Storing Settings");
+	saveSettings();
+	Serial.println("Restoring setings");
 	saveSettings();
 	Serial.println("Loading Settings");
 	loadSettings();
@@ -1395,28 +963,26 @@ void act_onJson_command(const char *json, void (*deliverResult)(char *resultText
 
 void setupSettings()
 {
+	Serial.println("Setting up settings");
+
 	EEPROM.begin(EEPROM_SIZE);
 
-	loadSettings();
-
-	if (!validStoredSettings())
+	if (validStoredSettings())
 	{
-		Serial.println("Stored settings reset");
+		Serial.println("settings valid");
+		loadSettings();
+		Serial.println("settings loaded");
+	}
+	else
+	{
+		Serial.println("settings invalid");
 		resetSettings();
+		Serial.println("settings reset");
 		saveSettings();
+		Serial.println("settings saved");
 	}
 
-	// always clear down the sensor type to force auto discovery
-	// can be used for manual setting during testing
-	setDefaultAirQSensorType(&settings.airqSensorType);
-
 	PrintAllSettings();
-}
-
-void createSettingsJson(char *jsonBuffer, int length)
-{
-	snprintf(jsonBuffer, length, "{ \"dev\":\"%s\",\"plat\":\WEMOS\"",
-			 settings.deviceName);
 }
 
 void testFindSettingByName()
