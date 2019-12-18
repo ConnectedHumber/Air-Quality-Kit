@@ -126,7 +126,7 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\libraries\e
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/IPAddress.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/HardwareSerial.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Esp.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\heltec_wifi_lora_32_V2/pins_arduino.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\firebeetle32/pins_arduino.h \
  C:\Users\Rob\Documents\Arduino\libraries\ezTime\src/ezTime.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\EEPROM\src/EEPROM.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFi.h \

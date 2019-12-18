@@ -111,4 +111,4 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\core\wiring
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32\esp8266-compat.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32\stdlib_noniso.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32\binary.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\heltec_wifi_lora_32_V2/pins_arduino.h
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\firebeetle32/pins_arduino.h

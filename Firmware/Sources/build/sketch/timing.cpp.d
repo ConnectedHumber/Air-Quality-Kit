@@ -126,7 +126,7 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timi
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/IPAddress.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/HardwareSerial.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Esp.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\heltec_wifi_lora_32_V2/pins_arduino.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\firebeetle32/pins_arduino.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timing.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\debug.h \
  c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\utils.h \
@@ -197,7 +197,5 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\timi
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
  C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Sensor/Adafruit_Sensor.h \
  C:\Users\Rob\Documents\Arduino\libraries\Adafruit_BME280_Library/Adafruit_BME280.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\menu.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lora.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\lcd.h \
- c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\control.h
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\control.h \
+ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\statusled.h

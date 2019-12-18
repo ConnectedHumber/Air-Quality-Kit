@@ -11,11 +11,16 @@ MD_DS3231 RTC;
 void setup() {
   Serial.begin(115200);
   delay(500);
+  RTC.setAlarm1Type(DS3231_ALM_SEC);
+//  RTC.setAlarm2Type(DS3231_ALM_MIN);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-    RTC.readTime();
-    Serial.println(RTC.s);
-    delay(1000);
+//  if(RTC.checkAlarm2())
+//    Serial.println("Alarm 2");
+
+  if(RTC.checkAlarm1())
+   Serial.println("Alarm 1");
+
+  delay(5000);
 }

@@ -114,7 +114,7 @@ c:\Users\Rob\Documents\GitHub\Air-Quality-Kit\Firmware\Sources\build\sketch\bme2
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/pgmspace.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Printable.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
- C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\heltec_wifi_lora_32_V2/pins_arduino.h \
+ C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\variants\firebeetle32/pins_arduino.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
  C:\Users\Rob\Documents\Arduino\libraries\Adafruit_Sensor/Adafruit_Sensor.h \
  C:\Users\Rob\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Arduino.h \

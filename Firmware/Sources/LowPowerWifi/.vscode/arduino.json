@@ -1,0 +1,7 @@
+{
+    "board": "esp32:esp32:firebeetle32",
+    "configuration": "FlashFreq=80,UploadSpeed=921600",
+    "sketch": "LowPowerWifi.ino",
+    "output": "../build",
+    "port": "COM7"
+}
