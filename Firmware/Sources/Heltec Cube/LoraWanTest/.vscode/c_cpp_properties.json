@@ -3,6 +3,9 @@
         {
             "name": "Win32",
             "includePath": [
+                "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\CubeCell\\hardware\\CubeCell\\0.0.3\\**",
+                "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\**",
+                "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.5.2\\**",
                 "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\CubeCell\\tools\\**",
                 "C:\\Users\\Rob\\AppData\\Local\\Arduino15\\packages\\CubeCell\\hardware\\CubeCell\\0.0.4\\**"
             ],

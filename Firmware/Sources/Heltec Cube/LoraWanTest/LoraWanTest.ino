@@ -473,7 +473,7 @@ void setup()
 	BoardInitMcu();
 	Serial.begin(9600);
 
-	vextTest();
+	//vextTest();
 
 	// TimerInit(&sleep, OnSleep);
 	// TimerInit(&wakeup, OnWakeup);
