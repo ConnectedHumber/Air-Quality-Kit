@@ -1,4 +1,4 @@
-C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\arduino-lmic-master\hal\hal.cpp.o: \
+C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\arduino-lmic-master\hal\hal.cpp.o: \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src\hal\hal.cpp \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Arduino.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/stdint.h \
@@ -126,7 +126,7 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_3
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/IPAddress.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/HardwareSerial.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Esp.h \
- C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\variants\heltec_wifi_lora_32_V2/pins_arduino.h \
+ C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\variants\firebeetle32/pins_arduino.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\SPI\src/SPI.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
  c:\users\rob\documents\arduino\libraries\arduino-lmic-master\src\lmic.h \

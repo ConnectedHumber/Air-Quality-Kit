@@ -1,4 +1,4 @@
-C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\arduino-lmic-master\lmic\lmic.c.o: \
+C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\arduino-lmic-master\lmic\lmic.c.o: \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src\lmic\lmic.c \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src\lmic\lmic.h \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src\lmic\oslmic.h \

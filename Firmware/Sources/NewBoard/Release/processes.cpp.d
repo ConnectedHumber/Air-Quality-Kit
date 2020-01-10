@@ -194,4 +194,5 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\pro
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\statusled.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\mqtt.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\otaupdate.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\settingsWebServer.h
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\settingsWebServer.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\lora.h

@@ -1,5 +1,5 @@
-C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\lora.cpp.o: \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\lora.cpp \
+C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\lora.cpp.o: \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\lora.cpp \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src/lmic.h \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src/lmic/lmic.h \
  C:\Users\Rob\Documents\Arduino\libraries\arduino-lmic-master\src/lmic/oslmic.h \
@@ -33,7 +33,7 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_3
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/stdlib.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/machine/stdlib.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/alloca.h \
- C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\variants\heltec_wifi_lora_32_V2/pins_arduino.h \
+ C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\variants\firebeetle32/pins_arduino.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/esp32-hal-spi.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Arduino.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4/tools/sdk/include/newlib/inttypes.h \
@@ -136,11 +136,10 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_3
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/IPAddress.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/HardwareSerial.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\cores\esp32/Esp.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\lora.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\debug.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\utils.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\settings.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\timing.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\menu.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\processes.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\SensorReaderV3\esp32_heltec_wifi_lora_32_V2\Release\errors.h
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\lora.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\utils.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\processes.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\settings.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\timing.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\debug.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\errors.h

@@ -9,6 +9,7 @@
 #include "ArduinoJson-v5.13.2.h"
 #include "utils.h"
 #include "pixels.h"
+#include "lora.h"
 
 
 struct Device_Settings settings;
@@ -305,6 +306,8 @@ void printSetting(SettingItem *item)
 	double *doubleValuePointer;
 	u4_t *loraIDValuePointer;
 
+	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
+
 	Serial.printf("    %s [%s]: ", item->prompt, item->formName);
 
 	switch (item->settingType)
@@ -352,6 +355,18 @@ void printSetting(SettingItem *item)
 			Serial.println("no");
 		}
 		break;
+
+	case loraKey:
+		dumpHexString(loraKeyBuffer, (uint8_t*)item->value, LORA_KEY_LENGTH);
+		Serial.println(loraKeyBuffer);
+		break;
+
+	case loraID:
+		loraIDValuePointer = (u4_t*)item->value;
+		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer);
+		Serial.println(loraKeyBuffer);
+		break;
+
 	}
 }
 
@@ -361,6 +376,8 @@ void appendSettingJSON(SettingItem *item, char *jsonBuffer, int bufferLength)
 	boolean *boolValuePointer;
 	double *doubleValuePointer;
 	u4_t *loraIDValuePointer;
+
+	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
 
 	snprintf(jsonBuffer, bufferLength,
 			 "%s,\"%s\":",
@@ -417,6 +434,18 @@ void appendSettingJSON(SettingItem *item, char *jsonBuffer, int bufferLength)
 			Serial.println("no");
 		}
 		break;
+
+	case loraKey:
+		dumpHexString(loraKeyBuffer, (uint8_t*)item->value, LORA_KEY_LENGTH);
+		Serial.println(loraKeyBuffer);
+		break;
+
+	case loraID:
+		loraIDValuePointer = (u4_t*)item->value;
+		dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer);
+		Serial.println(loraKeyBuffer);
+		break;
+
 	}
 }
 

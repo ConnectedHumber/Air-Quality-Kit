@@ -136,4 +136,5 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\set
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\processes.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\debug.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\ArduinoJson-v5.13.2.h \
- C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\pixels.h
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\pixels.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\lora.h

@@ -14,6 +14,7 @@
 #include "settingsWebServer.h"
 #include "timing.h"
 #include "utils.h"
+#include "lora.h"
 
 #define STATUS_DESCRIPTION_LENGTH 200
 
@@ -54,6 +55,10 @@ struct process WiFiConfigProcess = { "Wifi Config", startWifiConfig, updateWifiC
 struct process TimingProcess = { "Timing", startTiming, updateTiming, stopTiming, timingStatusMessage , true, false, 0, 0, NULL,
 	(unsigned char *) &timingSettings, sizeof(TimingSettings), &timingSettingItems};
 
+struct process LoRaProcess = { "LoRa", startLoRa, updateLoRa, stopLoRa, loraStatusMessage , true, false, 0, 0, NULL,
+	(unsigned char*)&loRaSettings, sizeof(LoRaSettings), &loraSettingItems };
+
+
 struct process * allProcessList[] =
 {
 	&PixelProcess,
@@ -61,6 +66,7 @@ struct process * allProcessList[] =
 	&ConsoleProcessDescriptor,
 	&WebServerProcessDescriptor,
 	&MQTTProcessDescriptor,
+	&LoRaProcess,
 	&OTAUpdateProcess,
 	&InputSwitchProcess,
 	&PowerControlOutputProcess,
@@ -84,6 +90,7 @@ struct process* secondBootProcessList[] =
 	&ConsoleProcessDescriptor,
 	&WebServerProcessDescriptor,
 	&MQTTProcessDescriptor,
+	&LoRaProcess,
 	&OTAUpdateProcess,
 	&TimingProcess,
 };
@@ -97,6 +104,7 @@ struct process * runningProcessList[] =
 	&ConsoleProcessDescriptor,
 	&WebServerProcessDescriptor,
 	&MQTTProcessDescriptor,
+	&LoRaProcess,
 	&OTAUpdateProcess,
 	&InputSwitchProcess,
 	&TimingProcess,
@@ -111,6 +119,7 @@ struct process* stoppingProcessList[] =
 {
 	&PowerControlOutputProcess,
 	&MQTTProcessDescriptor,
+	&LoRaProcess,
 	&WebServerProcessDescriptor,
 	&PixelProcess,
 	&WiFiProcessDescriptor,
@@ -155,8 +164,6 @@ struct process * findProcessSettingCollectionByName(const char * name)
 	}
 	return NULL;
 }
-
-
 
 struct process * startProcessByName(char * name)
 {

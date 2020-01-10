@@ -572,6 +572,9 @@ void setupVirtualPixelFactor(VirtualPixel * target, byte factor_number, float fa
 
 void setupWalkingColour(ColourValue colour)
 {
+	if (pixelSettings.noOfPixels == 0)
+		return;
+
 	byte color_pos;
 	float start_speed = 0.125;
 //	float speed_update = 0.125;    // speed for the desktop sensor
@@ -710,6 +713,9 @@ int previousAirqSensorStatus = -1;
 
 void updateReadingDisplay()
 {
+	if (pixelSettings.noOfPixels == 0)
+		return;
+
 	readingDisplayStates newDisplayState;
 
 	if (airqSensor.status == SENSOR_OK)
@@ -741,6 +747,9 @@ void updateReadingDisplay()
 
 void setupWalkingMultipleColours()
 {
+	if (pixelSettings.noOfPixels == 0)
+		return ;
+
 	byte color_pos;
 	float start_speed = 0.01;
 	float speed_update = 0.005;
@@ -781,6 +790,9 @@ int statusPixelNo = 0;
 
 void initialiseStatusDisplay(byte r, byte g, byte b)
 {
+	if (pixelSettings.noOfPixels == 0)
+		return ;
+
 	statusPixelNo = 0;
 
 	for (int i = 0; i < pixelSettings.noOfPixels; i++)
@@ -794,6 +806,9 @@ void initialiseStatusDisplay(byte r, byte g, byte b)
 
 boolean setStatusDisplayPixel(int pixelNumber, boolean statusOK)
 {
+	if (pixelSettings.noOfPixels == 0)
+		return false;
+
 	if (pixelNumber >= pixelSettings.noOfPixels)
 		return false;
 
@@ -860,7 +875,9 @@ boolean getInputSwitchValue(); // declared in inputswitch.h
 
 int updatePixel(struct process * pixelProcess)
 {
-
+	if (pixelSettings.noOfPixels == 0)
+		return PIXEL_ERROR_NO_PIXELS;
+	
 	if (pixelProcess->status != PIXEL_OK)
 	{
 		return pixelProcess->status;

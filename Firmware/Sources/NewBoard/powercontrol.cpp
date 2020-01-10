@@ -34,7 +34,7 @@ struct SettingItem powercontrolOutputFitted = {
 
 struct SettingItem powercontrolOutputPinActiveHighSetting = {
 		"Power Control Output Active High",
-		"powerOutputActivelow",
+		"powerOutputActivehigh",
 		& powerControlSettings.powerControlOutputPinActiveHigh,
 		ONOFF_INPUT_LENGTH,
 		yesNo,
@@ -113,6 +113,8 @@ int startPowerControl(struct process* powerControlProcess)
 
 	powerOnValue = false;
 	setPowerOn();
+
+	delay(5000);
 	return PROCESS_OK;
 }
 
