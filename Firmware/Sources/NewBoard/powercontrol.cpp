@@ -113,8 +113,7 @@ int startPowerControl(struct process* powerControlProcess)
 
 	powerOnValue = false;
 	setPowerOn();
-
-	delay(5000);
+	delay(100);
 	return PROCESS_OK;
 }
 

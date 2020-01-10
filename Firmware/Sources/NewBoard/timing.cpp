@@ -8,6 +8,7 @@
 #include "settings.h"
 #include "sensors.h"
 #include "mqtt.h"
+#include "lora.h"
 #include "airquality.h"
 #include "bme280.h"
 #include "processes.h"
@@ -76,6 +77,8 @@ unsigned long mqtt_reading_retry_interval_in_millis;
 unsigned long mqtt_reading_interval_in_millis;
 unsigned long milliseconds_at_last_mqtt_update;
 
+unsigned long lora_reading_retry_interval_in_millis;
+unsigned long lora_reading_interval_in_millis;
 unsigned long milliseconds_at_last_lora_update;
 
 timingStates timing_state; 
@@ -92,6 +95,14 @@ void force_mqtt_send ()
     mqttForceSend = true;
 }
 
+boolean loraForceSend;
+
+void force_lora_send()
+{
+	loraForceSend = true;
+}
+
+
 // return true if it is time for an update
 bool mqtt_interval_has_expired()
 {
@@ -106,7 +117,20 @@ bool mqtt_interval_has_expired()
 	return false;
 }
 
-unsigned long time_to_next_update()
+bool lora_interval_has_expired()
+{
+	unsigned long time_in_millis = millis();
+	unsigned long millis_since_last_lora_update = ulongDiff(time_in_millis, milliseconds_at_last_lora_update);
+
+
+	if (millis_since_last_lora_update > lora_reading_interval_in_millis)
+	{
+		return true;
+	}
+	return false;
+}
+
+unsigned long time_to_next_mqtt_update()
 {
 	if (mqttSettings.mqtt_enabled)
 	{
@@ -121,10 +145,39 @@ unsigned long time_to_next_update()
 		return ULONG_MAX;
 }
 
+unsigned long time_to_next_lora_update()
+{
+	if (loRaSettings.loraOn)
+	{
+		unsigned long millis_since_last_lora_update = ulongDiff(millis(), milliseconds_at_last_lora_update);
+
+		if (millis_since_last_lora_update > lora_reading_interval_in_millis)
+			return 0;
+		else
+			return lora_reading_interval_in_millis - millis_since_last_lora_update;
+	}
+	else
+		return ULONG_MAX;
+}
+
+
+unsigned long time_to_next_update()
+{
+	unsigned long mqtt = time_to_next_mqtt_update();
+	unsigned long lora = time_to_next_lora_update();
+
+	if (mqtt < lora)
+		return mqtt;
+	else
+		return lora;
+}
+
+
 
 bool updates_active()
 {
-	if(mqttSettings.mqtt_enabled) return true;
+	if (loRaSettings.loraOn) return true;
+	if (mqttSettings.mqtt_enabled) return true;
 
 	return false;
 }
@@ -137,6 +190,14 @@ boolean send_to_mqtt()
 	createSensorJson(jsonBuffer, JSON_BUFFER_SIZE);
 	boolean result = publishBufferToMQTT(jsonBuffer);
     return result;
+}
+
+boolean send_to_lora()
+{
+	airqualityReading* airq = (airqualityReading*)airqSensor.activeReading;
+	bme280Reading* env = (bme280Reading*)bme280Sensor.activeReading;
+
+	return publishReadingsToLoRa(airq->pm25Average, airq->pm10Average, env->temperature, env->pressure, env->humidity);
 }
 
 void sendReadings()
@@ -168,6 +229,25 @@ void sendReadings()
 		if (send_to_mqtt())
 		{
 			mqttForceSend = false;
+		}
+	}
+
+	if (loRaSettings.loraOn)
+	{
+		unsigned long millis_since_last_lora_update = ulongDiff(time_in_millis, milliseconds_at_last_lora_update);
+
+		if (millis_since_last_lora_update > lora_reading_interval_in_millis)
+		{
+			milliseconds_at_last_lora_update = time_in_millis;
+			send_to_lora();
+		}
+	}
+
+	if (loraForceSend)
+	{
+		if (send_to_lora())
+		{
+			loraForceSend = false;
 		}
 	}
 }
@@ -250,9 +330,9 @@ void check_sensor_power()
 {
 	if (can_power_off_sensor())
 	{
-		turn_sensor_off();
 		if(timingSettings.sleepProcessor)
 		{
+			turn_sensor_off();
 			long milliseconds_for_sensor_warmup = airqualitySettings.airqSecnondsSensorWarmupTime * 1000;
 			long milliseconds_for_averaging = (airqualitySettings.airqNoOfAverages / 2) * 1000;
 			unsigned sleep_time = time_to_next_update() - milliseconds_for_sensor_warmup - milliseconds_for_averaging;
@@ -304,6 +384,7 @@ void timingSensorGettingReading()
 void start_sensor()
 {
 	mqttForceSend=false;
+	loraForceSend = false;
 }
 
 unsigned long dump_air_values_reading_count = 0;
@@ -386,18 +467,20 @@ void sleep_sensor(unsigned long time_to_sleep)
 }
 
 
-int startTiming(struct process * timingProcess)
+int startTiming(struct process* timingProcess)
 {
 	unsigned long time_in_millis = millis();
 
 	mqtt_reading_interval_in_millis = mqttSettings.mqttSecsPerUpdate * 1000;
 	milliseconds_at_last_mqtt_update = time_in_millis - mqtt_reading_interval_in_millis;
+	lora_reading_interval_in_millis = loRaSettings.seconds_per_lora_update * 1000;
+	milliseconds_at_last_lora_update = time_in_millis - lora_reading_interval_in_millis;
 	timing_state = sensorOff;
 	start_sensor();
 	return PROCESS_OK;
 }
 
-int updateTiming(struct process * timingProcess)
+int updateTiming(struct process* timingProcess)
 {
 	updateSerialDump();
 
@@ -416,6 +499,14 @@ int updateTiming(struct process * timingProcess)
 		break;
 	}
 
+	if (loraForceSend)
+	{
+		unsigned long time_in_millis = millis();
+		milliseconds_at_last_lora_update = time_in_millis -
+			((loRaSettings.seconds_per_lora_update * 1000) - (airqualitySettings.airqSecnondsSensorWarmupTime * 1000));
+		loraForceSend = false;
+	}
+
 	if (mqttForceSend)
 	{
 		long milliseconds_for_sensor_warmup = airqualitySettings.airqSecnondsSensorWarmupTime * 1000;
@@ -426,6 +517,7 @@ int updateTiming(struct process * timingProcess)
 	}
 	return PROCESS_OK;
 }
+
 
 int stopTiming(struct process * timingProcess)
 {
@@ -446,6 +538,7 @@ void timingStatusMessage(struct process * timingProcess, char * buffer, int buff
 
 	case sensorGettingReading:
 		snprintf(buffer, bufferLength, "Sensor getting readings");
+
 		break;
 	}
 }

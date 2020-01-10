@@ -189,6 +189,7 @@ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\tim
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiUdp.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiServer.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\WiFi\src/WiFiClient.h \
+ C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\lora.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\airquality.h \
  C:\Users\Rob\AppData\Local\Temp\VMBuilds\NewBoard\esp32_firebeetle32\Release\bme280.h \
  C:\Users\Rob\AppData\Local\arduino15\packages\esp32\hardware\esp32\1.0.4\libraries\Wire\src/Wire.h \
