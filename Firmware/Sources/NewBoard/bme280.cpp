@@ -100,8 +100,9 @@ void updateEnvAverages(bme280Reading * reading)
 		reading->temperatureAverage = reading->temperatureTotal / bmeSettings.envNoOfAverages;
 		reading->pressureAverage = reading->pressureTotal / bmeSettings.envNoOfAverages;
 		reading->humidityAverage = reading->humidityTotal / bmeSettings.envNoOfAverages;
-		reading->lastEnvqAverageMillis = millis();
+		reading->lastEnvqAverageMillis = offsetMillis();
 		reading->envNoOfAveragesCalculated++;
+		resetEnvqAverages(reading);
 	}
 }
 
@@ -123,7 +124,7 @@ int updateBME280Reading(struct sensor * bme280Sensor)
 		bme280activeReading->temperature = bme.readTemperature();
 		bme280activeReading->humidity = bme.readHumidity();
 		bme280activeReading->pressure = bme.readPressure() / 100.0F;
-		bme280Sensor->millisAtLastReading = millis();
+		bme280Sensor->millisAtLastReading = offsetMillis();
 		bme280Sensor->readingNumber++;
 		updateEnvAverages(bme280activeReading);
 	}
@@ -156,7 +157,10 @@ void bme280StatusMessage(struct sensor * bme280sensor, char * buffer, int buffer
 	switch (bme280sensor->status)
 	{
 	case SENSOR_OK:
-		snprintf(buffer, bufferLength, "BME 280 sensor connected at %x", bme280activeReading->activeBMEAddress);
+		snprintf(buffer, bufferLength, "BME 280 sensor connected at %x last transmitted reading %d averages %d", 
+			bme280activeReading->activeBMEAddress, 
+			bme280sensor->lastTransmittedReadingNumber, 
+			bme280activeReading->envNoOfAveragesCalculated);
 		break;
 
 	case SENSOR_OFF:

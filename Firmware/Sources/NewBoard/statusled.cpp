@@ -4,6 +4,7 @@
 #include "settings.h"
 #include "statusled.h"
 #include "processes.h"
+#include "timing.h"
 
 unsigned long millisAtLastFlash;
 int flashDurationInMillis = 0;
@@ -84,7 +85,7 @@ void statusLedOn()
 
 void ledToggle()
 {
-    millisAtLastFlash = millis();
+    millisAtLastFlash = offsetMillis();
 
     if (ledLit)
         statusLedOff();
@@ -96,7 +97,7 @@ void startstatusLedFlash(int flashLength)
 {
     statusLedOn();
 
-    millisAtLastFlash = millis();
+    millisAtLastFlash = offsetMillis();
 
     flashDurationInMillis = flashLength;
 }
@@ -109,7 +110,7 @@ void updateStatusLedFlash()
         return;
     }
 
-    unsigned long millisSinceLastFlash = millis() - millisAtLastFlash;
+    unsigned long millisSinceLastFlash = offsetMillis() - millisAtLastFlash;
 
     if (millisSinceLastFlash > flashDurationInMillis)
         ledToggle();
@@ -119,7 +120,7 @@ int startStatusLed(struct process *statusLedProcess)
 {
     pinMode(statusLedSettings.statusLedOutputPin, OUTPUT);
     statusLedOff();
-    millisAtLastFlash = millis();
+    millisAtLastFlash = offsetMillis();
     return PROCESS_OK;
 }
 

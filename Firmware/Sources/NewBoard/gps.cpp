@@ -110,7 +110,7 @@ int startGps(struct sensor * gpsSensor)
 		gpsSerial->begin(9600, SERIAL_8N1, gpsSetting.gpsRXPinNo, -1);
 	}
 
-	lastGPSserialDataReceived = millis();
+	lastGPSserialDataReceived = offsetMillis();
 
 	nmea.setUnknownSentenceHandler(printUnknownSentence);
 
@@ -128,7 +128,7 @@ int updateGpsReading(struct sensor * gpsSensor)
 	activeGPSReading =
 		(struct gpsReading *) gpsSensor->activeReading;
 
-	unsigned long updateMillis = millis();
+	unsigned long updateMillis = offsetMillis();
 
 	if (gpsSerial->available() == 0)
 	{
@@ -188,7 +188,7 @@ int addGpsReading(struct sensor * gpsSensor, char * jsonBuffer, int jsonBufferSi
 	activeGPSReading =
 		(struct gpsReading *) gpsSensor->activeReading;
 
-	if (ulongDiff(millis(), gpsSensor->millisAtLastReading) < GPS_READING_LIFETIME_MSECS)
+	if (ulongDiff(offsetMillis(), gpsSensor->millisAtLastReading) < GPS_READING_LIFETIME_MSECS)
 	{
 		snprintf(jsonBuffer, jsonBufferSize, "%s,\"Lat\" : %.6f, \"Long\" : %.6f,",
 			jsonBuffer,
@@ -207,7 +207,7 @@ void gpsStatusMessage(struct sensor * gpsSensor, char * buffer, int bufferLength
 	switch (gpsSensor->status)
 	{
 	case SENSOR_OK:
-		if (ulongDiff(millis(), gpsSensor->millisAtLastReading) < GPS_READING_LIFETIME_MSECS)
+		if (ulongDiff(offsetMillis(), gpsSensor->millisAtLastReading) < GPS_READING_LIFETIME_MSECS)
 			snprintf(buffer, bufferLength, "GPS sensor OK Lat: %.6f Long: %.6f Fix valid",
 				activeGPSReading->lattitude, activeGPSReading->longitude);
 		else

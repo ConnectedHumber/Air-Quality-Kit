@@ -75,11 +75,12 @@ struct SettingItemCollection timingSettingItems = {
 
 unsigned long mqtt_reading_retry_interval_in_millis;
 unsigned long mqtt_reading_interval_in_millis;
-unsigned long milliseconds_at_last_mqtt_update;
+RTC_DATA_ATTR unsigned long milliseconds_at_last_mqtt_update = 0;
 
 unsigned long lora_reading_retry_interval_in_millis;
 unsigned long lora_reading_interval_in_millis;
-unsigned long milliseconds_at_last_lora_update;
+RTC_DATA_ATTR unsigned long milliseconds_at_last_lora_update = 0;
+RTC_DATA_ATTR int bootCount = 0;
 
 timingStates timing_state; 
 
@@ -103,10 +104,17 @@ void force_lora_send()
 }
 
 
+RTC_DATA_ATTR unsigned long millisOffset=0;
+
+unsigned long offsetMillis()
+{
+	return millis() + millisOffset;
+}
+
 // return true if it is time for an update
 bool mqtt_interval_has_expired()
 {
-	unsigned long time_in_millis = millis();
+	unsigned long time_in_millis = offsetMillis();
 	unsigned long millis_since_last_mqtt_update = ulongDiff(time_in_millis, milliseconds_at_last_mqtt_update);
 
 
@@ -119,7 +127,7 @@ bool mqtt_interval_has_expired()
 
 bool lora_interval_has_expired()
 {
-	unsigned long time_in_millis = millis();
+	unsigned long time_in_millis = offsetMillis();
 	unsigned long millis_since_last_lora_update = ulongDiff(time_in_millis, milliseconds_at_last_lora_update);
 
 
@@ -134,7 +142,7 @@ unsigned long time_to_next_mqtt_update()
 {
 	if (mqttSettings.mqtt_enabled)
 	{
-		unsigned long millis_since_last_mqtt_update = ulongDiff(millis(), milliseconds_at_last_mqtt_update);
+		unsigned long millis_since_last_mqtt_update = ulongDiff(offsetMillis(), milliseconds_at_last_mqtt_update);
 
 		if (millis_since_last_mqtt_update > mqtt_reading_interval_in_millis)
 			return 0;
@@ -149,7 +157,7 @@ unsigned long time_to_next_lora_update()
 {
 	if (loRaSettings.loraOn)
 	{
-		unsigned long millis_since_last_lora_update = ulongDiff(millis(), milliseconds_at_last_lora_update);
+		unsigned long millis_since_last_lora_update = ulongDiff(offsetMillis(), milliseconds_at_last_lora_update);
 
 		if (millis_since_last_lora_update > lora_reading_interval_in_millis)
 			return 0;
@@ -202,7 +210,7 @@ boolean send_to_lora()
 
 void sendReadings()
 {
-	unsigned long time_in_millis = millis();
+	unsigned long time_in_millis = offsetMillis();
 
 	if (mqttSettings.mqtt_enabled)
 	{
@@ -241,6 +249,11 @@ void sendReadings()
 			milliseconds_at_last_lora_update = time_in_millis;
 			send_to_lora();
 		}
+		else
+		{
+			Serial.printf("Got readings but not time to send yet %lu %lu\n", 
+				millis_since_last_lora_update, lora_reading_interval_in_millis);
+		}
 	}
 
 	if (loraForceSend)
@@ -253,7 +266,7 @@ void sendReadings()
 }
 
 
-void turn_sensor_on()
+void startSensorWarmingUp()
 {
 	if (timing_state != sensorWarmingUp)
 	{
@@ -269,13 +282,13 @@ void turn_sensor_on()
 	}
 }
 
-void turn_sensor_off()
+void turnSensorOff()
 {
 	if (timing_state != sensorOff)
 	{
 		if (powerControlSettings.powerControlFitted)
 		{
-			// if we have power contrl just turn the power off
+			// if we have power control just turn the power off
 			setPowerOff();
 		}
 		else {
@@ -289,11 +302,11 @@ void turn_sensor_off()
 
 unsigned long readingFetchStartMillis;
 
-void start_getting_readings()
+void startGettingSensorReadings()
 {
 	Serial.println("Starting to fetch readings");
     startSensorsReading();
-	readingFetchStartMillis = millis();
+	readingFetchStartMillis = offsetMillis();
 	timing_state = sensorGettingReading;
 }
 
@@ -302,6 +315,11 @@ bool can_power_off_sensor()
 	// can never power off the sensor if the display is on
 
 	if (timingSettings.logging != loggingOff)
+		return false;
+
+	// can never power off it we are waiting for a LoRa message to transfer
+
+	if (loRaActive())
 		return false;
 
 	long milliseconds_for_sensor_warmup = airqualitySettings.airqSecnondsSensorWarmupTime * 1000;
@@ -326,40 +344,52 @@ bool can_start_reading()
 		return true;
 }
 
-void check_sensor_power()
+
+void checkSensorPowerOff()
 {
-	if (can_power_off_sensor())
+	unsigned long minOffTimeInMillis = powerControlSettings.minimumPowerOffIntervalSecs * 1000;
+
+	if (time_to_next_update() > minOffTimeInMillis)
 	{
-		if(timingSettings.sleepProcessor)
+		turnSensorOff();
+
+		if (timingSettings.sleepProcessor)
 		{
-			turn_sensor_off();
 			long milliseconds_for_sensor_warmup = airqualitySettings.airqSecnondsSensorWarmupTime * 1000;
 			long milliseconds_for_averaging = (airqualitySettings.airqNoOfAverages / 2) * 1000;
-			unsigned sleep_time = time_to_next_update() - milliseconds_for_sensor_warmup - milliseconds_for_averaging;
-			sleep_sensor(sleep_time);
+			unsigned sleepMillis = time_to_next_update() - (milliseconds_for_sensor_warmup + milliseconds_for_averaging);
+			sleepSensor(sleepMillis);
 		}
-	}
-	else
-	{
-		turn_sensor_on();
 	}
 }
 
 void timingSensorOff()
 {
-	check_sensor_power();
+	// performed if the processor is running and we have turned
+	// off the power to the sensor only
+
+	if (can_power_off_sensor())
+	{
+		// check in case we can now turn everything off
+		checkSensorPowerOff();
+	}
+	else
+	{
+		// need to start the sensor warming up
+		startSensorWarmingUp();
+	}
 }
 
 void timingSensorWarmingUp()
 {
 	if (can_start_reading())
-		start_getting_readings();
+		startGettingSensorReadings();
 }
 
 
 void timingSensorGettingReading()
 {
-	unsigned long time_in_millis = millis();
+	unsigned long time_in_millis = offsetMillis();
 
 	unsigned long millis = ulongDiff(time_in_millis, readingFetchStartMillis);
 
@@ -373,19 +403,35 @@ void timingSensorGettingReading()
         bme280Sensor.lastTransmittedReadingNumber != bme280activeReading->envNoOfAveragesCalculated) 
 	{
         // got readings from both sensors
-		Serial.println("Sending values");
+
 		sendReadings();
-        airqSensor.lastTransmittedReadingNumber = airqualityActiveReading->airNoOfAveragesCalculated;
-        bme280Sensor.lastTransmittedReadingNumber = bme280activeReading->envNoOfAveragesCalculated;
-		check_sensor_power();
+
+		airqSensor.lastTransmittedReadingNumber = airqualityActiveReading->airNoOfAveragesCalculated;
+		bme280Sensor.lastTransmittedReadingNumber = bme280activeReading->envNoOfAveragesCalculated;
+
+		unsigned long minOffTimeInMillis = powerControlSettings.minimumPowerOffIntervalSecs * 1000;
+
+		if (time_to_next_update() > minOffTimeInMillis)
+		{
+			timing_state = sensorWaitingForPowerDown;
+		}
 	}
 }
 
-void start_sensor()
+void timingSensorWaitingForPowerDown()
 {
-	mqttForceSend=false;
-	loraForceSend = false;
+	if (can_power_off_sensor())
+	{
+		// only get here once LoRa has finished transmitting
+		checkSensorPowerOff();
+	}
 }
+
+bool readingSendComplete()
+{
+	return true;
+}
+
 
 unsigned long dump_air_values_reading_count = 0;
 unsigned long dump_bme_values_reading_count = 0;
@@ -440,43 +486,132 @@ void updateSerialDump()
 	}
 }
 
-#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
+#define uS_TO_S_FACTOR 1000  /* Conversion factor for micro seconds to miliseconds */
 #define TIME_TO_SLEEP  10       /* Time ESP32 will go to sleep (in seconds) */
 
-void sleep_sensor(unsigned long time_to_sleep)
+void sleepSensor(unsigned long sleepMillis)
 {
 
-	Serial.println("Going to sleep...");
+	Serial.printf("Going to sleep for %lu milliseconds: ", sleepMillis);
 
-	stopProcesses();
-
-	// give things a chance to settle down
+	// flash the led 
 
 	statusLedOn();
 	delay(500);
 	statusLedOff();
-			
-	esp_sleep_enable_timer_wakeup(time_to_sleep * uS_TO_S_FACTOR);
 
-	// need to fix this so that other output pins work correctly
+	// stop all the processes
+	stopProcesses();
 
- 	gpio_hold_en(GPIO_NUM_27);
-  	gpio_deep_sleep_hold_en();
+	// when we wake up we need to have the clock set to the current millis
+	// plus the length of the sleep. This should then trigger the next send
+
+	delay(5000);
+
+	millisOffset = offsetMillis() + sleepMillis;
+
+	esp_sleep_enable_timer_wakeup(sleepMillis * uS_TO_S_FACTOR);
 
 	esp_deep_sleep_start();
 }
 
 
+// Runs when the device is first powered up but not at successive boots
+void powerUpTimingStart()
+{
+	Serial.printf("Power on restart");
+
+	unsigned long time_in_millis = offsetMillis();
+
+	milliseconds_at_last_mqtt_update = time_in_millis - mqtt_reading_interval_in_millis;
+	milliseconds_at_last_lora_update = time_in_millis - lora_reading_interval_in_millis;
+}
+
+void flashLed(int flashes)
+{
+	for (int i = 0; i < flashes; i++)
+	{
+		statusLedOn();
+		delay(500);
+		statusLedOff();
+		delay(500);
+	}
+
+}
+
+void print_wakeup_reason() {
+	esp_sleep_wakeup_cause_t wakeup_reason;
+	wakeup_reason = esp_sleep_get_wakeup_cause();
+
+	flashLed(wakeup_reason);
+
+	switch (wakeup_reason)
+	{
+	case ESP_SLEEP_WAKEUP_EXT0: Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+	case ESP_SLEEP_WAKEUP_EXT1: Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+	case ESP_SLEEP_WAKEUP_TIMER: Serial.println("Wakeup caused by timer"); break;
+	case ESP_SLEEP_WAKEUP_TOUCHPAD: Serial.println("Wakeup caused by touchpad"); break;
+	case ESP_SLEEP_WAKEUP_ULP: Serial.println("Wakeup caused by ULP program"); break;
+	default: Serial.printf("Wakeup was not caused by deep sleep: %d\n", wakeup_reason); break;
+	}
+}
+
+void why_reset() {
+	esp_reset_reason_t reset_reason = esp_reset_reason();
+
+	printf("Reset Reason (%d): ", reset_reason);
+
+	switch (reset_reason) {
+	case 1: printf("Vbat power on reset"); break;
+	case 3: printf("Software reset digital core"); break;
+	case 4: printf("Legacy watch dog reset digital core"); break;
+	case 5: printf("Deep Sleep reset digital core"); break;
+	case 6: printf("Reset by SLC module, reset digital core"); break;
+	case 7: printf("Timer Group0 Watch dog reset digital core"); break;
+	case 8: printf("Timer Group1 Watch dog reset digital core"); break;
+	case 9: printf("RTC Watch dog Reset digital core"); break;
+	case 10: printf("Instrusion tested to reset CPU"); break;
+	case 11: printf("Time Group reset CPU"); break;
+	case 12: printf("Software reset CPU"); break;
+	case 13: printf("RTC Watch dog Reset CPU"); break;
+	case 14: printf("for APP CPU, reseted by PRO CPU"); break;
+	case 15: printf("Reset when the vdd voltage is not stable"); break;
+	case 16: printf("RTC Watch dog reset digital core and rtc module"); break;
+	default: printf("NO_MEAN");
+	}
+	printf("\n");
+}
+
 int startTiming(struct process* timingProcess)
 {
-	unsigned long time_in_millis = millis();
+	esp_reset_reason_t reset_reason = esp_reset_reason();
+	flashLed(reset_reason);
+
+	delay(2000);
+
+	esp_sleep_wakeup_cause_t wakeup_reason;
+	wakeup_reason = esp_sleep_get_wakeup_cause();
+
+	flashLed(wakeup_reason);
+
+
+	Serial.printf("Millis offset: %lu Boot Count: %d", millisOffset, bootCount);
 
 	mqtt_reading_interval_in_millis = mqttSettings.mqttSecsPerUpdate * 1000;
-	milliseconds_at_last_mqtt_update = time_in_millis - mqtt_reading_interval_in_millis;
 	lora_reading_interval_in_millis = loRaSettings.seconds_per_lora_update * 1000;
-	milliseconds_at_last_lora_update = time_in_millis - lora_reading_interval_in_millis;
+
+	if (bootCount == 0)
+	{
+		powerUpTimingStart();
+	}
+
+	bootCount++;
+
 	timing_state = sensorOff;
-	start_sensor();
+
+	mqttForceSend = false;
+	loraForceSend = false;
+
 	return PROCESS_OK;
 }
 
@@ -497,11 +632,15 @@ int updateTiming(struct process* timingProcess)
 	case sensorGettingReading:
 		timingSensorGettingReading();
 		break;
+
+	case sensorWaitingForPowerDown:
+		timingSensorWaitingForPowerDown();
+		break;
 	}
 
 	if (loraForceSend)
 	{
-		unsigned long time_in_millis = millis();
+		unsigned long time_in_millis = offsetMillis();
 		milliseconds_at_last_lora_update = time_in_millis -
 			((loRaSettings.seconds_per_lora_update * 1000) - (airqualitySettings.airqSecnondsSensorWarmupTime * 1000));
 		loraForceSend = false;
@@ -510,7 +649,7 @@ int updateTiming(struct process* timingProcess)
 	if (mqttForceSend)
 	{
 		long milliseconds_for_sensor_warmup = airqualitySettings.airqSecnondsSensorWarmupTime * 1000;
-		unsigned long time_in_millis = millis();
+		unsigned long time_in_millis = offsetMillis();
 		milliseconds_at_last_mqtt_update = time_in_millis -
 			((mqttSettings.mqttSecsPerUpdate * 1000) - (airqualitySettings.airqSecnondsSensorWarmupTime * 1000));
 		mqttForceSend = false;
@@ -526,19 +665,27 @@ int stopTiming(struct process * timingProcess)
 
 void timingStatusMessage(struct process * timingProcess, char * buffer, int bufferLength)
 {
+	unsigned long mqtt = time_to_next_mqtt_update();
+	unsigned long lora = time_to_next_lora_update();
+
+
 	switch (timing_state)
 	{
 	case sensorOff:
-		snprintf(buffer, bufferLength, "Sensor off");
+		snprintf(buffer, bufferLength, "Sensor off lora: %lu mqtt: %lu", lora, mqtt);
 		break;
 
 	case sensorWarmingUp:
-		snprintf(buffer, bufferLength, "Sensor warming up");
+		snprintf(buffer, bufferLength, "Sensor warming up lora: %lu mqtt: %lu", lora, mqtt);
 		break;
 
 	case sensorGettingReading:
-		snprintf(buffer, bufferLength, "Sensor getting readings");
-
+		snprintf(buffer, bufferLength, "Sensor getting readings lora: %lu mqtt: %lu", lora, mqtt);
 		break;
+
+	case sensorWaitingForPowerDown:
+		snprintf(buffer, bufferLength, "Sensor waiting for powerdown lora: %lu mqtt: %lu", lora, mqtt);
+		break;
+
 	}
 }

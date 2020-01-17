@@ -5,12 +5,23 @@
 
 #include "settings.h"
 
+#include "soc/soc.h"
+#include "soc/rtc_cntl_reg.h"
+
+
+
 struct PowerControlSettings powerControlSettings;
 
 void setDefaultPowerContrlPin(void* dest)
 {
 	int* destInt = (int*)dest;
 	*destInt = 27;
+}
+
+void setDefaultpowerMinPowerOffIntervalSetting(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 30;
 }
 
 struct SettingItem powerControlPinSetting = {
@@ -21,6 +32,16 @@ struct SettingItem powerControlPinSetting = {
 		integerValue,
 		setDefaultPowerContrlPin,
 		validateInt };
+
+struct SettingItem powerMinPowerOffIntervalSetting = {
+		"Minimum power off time in seconds",
+		"powercontrolmininterval",
+		&powerControlSettings.minimumPowerOffIntervalSecs,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultpowerMinPowerOffIntervalSetting,
+		validateInt };
+
 
 struct SettingItem powercontrolOutputFitted = {
 		"Power Control Output Fitted",
@@ -45,6 +66,7 @@ struct SettingItem powercontrolOutputPinActiveHighSetting = {
 struct SettingItem* powerControlOutputSettingItemPointers[] =
 {
 	&powercontrolOutputFitted,
+	&powerMinPowerOffIntervalSetting,
 	&powerControlPinSetting,
 	&powercontrolOutputPinActiveHighSetting
 };
@@ -79,6 +101,8 @@ boolean setPowerOn()
 
 	powerOnValue = true;
 
+	WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector   
+
 	if (powerControlSettings.powerControlOutputPinActiveHigh)
 	{
 		digitalWrite(powerControlSettings.powerControlOutputPin, HIGH);
@@ -87,6 +111,13 @@ boolean setPowerOn()
 	{
 		digitalWrite(powerControlSettings.powerControlOutputPin, LOW);
 	}
+
+	// let things power up
+
+	delay(500);
+
+	WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 1); //enable brownout detector   
+
 	return true;
 }
 

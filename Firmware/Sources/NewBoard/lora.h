@@ -15,6 +15,8 @@ int updateLoRa(struct process * loraProcess);
 
 int stopLoRa(struct process * loraProcess);
 
+bool loRaActive();
+
 void loraStatusMessage(struct process * loraProcess, char * buffer, int bufferLength);
 
 extern struct SettingItemCollection loraSettingItems;

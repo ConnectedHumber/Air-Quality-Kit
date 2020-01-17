@@ -21,6 +21,7 @@ struct PowerControlSettings {
 	boolean powerControlFitted;
 	int powerControlOutputPin;
 	boolean powerControlOutputPinActiveHigh;
+	int minimumPowerOffIntervalSecs;
 };
 
 extern struct PowerControlSettings powerControlSettings;

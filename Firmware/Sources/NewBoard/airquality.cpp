@@ -147,7 +147,7 @@ void updateAirqAverages(airqualityReading* reading)
 	{
 		reading->pm10Average = reading->pm10AvgTotal / airqualitySettings.airqNoOfAverages;
 		reading->pm25Average = reading->pm25AvgTotal / airqualitySettings.airqNoOfAverages;
-		reading->lastAirqAverageMillis = millis();
+		reading->lastAirqAverageMillis = offsetMillis();
 		reading->airNoOfAveragesCalculated++;
 		resetAirqAverages(reading);
 	}
@@ -160,7 +160,7 @@ int getSensorType(int* sensorType)
 	boolean gotSerialData = false;
 	unsigned long airqReadingStartTime;
 
-	airqReadingStartTime = millis();
+	airqReadingStartTime = offsetMillis();
 
 	for (int i = 0; i < sizeof(airqStartSequences) / sizeof(struct airqSensorStartSequence); i++)
 	{
@@ -169,7 +169,7 @@ int getSensorType(int* sensorType)
 
 	while (true)
 	{
-		if (ulongDiff(millis(), airqReadingStartTime) > AIRQ_READING_TIMEOUT_MSECS)
+		if (ulongDiff(offsetMillis(), airqReadingStartTime) > AIRQ_READING_TIMEOUT_MSECS)
 		{
 			if (gotSerialData)
 				return AIRQ_SENSOR_NOT_RECOGNIZED_AT_START;
@@ -251,7 +251,7 @@ int startAirq(struct sensor* airqSensor)
 		saveSettings();
 	}
 
-	lastAirqSerialDataReceived = millis();
+	lastAirqSerialDataReceived = offsetMillis();
 
 	airqSensor->status = AIRQ_NO_DATA_RECEIVED;
 	return AIRQ_NO_DATA_RECEIVED;
@@ -528,7 +528,7 @@ void set_sensor_working(bool working)
 
 int updateAirqReading(struct sensor* airqSensor)
 {
-	unsigned long updateMillis = millis();
+	unsigned long updateMillis = offsetMillis();
 
 	struct airqualityReading* airqualityActiveReading =
 		(airqualityReading*)airqSensor->activeReading;
@@ -580,7 +580,7 @@ int updateAirqReading(struct sensor* airqSensor)
 				if (gotReading)
 				{
 					airqSensor->status = SENSOR_OK;
-					airqSensor->millisAtLastReading = millis();
+					airqSensor->millisAtLastReading = offsetMillis();
 					airqSensor->readingNumber++;
 					updateAirqAverages(airqualityActiveReading);
 				}
@@ -608,7 +608,7 @@ int addAirqReading(struct sensor* airqSensor, char* jsonBuffer, int jsonBufferSi
 	struct airqualityReading* airqualityActiveReading =
 		(airqualityReading*)airqSensor->activeReading;
 
-	if (ulongDiff(millis(), airqSensor->millisAtLastReading) < AIRQ_READING_LIFETIME_MSECS)
+	if (ulongDiff(offsetMillis(), airqSensor->millisAtLastReading) < AIRQ_READING_LIFETIME_MSECS)
 	{
 		struct airqualityReading* airqualityActiveReading =
 			(airqualityReading*)airqSensor->activeReading;
@@ -658,10 +658,12 @@ void airqStatusMessage(struct sensor* airqSensor, char* buffer, int bufferLength
 
 	}
 
-	snprintf(buffer, bufferLength, "%s Readings:%d Errors:%d ",
+	snprintf(buffer, bufferLength, "%s Readings:%d Errors:%d last tranmitted reading %d averages %d",
 		buffer,
 		airqualityActiveReading->readings,
-		airqualityActiveReading->errors);
+		airqualityActiveReading->errors,
+		airqSensor->lastTransmittedReadingNumber,
+		airqualityActiveReading->airNoOfAveragesCalculated);
 
 	switch (airqSensor->status)
 	{

@@ -723,7 +723,7 @@ void updateReadingDisplay()
 		airqualityReading * sourceAirqReading = 
 			(airqualityReading *)airqSensor.activeReading;
 
-		unsigned long millisSinceAverage = ulongDiff(millis(), sourceAirqReading->lastAirqAverageMillis);
+		unsigned long millisSinceAverage = ulongDiff(offsetMillis(), sourceAirqReading->lastAirqAverageMillis);
 
 		if (millisSinceAverage < AIRQ_AVERAGE_LIFETIME_MSECS)
 		{
@@ -863,7 +863,7 @@ int startPixel(struct process * pixelProcess)
 
 	startPixelStrip();
 
-	millisOfLastPixelUpdate = millis();
+	millisOfLastPixelUpdate = offsetMillis();
 
 	pixelProcess->status = PIXEL_OK;
 
@@ -883,7 +883,7 @@ int updatePixel(struct process * pixelProcess)
 		return pixelProcess->status;
 	}
 
-	unsigned long currentMillis = millis();
+	unsigned long currentMillis = offsetMillis();
 	unsigned long millisSinceLastUpdate = ulongDiff(currentMillis, millisOfLastPixelUpdate);
 
 	if (millisSinceLastUpdate >= MILLIS_BETWEEN_UPDATES) {

@@ -126,7 +126,7 @@ int startWifi(struct process* wifiProcess)
 
 	wifiStatusAddress = &wifiProcess->status;
 
-	lastWiFiConnectAtteptMillis = millis();
+	lastWiFiConnectAtteptMillis = offsetMillis();
 	int setting_number;
 	TRACELN("Starting WiFi");
 
@@ -163,13 +163,13 @@ int startWifi(struct process* wifiProcess)
 			TRACELN(wifiActiveAPName);
 			WiFi.begin(wifiSettings[setting_number].wifiSsid,
 				wifiSettings[setting_number].wifiPassword);
-			unsigned long connectStartTime = millis();
+			unsigned long connectStartTime = offsetMillis();
 
 			while (WiFi.status() != WL_CONNECTED)
 			{
 				TRACE(".");
 				delay(500);
-				if (ulongDiff(millis(), connectStartTime) > WIFI_CONNECT_TIMEOUT_MILLIS)
+				if (ulongDiff(offsetMillis(), connectStartTime) > WIFI_CONNECT_TIMEOUT_MILLIS)
 				{
 					//					WiFi.disconnect();
 					wifiProcess->status = WIFI_ERROR_CONNECT_TIMEOUT;
@@ -255,13 +255,13 @@ int updateWifi(struct process* wifiProcess)
 		{
 			displayWiFiStatus(wifiStatusValue);
 			wifiProcess->status = WIFI_ERROR_DISCONNECTED;
-			lastWiFiConnectAtteptMillis = millis();
+			lastWiFiConnectAtteptMillis = offsetMillis();
 		}
 	}
 	else
 	{
 		unsigned long millisSinceWiFiConnectAttempt =
-			ulongDiff(millis(), lastWiFiConnectAtteptMillis);
+			ulongDiff(offsetMillis(), lastWiFiConnectAtteptMillis);
 
 		if (millisSinceWiFiConnectAttempt > WIFI_CONNECT_RETRY_MILLS)
 		{

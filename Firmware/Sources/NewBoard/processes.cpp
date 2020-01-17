@@ -298,7 +298,8 @@ void stopProcesses()
 {
 	for (int i = 0; i < sizeof(stoppingProcessList) / sizeof(struct process*); i++)
 	{
-		runningProcessList[i]->stopProcess(runningProcessList[i]);
+		Serial.printf("Stopping %s\n", stoppingProcessList[i]->processName);
+		stoppingProcessList[i]->stopProcess(stoppingProcessList[i]);
 	}
 }
 

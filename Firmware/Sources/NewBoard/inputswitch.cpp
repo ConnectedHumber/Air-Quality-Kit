@@ -77,12 +77,12 @@ int updateInputSwitch(struct process * inputSwitchProcess)
 
 	if (newInputValue == lastInputValue)
 	{
-		inputDebounceStartTime = millis();
+		inputDebounceStartTime = offsetMillis();
 	}
 	else
 	{
 		//Serial.println("button change");
-		long currentMillis = millis();
+		long currentMillis = offsetMillis();
 		long millisSinceChange = ulongDiff(currentMillis, inputDebounceStartTime);
 
 		if (++millisSinceChange > INPUT_DEBOUNCE_TIME)
@@ -143,7 +143,7 @@ boolean readInputSwitch()
 
 	int newInputValue;
 	int lastInputValue = digitalRead(inputSwitchSettings.controlInputPin);
-	long inputDebounceStartTime = millis();
+	long inputDebounceStartTime = offsetMillis();
 
 	while (true)
 	{
@@ -151,12 +151,12 @@ boolean readInputSwitch()
 
 		if (newInputValue != lastInputValue)
 		{
-			inputDebounceStartTime = millis();
+			inputDebounceStartTime = offsetMillis();
 			lastInputValue = newInputValue;
 		}
 		else
 		{
-			long currentMillis = millis();
+			long currentMillis = offsetMillis();
 			long millisSinceChange = ulongDiff(currentMillis, inputDebounceStartTime);
 
 			if (++millisSinceChange > INPUT_DEBOUNCE_TIME)

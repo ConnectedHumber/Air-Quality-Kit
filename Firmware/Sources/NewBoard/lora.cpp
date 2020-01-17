@@ -171,7 +171,14 @@ const lmic_pinmap lmic_pins = {
 	.dio = {34, 39, 36},
 };
 
-bool OK_to_send = true;
+bool loRaTrasmissionInProgress = false;
+
+RTC_DATA_ATTR u4_t lmicSeqNumber = 0;
+
+bool loRaActive()
+{
+	return loRaTrasmissionInProgress;
+}
 
 // initial job
 static void initfunc(osjob_t *j)
@@ -257,7 +264,10 @@ void onEvent(ev_t ev)
 
 		DEBUG_PRINTLN("EV_TXCOMPLETE (includes waiting for RX windows)");
 		loraSentCount++;
-		OK_to_send = true;
+		loRaTrasmissionInProgress = false;
+
+		lmicSeqNumber = LMIC.seqnoUp;
+
 //		startPopUpMessage("LoRa", "Message sent", POPUP_DURATION_MILLIS);
 		break;
 	case EV_LOST_TSYNC:
@@ -384,6 +394,9 @@ void abp_setup_lora()
 
 	// Set data rate and transmit power for uplink (note: txpow seems to be ignored by the library)
 	LMIC_setDrTxpow(DR_SF7, 14);
+
+	// set the frame counter to the latest value
+	LMIC.seqnoUp = lmicSeqNumber;
 }
 
 void otaa_setup_lora()
@@ -393,6 +406,7 @@ void otaa_setup_lora()
 	os_setCallback(&initjob, initfunc);
 	LMIC_reset();
 	LMIC_setClockError(MAX_CLOCK_ERROR * 10 / 100);
+	LMIC.seqnoUp = lmicSeqNumber;
 }
 
 boolean publishReadingsToLoRa(float pm25Average, float pm10Average, float temperature, float pressure, float humidity)
@@ -407,15 +421,16 @@ boolean publishReadingsToLoRa(float pm25Average, float pm10Average, float temper
 		}
 	}
 
-	if (!OK_to_send)
+	if (loRaTrasmissionInProgress)
 	{
-		TRACELN("waiting to send");
+		TRACELN("LoRa tranmission in progress: Waiting to send");
 		return false;
 	}
 
 	do_send(&sendjob, pm25Average, pm10Average, temperature, pressure, humidity); // Sent sensor values
 
-	OK_to_send = false;
+	loRaTrasmissionInProgress = true;
+
 	return true;
 }
 
@@ -424,14 +439,18 @@ int getLoraSentCount()
 	return loraSentCount;
 }
 
+
+
 int startLoRa(struct process *loraProcess)
 {
 	if (loRaSettings.loraOn)
 	{
 		act_onBinary_command = default_act_onBinary_command;
+
 		LoraStatusBuffer[0] = 0;
 
 		loraSentCount = 0;
+		loRaTrasmissionInProgress = false;
 
 		if (loRaSettings.loraAbp)
 		{
@@ -458,6 +477,10 @@ int updateLoRa(struct process *loraProcess)
 
 int stopLoRa(struct process *loraProcess)
 {
+	// store the latest sequence number in RTC memory for restoration after restart
+
+	lmicSeqNumber = LMIC.seqnoUp;
+
 	return PROCESS_OK;
 }
 

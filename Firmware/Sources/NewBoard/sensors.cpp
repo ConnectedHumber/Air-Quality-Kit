@@ -100,7 +100,7 @@ void startSensors()
 void dumpSensorStatus()
 {
 	Serial.println("Sensors");
-	unsigned long currentMillis = millis();
+	unsigned long currentMillis = offsetMillis();
 	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor *); i++)
 	{
 		sensorList[i]->getStatusMessage(sensorList[i], sensorStatusBuffer, SENSOR_STATUS_BUFFER_SIZE);

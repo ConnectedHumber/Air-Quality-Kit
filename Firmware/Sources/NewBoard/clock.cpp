@@ -61,7 +61,7 @@ void getClockReadings(struct sensor * clockSensor)
 	clockActiveReading->month = month();
 	clockActiveReading->year = year();
 	clockActiveReading->dayOfWeek = weekday();
-	clockSensor->millisAtLastReading = millis();
+	clockSensor->millisAtLastReading = offsetMillis();
 }
 
 int updateClockReading(struct sensor * clockSensor)
@@ -95,7 +95,7 @@ int updateClockReading(struct sensor * clockSensor)
 			break;
 		case timeSet:
 			getClockReadings(clockSensor);
-			clockSensor->millisAtLastReading = millis();
+			clockSensor->millisAtLastReading = offsetMillis();
 			clockSensor->status = SENSOR_OK;
 			break;
 		case timeNeedsSync:

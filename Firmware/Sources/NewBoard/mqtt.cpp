@@ -137,18 +137,18 @@ struct SettingItem seconds_per_mqtt_retrySetting = {
 
 struct SettingItem* mqttSettingItemPointers[] =
 {
-&mqttDeviceNameSetting,
-&mqttOnOffSetting,
-&mqttServerSetting,
-&mqttPortSetting,
-&mqttSecureSocketsSetting,
-&mqttUserSetting,
-&mqttPasswordSetting,
-&mqttPublishTopicSetting,
-& mqttSubscribeTopicSetting,
-&mqttReportTopicSetting,
-&mqttSecsPerUpdateSetting,
-&seconds_per_mqtt_retrySetting
+	&mqttDeviceNameSetting,
+	&mqttOnOffSetting,
+	&mqttServerSetting,
+	&mqttPortSetting,
+	&mqttSecureSocketsSetting,
+	&mqttUserSetting,
+	&mqttPasswordSetting,
+	&mqttPublishTopicSetting,
+	&mqttSubscribeTopicSetting,
+	&mqttReportTopicSetting,
+	&mqttSecsPerUpdateSetting,
+	&seconds_per_mqtt_retrySetting
 };
 
 struct SettingItemCollection mqttSettingItems = {
@@ -313,8 +313,7 @@ boolean publishBufferToMQTT(char* buffer)
 
 int stopMQTT(struct process* mqttProcess)
 {
-	mqttPubSubClient->disconnect();
-	mqttProcess->status = MQTT_OFF;
+	// don't do anything because we are all going to die anyway
 	return MQTT_OFF;
 }
 
@@ -334,7 +333,7 @@ int updateMQTT(struct process* mqttProcess)
 			mqttPubSubClient->disconnect();
 		}
 
-		timeOfLastMQTTsuccess = millis();
+		timeOfLastMQTTsuccess = offsetMillis();
 
 		if (!mqttPubSubClient->loop())
 		{
@@ -367,10 +366,10 @@ int updateMQTT(struct process* mqttProcess)
 	case MQTT_ERROR_CONNECT_ERROR:
 	case MQTT_ERROR_CONNECT_MESSAGE_FAILED:
 	case MQTT_ERROR_LOOP_FAILED:
-		if (ulongDiff(millis(), timeOfLastMQTTsuccess) > MQTT_CONNECT_RETRY_INTERVAL_MSECS)
+		if (ulongDiff(offsetMillis(), timeOfLastMQTTsuccess) > MQTT_CONNECT_RETRY_INTERVAL_MSECS)
 		{
 			mqttProcess->status = restartMQTT();
-			timeOfLastMQTTsuccess = millis();
+			timeOfLastMQTTsuccess = offsetMillis();
 		}
 		break;
 
