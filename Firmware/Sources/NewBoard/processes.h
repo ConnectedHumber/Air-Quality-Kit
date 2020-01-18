@@ -37,6 +37,7 @@ extern struct process TimingProcess;
 extern struct process InputKeysProcess; 
 extern struct process StatusLedProcess;
 extern struct process LoRaProcess;
+extern struct process MessageProcess;
 
 SettingItem* FindProcesSettingByFormName(const char* settingName);
 void resetProcessesToDefaultSettings();

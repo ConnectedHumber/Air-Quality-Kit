@@ -15,6 +15,7 @@
 #include "timing.h"
 #include "utils.h"
 #include "lora.h"
+#include "messages.h"
 
 #define STATUS_DESCRIPTION_LENGTH 200
 
@@ -49,6 +50,10 @@ struct process PowerControlOutputProcess = { "powercontroloutput", startPowerCon
 struct process StatusLedProcess = { "statusled", startStatusLed, updateStatusLed, stopstatusLed, statusLedStatusMessage, true, false, 0, 0, NULL,
 	(unsigned char*) &statusLedSettings, sizeof(StatusLedSettings), &statusLedSettingItems};
 
+struct process MessagesProcess = { "messages", startMessages, updateMessages, stopmessages, messagesStatusMessage, true, false, 0, 0, NULL,
+	(unsigned char*)&messagesSettings, sizeof(MessagesSettings), &messagesSettingItems };
+
+
 struct process WiFiConfigProcess = { "Wifi Config", startWifiConfig, updateWifiConfig, stopWifiConfig, wifiConfigStatusMessage, true, false, 0, 0, NULL,
 	NULL, 0, NULL }; 
 
@@ -71,6 +76,7 @@ struct process * allProcessList[] =
 	&InputSwitchProcess,
 	&PowerControlOutputProcess,
 	&StatusLedProcess,
+	& MessagesProcess,
 	&TimingProcess,
 	&WiFiConfigProcess
 };
@@ -79,6 +85,7 @@ struct process * allProcessList[] =
 struct process* baseProcessList[] =
 {
 	&PowerControlOutputProcess,
+	&MessagesProcess,
 	&PixelProcess,
 	&StatusLedProcess,
 	&InputSwitchProcess
@@ -108,6 +115,7 @@ struct process * runningProcessList[] =
 	&OTAUpdateProcess,
 	&InputSwitchProcess,
 	&TimingProcess,
+	&MessagesProcess
 };
 
 
@@ -128,6 +136,7 @@ struct process* stoppingProcessList[] =
 	&StatusLedProcess,
 	&InputSwitchProcess,
 	&TimingProcess,
+	&MessagesProcess
 };
 
 struct process * wifiConfigProcessList[] =
@@ -136,6 +145,7 @@ struct process * wifiConfigProcessList[] =
 	&WebServerProcessDescriptor,
 	&StatusLedProcess,
 	&ConsoleProcessDescriptor,
+	&MessagesProcess,
 };
 
 struct process * findProcessByName(const char * name)

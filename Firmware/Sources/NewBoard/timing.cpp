@@ -180,8 +180,6 @@ unsigned long time_to_next_update()
 		return lora;
 }
 
-
-
 bool updates_active()
 {
 	if (loRaSettings.loraOn) return true;
@@ -539,50 +537,7 @@ void flashLed(int flashes)
 
 }
 
-void print_wakeup_reason() {
-	esp_sleep_wakeup_cause_t wakeup_reason;
-	wakeup_reason = esp_sleep_get_wakeup_cause();
-
-	flashLed(wakeup_reason);
-
-	switch (wakeup_reason)
-	{
-	case ESP_SLEEP_WAKEUP_EXT0: Serial.println("Wakeup caused by external signal using RTC_IO"); break;
-	case ESP_SLEEP_WAKEUP_EXT1: Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
-	case ESP_SLEEP_WAKEUP_TIMER: Serial.println("Wakeup caused by timer"); break;
-	case ESP_SLEEP_WAKEUP_TOUCHPAD: Serial.println("Wakeup caused by touchpad"); break;
-	case ESP_SLEEP_WAKEUP_ULP: Serial.println("Wakeup caused by ULP program"); break;
-	default: Serial.printf("Wakeup was not caused by deep sleep: %d\n", wakeup_reason); break;
-	}
-}
-
-void why_reset() {
-	esp_reset_reason_t reset_reason = esp_reset_reason();
-
-	printf("Reset Reason (%d): ", reset_reason);
-
-	switch (reset_reason) {
-	case 1: printf("Vbat power on reset"); break;
-	case 3: printf("Software reset digital core"); break;
-	case 4: printf("Legacy watch dog reset digital core"); break;
-	case 5: printf("Deep Sleep reset digital core"); break;
-	case 6: printf("Reset by SLC module, reset digital core"); break;
-	case 7: printf("Timer Group0 Watch dog reset digital core"); break;
-	case 8: printf("Timer Group1 Watch dog reset digital core"); break;
-	case 9: printf("RTC Watch dog Reset digital core"); break;
-	case 10: printf("Instrusion tested to reset CPU"); break;
-	case 11: printf("Time Group reset CPU"); break;
-	case 12: printf("Software reset CPU"); break;
-	case 13: printf("RTC Watch dog Reset CPU"); break;
-	case 14: printf("for APP CPU, reseted by PRO CPU"); break;
-	case 15: printf("Reset when the vdd voltage is not stable"); break;
-	case 16: printf("RTC Watch dog reset digital core and rtc module"); break;
-	default: printf("NO_MEAN");
-	}
-	printf("\n");
-}
-
-int startTiming(struct process* timingProcess)
+void flashBootReasonOnBuiltInLed()
 {
 	esp_reset_reason_t reset_reason = esp_reset_reason();
 	flashLed(reset_reason);
@@ -593,7 +548,51 @@ int startTiming(struct process* timingProcess)
 	wakeup_reason = esp_sleep_get_wakeup_cause();
 
 	flashLed(wakeup_reason);
+}
 
+void printBootReason()
+{
+	esp_reset_reason_t reset_reason = esp_reset_reason();
+
+	switch (reset_reason)
+	{
+	case ESP_RST_UNKNOWN:    Serial.println("Reset reason can not be determined"); break;
+	case ESP_RST_POWERON:    Serial.println("Reset due to power-on event"); break;
+	case ESP_RST_EXT:        Serial.println("Reset by external pin (not applicable for ESP32)"); break;
+	case ESP_RST_SW:         Serial.println("Software reset via esp_restart"); break;
+	case ESP_RST_PANIC:      Serial.println("Software reset due to exception/panic"); break;
+	case ESP_RST_INT_WDT:    Serial.println("Reset (software or hardware) due to interrupt watchdog"); break;
+	case ESP_RST_TASK_WDT:   Serial.println("Reset due to task watchdog"); break;
+	case ESP_RST_WDT:        Serial.println("Reset due to other watchdogs"); break;
+	case ESP_RST_DEEPSLEEP:  Serial.println("Reset after exiting deep sleep mode"); break;
+	case ESP_RST_BROWNOUT:   Serial.println("Brownout reset (software or hardware)"); break;
+	case ESP_RST_SDIO:       Serial.println("Reset over SDIO"); break;
+	}
+
+	if (reset_reason == ESP_RST_DEEPSLEEP)
+	{
+		esp_sleep_wakeup_cause_t wakeup_reason = esp_sleep_get_wakeup_cause();
+
+		switch(wakeup_reason)
+		{ 
+			case ESP_SLEEP_WAKEUP_UNDEFINED:    Serial.println("In case of deep sleep: reset was not caused by exit from deep sleep"); break;
+			case ESP_SLEEP_WAKEUP_ALL:          Serial.println("Not a wakeup cause: used to disable all wakeup sources with esp_sleep_disable_wakeup_source"); break;
+			case ESP_SLEEP_WAKEUP_EXT0:         Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+			case ESP_SLEEP_WAKEUP_EXT1:         Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+			case ESP_SLEEP_WAKEUP_TIMER:        Serial.println("Wakeup caused by timer"); break;
+			case ESP_SLEEP_WAKEUP_TOUCHPAD:     Serial.println("Wakeup caused by touchpad"); break;
+			case ESP_SLEEP_WAKEUP_ULP:          Serial.println("Wakeup caused by ULP program"); break;
+			case ESP_SLEEP_WAKEUP_GPIO:         Serial.println("Wakeup caused by GPIO (light sleep only)"); break;
+			case ESP_SLEEP_WAKEUP_UART:         Serial.println("Wakeup caused by UART (light sleep only)"); break;
+		}
+	}
+}
+
+int startTiming(struct process* timingProcess)
+{
+	//flashBootReasonOnBuiltInLed();
+	
+	printBootReason();
 
 	Serial.printf("Millis offset: %lu Boot Count: %d", millisOffset, bootCount);
 
