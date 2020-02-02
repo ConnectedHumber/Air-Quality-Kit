@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "processes.h"
 #include "settings.h"
+#include "messages.h"
 
 #include "mqtt.h"
 
@@ -297,16 +298,29 @@ int restartMQTT()
 	return MQTT_OK;
 }
 
+int mqttRetries = 0;
+
 boolean publishBufferToMQTT(char* buffer)
 {
 	if (activeMQTTProcess->status == MQTT_OK)
 	{
 		messagesSent++;
+		mqttRetries = 0;
 		Serial.println("Publishing message");
+		displayMessage(MQTT_STATUS_TRANSMIT_OK_MESSAGE_NUMBER, MQTT_STATUS_TRANSMIT_OK_MESSAGE_TEXT);
+
 		return mqttPubSubClient->publish(mqttSettings.mqttPublishTopic, buffer);
 	}
 
 	Serial.println("Not publishing message");
+
+	mqttRetries++;
+
+	if (mqttRetries >= MQTT_NO_OF_RETRIES)
+	{
+		displayMessage(MQTT_STATUS_TRANSMIT_TIMOUT_MESSAGE_NUMBER, MQTT_STATUS_TRANSMIT_TIMEOUT_MESSAGE_TEXT);
+		forceSensorShutdown();
+	}
 
 	return false;
 }

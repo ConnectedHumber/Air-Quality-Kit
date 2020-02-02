@@ -49,7 +49,7 @@ int updateAirqReading(struct sensor * airqSensor);
 void startAirqReading(struct sensor * gpsSensor);
 int addAirqReading(struct sensor * airqSensor, char * jsonBuffer, int jsonBufferSize);
 void airqStatusMessage(struct sensor * airqSensor, char * buffer, int bufferLength);
-void set_sensor_working(bool working);
+void setParticleSensorWorking(bool working);
 void resetAirqAverages(airqualityReading * reading);
 
 #endif

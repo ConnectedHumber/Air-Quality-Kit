@@ -4,6 +4,7 @@
 
 #include "debug.h"
 #include "settings.h"
+#include "messages.h"
 
 boolean validateWifiSSID(void* dest, const char* newValueStr)
 {
@@ -114,6 +115,7 @@ boolean firstRun = true;
 unsigned long lastWiFiConnectAtteptMillis;
 
 int* wifiStatusAddress;
+int wifiConnectAttempts = 0;
 
 int startWifi(struct process* wifiProcess)
 {
@@ -187,16 +189,20 @@ int startWifi(struct process* wifiProcess)
 			{
 				TRACELN("Wifi OK");
 				wifiProcess->status = WIFI_OK;
+				displayMessage(WIFI_STATUS_OK_MESSAGE_NUMBER, WIFI_STATUS_OK_MESSAGE_TEXT);
+				wifiConnectAttempts = 0;
 				return WIFI_OK;
 			}
 
 			TRACE("Fail status:");
 			TRACE_HEXLN(wifiError);
 			wifiProcess->status = WIFI_ERROR_CONNECT_FAILED;
+			displayMessage(WIFI_STATUS_CONNECT_FAILED_MESSAGE_NUMBER, WIFI_STATUS_CONNECT_FAILED_MESSAGE_TEXT);
 			return WIFI_ERROR_CONNECT_FAILED;
 		}
 	}
-	TRACELN("No matching networks");
+	TRACELN("No networks found that match stored network names");
+	displayMessage(WIFI_STATUS_NO_MATCHING_NETWORKS_MESSAGE_NUMBER, WIFI_STATUS_NO_MATCHING_NETWORKS_MESSAGE_TEXT);
 	wifiProcess->status = WIFI_ERROR_NO_MATCHING_NETWORKS;
 	return WIFI_ERROR_NO_MATCHING_NETWORKS;
 }
@@ -265,6 +271,13 @@ int updateWifi(struct process* wifiProcess)
 
 		if (millisSinceWiFiConnectAttempt > WIFI_CONNECT_RETRY_MILLS)
 		{
+			wifiConnectAttempts++;
+
+			if (wifiConnectAttempts > WIFI_NO_OF_CONNECT_ATTEMPTS)
+			{
+				displayMessage(WIFI_STATUS_CONNECT_ABANDONED_MESSAGE_NUMBER, WIFI_STATUS_CONNECT_ABANDONED_MESSAGE_TEXT);
+				forceSensorShutdown();
+			}
 			wifiProcess->status = startWifi(wifiProcess);
 		}
 	}
@@ -292,7 +305,7 @@ void wifiStatusMessage(struct process* wifiProcess, char* buffer, int bufferLeng
 		snprintf(buffer, bufferLength, "%s connect failed with error %d", wifiActiveAPName, wifiError);
 		break;
 	case WIFI_ERROR_NO_MATCHING_NETWORKS:
-		snprintf(buffer, bufferLength, "No networks matching stored Wifi networks found");
+		snprintf(buffer, bufferLength, "No networks found that match stored network names");
 		break;
 	case WIFI_ERROR_DISCONNECTED:
 		snprintf(buffer, bufferLength, "WiFi disconnected");

@@ -6,13 +6,21 @@
 #include "sensors.h"
 #include "settings.h"
 #include "timing.h"
+#include "messages.h"
 #include "statusled.h"
+
+void displayControlMessage(int messageNumber, char* messageText)
+{
+	Serial.printf("Message: %d %s\n", messageNumber, messageText);
+}
 
 void startDevice()
 {
 	// Start the core processes used by all the others
 
 	startBaseProcesses();
+
+	bindMessageHandler(displayControlMessage);
 
 	if (readInputSwitch())
 	{

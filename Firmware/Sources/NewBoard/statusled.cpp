@@ -5,6 +5,7 @@
 #include "statusled.h"
 #include "processes.h"
 #include "timing.h"
+#include "messages.h"
 
 unsigned long millisAtLastFlash;
 int flashDurationInMillis = 0;
@@ -116,11 +117,52 @@ void updateStatusLedFlash()
         ledToggle();
 }
 
+#define DIGIT_FLASH_INTERVAL 400
+#define DIGIT_GAP 500
+
+void flashStatusLedDigits(int flashes)
+{
+    for (int i = 0; i < flashes; i++)
+    {
+        statusLedOn();
+        delay(DIGIT_FLASH_INTERVAL);
+        statusLedOff();
+        delay(DIGIT_FLASH_INTERVAL);
+    }
+}
+
+void flashStatusLed(int flashes)
+{
+    int tenPowers = 1;
+
+    while (flashes > tenPowers)
+    {
+        tenPowers = tenPowers * 10;
+    }
+
+    tenPowers = tenPowers / 10;
+
+    while (tenPowers > 0)
+    {
+        int digit = (flashes / tenPowers) % 10;
+        flashStatusLedDigits(digit);
+        tenPowers = tenPowers / 10;
+        delay(DIGIT_GAP);
+    }
+}
+
+
+void displayMessageOnStatusLed(int messageNumber, char* messageText)
+{
+    flashStatusLed(messageNumber);
+}
+
 int startStatusLed(struct process *statusLedProcess)
 {
     pinMode(statusLedSettings.statusLedOutputPin, OUTPUT);
     statusLedOff();
     millisAtLastFlash = offsetMillis();
+    bindMessageHandler(displayMessageOnStatusLed);
     return PROCESS_OK;
 }
 

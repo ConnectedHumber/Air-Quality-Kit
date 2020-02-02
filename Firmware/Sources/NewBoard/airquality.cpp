@@ -498,7 +498,7 @@ void set_sds011_working(bool working)
 	send_block(reporting_mode_command, sizeof(reporting_mode_command) / sizeof(uint8_t));
 }
 
-void set_sensor_working(bool working)
+void setParticleSensorWorking(bool working)
 {
 	if (working)
 	{

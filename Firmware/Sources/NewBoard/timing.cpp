@@ -264,7 +264,7 @@ void sendReadings()
 }
 
 
-void startSensorWarmingUp()
+void startParticleSensorWarmingUp()
 {
 	if (timing_state != sensorWarmingUp)
 	{
@@ -274,15 +274,15 @@ void startSensorWarmingUp()
 		}
 		else {
 			Serial.println("Turning sensor on");
-			set_sensor_working(true);
+			setParticleSensorWorking(true);
 		}
 		timing_state = sensorWarmingUp;
 	}
 }
 
-void turnSensorOff()
+void turnParticleSensorOff()
 {
-	if (timing_state != sensorOff)
+	if (timing_state != particleSensorOff)
 	{
 		if (powerControlSettings.powerControlFitted)
 		{
@@ -292,9 +292,9 @@ void turnSensorOff()
 		else {
 			// otherwise send a command to the sensor to turn it off
 			// Note that not all sensors can do this
-			set_sensor_working(false);
+			setParticleSensorWorking(false);
 		}
-		timing_state = sensorOff;
+		timing_state = particleSensorOff;
 	}
 }
 
@@ -349,14 +349,20 @@ void checkSensorPowerOff()
 
 	if (time_to_next_update() > minOffTimeInMillis)
 	{
-		turnSensorOff();
+		turnParticleSensorOff();
 
 		if (timingSettings.sleepProcessor)
 		{
 			long milliseconds_for_sensor_warmup = airqualitySettings.airqSecnondsSensorWarmupTime * 1000;
 			long milliseconds_for_averaging = (airqualitySettings.airqNoOfAverages / 2) * 1000;
 			unsigned sleepMillis = time_to_next_update() - (milliseconds_for_sensor_warmup + milliseconds_for_averaging);
-			sleepSensor(sleepMillis);
+
+			// when we wake up we need to have the clock set to the current millis
+			// plus the length of the sleep. This should then trigger the next send
+
+			millisOffset = offsetMillis() + sleepMillis;
+
+			sleepSensorForTime(sleepMillis);
 		}
 	}
 }
@@ -374,7 +380,7 @@ void timingSensorOff()
 	else
 	{
 		// need to start the sensor warming up
-		startSensorWarmingUp();
+		startParticleSensorWarmingUp();
 	}
 }
 
@@ -487,16 +493,11 @@ void updateSerialDump()
 #define uS_TO_mS_FACTOR 1000  /* Conversion factor for micro seconds to miliseconds */
 #define TIME_TO_SLEEP  10       /* Time ESP32 will go to sleep (in seconds) */
 
-void sleepSensor(unsigned long sleepMillis)
+
+void sleepSensorForTime(unsigned long sleepMillis)
 {
 
-	Serial.printf("Going to sleep for %lu milliseconds: ", sleepMillis);
-
-	// flash the led 
-
-	statusLedOn();
-	delay(500);
-	statusLedOff();
+	Serial.printf("Going to sleep for %lu milliseconds\n", sleepMillis);
 
 	// stop all the processes
 	stopProcesses();
@@ -506,14 +507,36 @@ void sleepSensor(unsigned long sleepMillis)
 	pinMode(26, OUTPUT);
 	digitalWrite(26, LOW);
 
-	// when we wake up we need to have the clock set to the current millis
-	// plus the length of the sleep. This should then trigger the next send
-
-	millisOffset = offsetMillis() + sleepMillis;
-
 	esp_sleep_enable_timer_wakeup(sleepMillis * uS_TO_mS_FACTOR);
 
 	esp_deep_sleep_start();
+}
+
+
+
+// forces a sensor shutdown
+// this is called because we can't continue
+// we are going to wake up the sensor to do the next update
+// don't want to retry too frequently as this would kill the battery
+// I'd rather miss a bunch of readigns while something is broken than 
+// disable the sensor by killing the battery
+
+void forceSensorShutdown()
+{
+	unsigned long millisToNextUdate;
+
+	if (mqtt_reading_interval_in_millis < lora_reading_interval_in_millis)
+		millisToNextUdate = mqtt_reading_interval_in_millis;
+	else
+		millisToNextUdate = lora_reading_interval_in_millis;
+
+	// force a clean boot next time so that we start the timings from then
+
+	bootCount = 0;
+
+	turnParticleSensorOff();
+
+	sleepSensorForTime(millisToNextUdate);
 }
 
 
@@ -528,29 +551,17 @@ void powerUpTimingStart()
 	milliseconds_at_last_lora_update = time_in_millis - lora_reading_interval_in_millis;
 }
 
-void flashLed(int flashes)
-{
-	for (int i = 0; i < flashes; i++)
-	{
-		statusLedOn();
-		delay(500);
-		statusLedOff();
-		delay(500);
-	}
-
-}
-
 void flashBootReasonOnBuiltInLed()
 {
 	esp_reset_reason_t reset_reason = esp_reset_reason();
-	flashLed(reset_reason);
+	flashStatusLed(reset_reason);
 
 	delay(2000);
 
 	esp_sleep_wakeup_cause_t wakeup_reason;
 	wakeup_reason = esp_sleep_get_wakeup_cause();
 
-	flashLed(wakeup_reason);
+	flashStatusLed(wakeup_reason);
 }
 
 void printBootReason()
@@ -609,7 +620,7 @@ int startTiming(struct process* timingProcess)
 
 	bootCount++;
 
-	timing_state = sensorOff;
+	timing_state = particleSensorOff;
 
 	mqttForceSend = false;
 	loraForceSend = false;
@@ -623,7 +634,7 @@ int updateTiming(struct process* timingProcess)
 
 	switch (timing_state)
 	{
-	case sensorOff:
+	case particleSensorOff:
 		timingSensorOff();
 		break;
 
@@ -673,7 +684,7 @@ void timingStatusMessage(struct process * timingProcess, char * buffer, int buff
 
 	switch (timing_state)
 	{
-	case sensorOff:
+	case particleSensorOff:
 		snprintf(buffer, bufferLength, "Sensor off lora: %lu mqtt: %lu", lora, mqtt);
 		break;
 

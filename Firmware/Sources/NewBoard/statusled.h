@@ -14,6 +14,7 @@ struct StatusLedSettings {
 	bool statusLedEnabled;
 };
 
+void flashStatusLed(int flashes);
 
 void statusLedOff();
 

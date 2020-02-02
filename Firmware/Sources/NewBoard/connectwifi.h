@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "processes.h"
 #include "settings.h"
+#include "timing.h"
 
 #define WIFI_CONNECT_TIMEOUT_MILLIS 20000
 
@@ -23,7 +24,20 @@
 #define WIFI_ERROR_NO_MATCHING_NETWORKS -4
 #define WIFI_ERROR_DISCONNECTED -5
 
-#define WIFI_CONNECT_RETRY_MILLS 500000
+#define WIFI_CONNECT_RETRY_MILLS 5000
+#define WIFI_NO_OF_CONNECT_ATTEMPTS 3
+
+#define WIFI_STATUS_OK_MESSAGE_NUMBER 1
+#define WIFI_STATUS_OK_MESSAGE_TEXT "WiFi connected OK"
+
+#define WIFI_STATUS_NO_MATCHING_NETWORKS_MESSAGE_NUMBER 12
+#define WIFI_STATUS_NO_MATCHING_NETWORKS_MESSAGE_TEXT "No networks found that match stored network names"
+
+#define WIFI_STATUS_CONNECT_FAILED_MESSAGE_NUMBER 13
+#define WIFI_STATUS_CONNECT_FAILED_MESSAGE_TEXT "No networks found that match stored network names"
+
+#define WIFI_STATUS_CONNECT_ABANDONED_MESSAGE_NUMBER 14
+#define WIFI_STATUS_CONNECT_ABANDONED_MESSAGE_TEXT "Wifi connection abandoned"
 
 struct WifiConnectionSettings
 {

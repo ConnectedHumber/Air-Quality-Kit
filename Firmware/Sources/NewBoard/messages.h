@@ -7,7 +7,8 @@ struct MessagesSettings {
 	bool messagesEnabled;
 };
 
-
+void displayMessage(int messageNumber, char * messageText);
+bool bindMessageHandler(void(*newHandler)(int messageNumber, char* messageText));
 
 void messagesOff();
 

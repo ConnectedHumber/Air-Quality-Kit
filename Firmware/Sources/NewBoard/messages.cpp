@@ -39,6 +39,34 @@ void messagesOn()
     saveSettings();
 }
 
+// enought room for four message handlers
+
+void (*messageHandlerList[])(int messageNumber, char* messageText) = { NULL,NULL,NULL,NULL };
+
+int noOfMessageHandlers = sizeof(messageHandlerList) / sizeof(int(*)(int,char*));
+
+bool bindMessageHandler(void(*newHandler)(int messageNumber, char* messageText))
+{
+    for(int i=0;i< noOfMessageHandlers;i++)
+        if (messageHandlerList[i] == NULL)
+        {
+            messageHandlerList[i] = newHandler;
+            return true;
+        }
+    return false;
+}
+
+void displayMessage(int messageNumber, char* messageText)
+{
+    for (int i = 0; i < noOfMessageHandlers; i++)
+    {
+        if (messageHandlerList[i] != NULL)
+        {
+            messageHandlerList[i](messageNumber, messageText);
+        }
+    }
+}
+
 int startMessages(struct process *messagesProcess)
 {
     return PROCESS_OK;
