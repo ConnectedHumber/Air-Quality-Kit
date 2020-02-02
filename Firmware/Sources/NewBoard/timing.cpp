@@ -484,7 +484,7 @@ void updateSerialDump()
 	}
 }
 
-#define uS_TO_S_FACTOR 1000  /* Conversion factor for micro seconds to miliseconds */
+#define uS_TO_mS_FACTOR 1000  /* Conversion factor for micro seconds to miliseconds */
 #define TIME_TO_SLEEP  10       /* Time ESP32 will go to sleep (in seconds) */
 
 void sleepSensor(unsigned long sleepMillis)
@@ -501,14 +501,17 @@ void sleepSensor(unsigned long sleepMillis)
 	// stop all the processes
 	stopProcesses();
 
+	// turn off the BME280
+
+	pinMode(26, OUTPUT);
+	digitalWrite(26, LOW);
+
 	// when we wake up we need to have the clock set to the current millis
 	// plus the length of the sleep. This should then trigger the next send
 
-	delay(5000);
-
 	millisOffset = offsetMillis() + sleepMillis;
 
-	esp_sleep_enable_timer_wakeup(sleepMillis * uS_TO_S_FACTOR);
+	esp_sleep_enable_timer_wakeup(sleepMillis * uS_TO_mS_FACTOR);
 
 	esp_deep_sleep_start();
 }

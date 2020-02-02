@@ -136,9 +136,9 @@ int startWifi(struct process* wifiProcess)
 	{
 		TRACELN("WiFi first run");
 		WiFi.mode(WIFI_OFF);
-		delay(500);
+		delay(100);
 		WiFi.mode(WIFI_STA);
-		delay(500);
+		delay(100);
 		firstRun = false;
 	}
 
@@ -292,7 +292,7 @@ void wifiStatusMessage(struct process* wifiProcess, char* buffer, int bufferLeng
 		snprintf(buffer, bufferLength, "%s connect failed with error %d", wifiActiveAPName, wifiError);
 		break;
 	case WIFI_ERROR_NO_MATCHING_NETWORKS:
-		snprintf(buffer, bufferLength, "No stored Wifi networks found");
+		snprintf(buffer, bufferLength, "No networks matching stored Wifi networks found");
 		break;
 	case WIFI_ERROR_DISCONNECTED:
 		snprintf(buffer, bufferLength, "WiFi disconnected");

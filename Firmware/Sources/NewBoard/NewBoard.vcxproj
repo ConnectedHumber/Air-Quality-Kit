@@ -143,6 +143,7 @@
       <FileType>CppCode</FileType>
     </ClInclude>
     <ClInclude Include="lora.h" />
+    <ClInclude Include="messages.h" />
     <ClInclude Include="mqtt.h">
       <FileType>CppCode</FileType>
     </ClInclude>
@@ -187,6 +188,7 @@
     <ClCompile Include="gps.cpp" />
     <ClCompile Include="inputswitch.cpp" />
     <ClCompile Include="lora.cpp" />
+    <ClCompile Include="messages.cpp" />
     <ClCompile Include="mqtt.cpp" />
     <ClCompile Include="otaupdate.cpp" />
     <ClCompile Include="pixels.cpp" />

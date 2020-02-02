@@ -51,6 +51,13 @@ int bmeAddresses[] = { 0x76, 0x77 };
 
 int startBme280(struct sensor * bme280Sensor)
 {
+	// burn on the power for the BME
+
+	pinMode(26, OUTPUT);
+	digitalWrite(26, HIGH);
+
+	delay(200);
+
 	struct bme280Reading * bme280activeReading;
 
 	if (bme280Sensor->activeReading == NULL)

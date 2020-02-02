@@ -155,6 +155,9 @@ int updatePowerControl(struct process* powerControlProcess)
 
 int stopPowerControl(struct process* powerControlProcess)
 {
+	// set the control pin to be an input to see if this reduces power consumption
+	// will be set back to an input when the device restarts
+	pinMode(powerControlSettings.powerControlOutputPin, INPUT);
 	return POWER_CONTROL_STOPPED;
 }
 

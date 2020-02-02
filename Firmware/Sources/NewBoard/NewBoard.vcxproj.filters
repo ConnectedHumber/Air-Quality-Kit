@@ -93,6 +93,9 @@
     <ClInclude Include="lora.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="messages.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="airquality.cpp">
@@ -156,6 +159,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="lora.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="messages.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
