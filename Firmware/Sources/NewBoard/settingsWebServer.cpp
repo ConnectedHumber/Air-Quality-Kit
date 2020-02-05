@@ -8,6 +8,7 @@
 #include "settings.h"
 #include "sensors.h"
 #include "processes.h"
+#include "lora.h"
 
 #define WEB_PAGE_BUFFER_SIZE 3000
 
@@ -26,20 +27,20 @@ const char homePageHeader[] =
 "<style>input {margin: 5px auto; } </style>"
 "</head>"
 "<body>"
-"<h1>Configuration Home</h1>"
-"<h2>Version %d.%d</h2>" // version number goes here;
-"<h1>Sensors</h1>";
+"<h1>Connected Humber Environmental Sensor</h1>"
+"<h3>Version %d.%d</h3>" // version number goes here;
+"<h1>Settings</h1>";
 
 const char homePageFooter[] =
-"<p> Select the link to the page that you want to view.</p>"
-"<p> Select the reset link below to return the sensor to normal operation.</p>"
+"<p> Select the link to the settings page that you want to edit.</p>"
+"<p> Select the reset link below to reset the sensor.</p>"
 "<a href=""reset"">reset</a>"
 "</body>"
 "</html>";
 
 void addItem(SettingItemCollection * settings)
 {
-	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <p><a href=""%s"">%s</a> </p>\n",
+	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <p style=\"margin-left: 20px; line-height: 50%%\"><a href=""%s"">%s</a> </p>\n",
 		webPageBuffer,
 		settings->collectionName,
 		settings->collectionDescription);
@@ -49,11 +50,9 @@ void buildHomePage()
 {
 	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, homePageHeader, MAJOR_VERSION, MINOR_VERSION);
 
-	iterateThroughSensorSettingCollections(addItem);
-
-	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <h1>Processes</h1>", webPageBuffer);
-
 	iterateThroughProcessSettingCollections(addItem);
+
+	iterateThroughSensorSettingCollections(addItem);
 
 	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s %s",
 		webPageBuffer, homePageFooter);
@@ -67,7 +66,7 @@ const char settingsPageHeader[] =
 "<style>input {margin: 5px auto; } </style>"
 "</head>"
 "<body>"
-"<h1> Monitair Configuration</h1>"
+"<h1>Settings</h1>"
 "<h2>%s</h2>" // configuration description goes here
 "<form id='form' action='/%s' method='post'>"; // configuration short name goes here
 
@@ -84,6 +83,7 @@ void buildCollectionSettingsPage(SettingItemCollection * settingCollection)
 	double * doublePointer;
 	boolean * boolPointer;
 	u4_t * loraIDValuePointer;
+	char loraKeyBuffer[LORA_KEY_LENGTH * 2 + 1];
 
 	snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, settingsPageHeader, settingCollection->collectionDescription, settingCollection->collectionName);
 
@@ -98,7 +98,7 @@ void buildCollectionSettingsPage(SettingItemCollection * settingCollection)
 		switch (settingCollection->settings[i]->settingType)
 		{
 		case text:
-			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='%s'><br>",
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='%s' style=\"margin-left: 20px; line-height: 50%%\"><br>",
 				webPageBuffer, settingCollection->settings[i]->formName, settingCollection->settings[i]->value);
 			break;
 		case password:
@@ -141,6 +141,20 @@ void buildCollectionSettingsPage(SettingItemCollection * settingCollection)
 					webPageBuffer, settingCollection->settings[i]->formName);
 			}
 			break;
+
+		case loraKey:
+			dumpHexString(loraKeyBuffer, (uint8_t*)settingCollection->settings[i]->value, LORA_KEY_LENGTH);
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='%s'><br>",
+				webPageBuffer, settingCollection->settings[i]->formName, loraKeyBuffer);
+			break;
+
+		case loraID:
+			loraIDValuePointer = (u4_t*)settingCollection->settings[i]->value;
+			dumpUnsignedLong(loraKeyBuffer, *loraIDValuePointer);
+			snprintf(webPageBuffer, WEB_PAGE_BUFFER_SIZE, "%s <input name = '%s' type = 'text' value='%s'><br>",
+				webPageBuffer, settingCollection->settings[i]->formName, loraKeyBuffer);
+			break;
+
 			}
 		}
 
@@ -280,6 +294,8 @@ struct process * webServerWiFiProcess = NULL;
 
 int startWebServer(struct process * webserverProcess)
 {
+	buildHomePage();
+
 	if (webServerWiFiProcess == NULL)
 	{
 		webServerWiFiProcess = findProcessByName("WiFi");

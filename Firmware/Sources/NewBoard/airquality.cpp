@@ -141,7 +141,7 @@ struct SettingItem* airQualitySettingItemPointers[] =
 
 struct SettingItemCollection airQualitySettingItems = {
 	"airq",
-	"Set pin assignments and number of averages for the air quality sensor",
+	"Particle sensor hardware and averaging",
 	airQualitySettingItemPointers,
 	sizeof(airQualitySettingItemPointers) / sizeof(struct SettingItem*)
 };

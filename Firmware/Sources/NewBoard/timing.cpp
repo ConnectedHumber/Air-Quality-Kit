@@ -103,7 +103,7 @@ struct SettingItem* timingSettingItemPointers[] =
 
 struct SettingItemCollection timingSettingItems = {
 	"timing",
-	"Set logging options and power control settings",
+	"Logging options and power control settings",
 	timingSettingItemPointers,
 	sizeof(timingSettingItemPointers) / sizeof(struct SettingItem*)
 };

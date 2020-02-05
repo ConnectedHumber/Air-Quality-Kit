@@ -76,6 +76,23 @@ struct process * allProcessList[] =
 	&WiFiConfigProcess
 };
 
+struct process* configProcessList[] =
+{
+	&WiFiProcessDescriptor,
+	& MQTTProcessDescriptor,
+	& LoRaProcess,
+	& TimingProcess,
+	&ConsoleProcessDescriptor,
+	&WebServerProcessDescriptor,
+	&InputSwitchProcess,
+	&StatusLedProcess,
+	&MessagesProcess,
+	&WiFiConfigProcess,
+	& PixelProcess,
+	& OTAUpdateProcess
+};
+
+
 
 struct process* baseProcessList[] =
 {
@@ -319,11 +336,11 @@ void iterateThroughProcessSecttings(void (*func) (unsigned char * settings, int 
 
 void iterateThroughProcessSettingCollections(void (*func) (SettingItemCollection* s))
 {
-	for (int i = 0; i < sizeof(allProcessList) / sizeof(struct process*); i++)
+	for (int i = 0; i < sizeof(configProcessList) / sizeof(struct process*); i++)
 	{
-		if (allProcessList[i]->settingItems != NULL)
+		if (configProcessList[i]->settingItems != NULL)
 		{
-			func(allProcessList[i]->settingItems);
+			func(configProcessList[i]->settingItems);
 		}
 	}
 }

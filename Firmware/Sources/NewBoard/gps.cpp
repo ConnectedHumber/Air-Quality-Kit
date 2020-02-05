@@ -64,7 +64,7 @@ struct SettingItem* GpsSettingItemPointers[] =
 
 struct SettingItemCollection gpsSettingItems = {
 	"gps",
-	"Set the GPS RX pin and operating mode",
+	"GPS connection and operating mode",
 	GpsSettingItemPointers,
 	sizeof(GpsSettingItemPointers) / sizeof(struct SettingItem*)
 };

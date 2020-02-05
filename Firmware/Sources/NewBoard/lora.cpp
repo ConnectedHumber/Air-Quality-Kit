@@ -126,7 +126,7 @@ struct SettingItem * loraSettingItemPointers[] =
 
 struct SettingItemCollection loraSettingItems = {
 	"lora",
-	"Set access keys and access type for a LoRa connection",
+	"Access keys and access type for LoRa",
 	loraSettingItemPointers,
 	sizeof(loraSettingItemPointers) / sizeof(struct SettingItem*)
 };

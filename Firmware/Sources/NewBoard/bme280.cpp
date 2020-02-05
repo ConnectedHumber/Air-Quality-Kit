@@ -76,7 +76,7 @@ struct SettingItem* bme280SettingItemPointers[] =
 
 struct SettingItemCollection bme280SettingItems = {
 	"bme280",
-	"BME280 Setting Management",
+	"BME280 hardware and averaging",
 	bme280SettingItemPointers,
 	sizeof(bme280SettingItemPointers) / sizeof(struct SettingItem*)
 };

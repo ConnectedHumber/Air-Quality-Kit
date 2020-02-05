@@ -70,7 +70,7 @@ struct SettingItem* wifiConnectionSettingItemPointers[] =
 
 struct SettingItemCollection wifiConnectionSettingItems = {
 	"WiFi",
-	"WiFi configuration options",
+	"WiFi ssids and passwords",
 	wifiConnectionSettingItemPointers,
 	sizeof(wifiConnectionSettingItemPointers) / sizeof(struct SettingItem*)
 };

@@ -199,7 +199,7 @@ struct SettingItem* pixelSettingItemPointers[] =
 
 struct SettingItemCollection pixelSettingItems = {
 	"pixel",
-	"Settings for the NeoPixel output from the device",
+	"Pixel hardware and display properties",
 	pixelSettingItemPointers,
 	sizeof(pixelSettingItemPointers) / sizeof(struct SettingItem*)
 };
