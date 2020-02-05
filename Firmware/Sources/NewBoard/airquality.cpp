@@ -6,6 +6,7 @@
 #include "settings.h"
 #include "processes.h"
 #include "debug.h"
+#include "powercontrol.h"
 
 #include <HardwareSerial.h>
 
@@ -509,21 +510,52 @@ void setParticleSensorWorking(bool working)
 		TRACELN("Setting sensor asleep");
 	}
 
-	switch (airqualitySettings.airqSensorType)
+	if (powerControlSettings.particleSensorPowerControlFitted)
 	{
-	case UNKNOWN_SENSOR:
-		break;
+		// if we have power control just turn the power off
 
-	case SDS011_SENSOR:
-		set_sds011_working(working);
-		break;
-
-	case PMS5003_SENSOR:
-		break;
-
-	case ZPH01_SENSOR:
-		break;
+		if (working)
+		{
+			setParticleSensorPowerOn();
+		}
+		else
+		{
+			setParticleSensorPowerOff();
+		}
 	}
+	else
+	{
+		switch (airqualitySettings.airqSensorType)
+		{
+		case UNKNOWN_SENSOR:
+			break;
+
+		case SDS011_SENSOR:
+			set_sds011_working(working);
+			break;
+
+		case PMS5003_SENSOR:
+			break;
+
+		case ZPH01_SENSOR:
+			break;
+		}
+	}
+}
+
+void switchOffSensor()
+{
+	if (powerControlSettings.particleSensorPowerControlFitted)
+	{
+		// if we have power control just turn the power off
+		setParticleSensorPowerOff();
+	}
+	else {
+		// otherwise send a command to the sensor to turn it off
+		// Note that not all sensors can do this
+		setParticleSensorWorking(false);
+	}
+
 }
 
 int updateAirqReading(struct sensor* airqSensor)
@@ -601,6 +633,13 @@ void startAirqReading(struct sensor* airqSensor)
 	airqualityReading* airq = (airqualityReading*)airqSensor->activeReading;
 
 	resetAirqAverages(airq);
+}
+
+int stopAirq(struct sensor* airqSensor)
+{
+	// send the command to shutdown the air 
+	turnParticleSensorOff();
+	return SENSOR_OK;
 }
 
 int addAirqReading(struct sensor* airqSensor, char* jsonBuffer, int jsonBufferSize)

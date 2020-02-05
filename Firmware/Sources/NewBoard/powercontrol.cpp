@@ -8,14 +8,18 @@
 #include "soc/soc.h"
 #include "soc/rtc_cntl_reg.h"
 
-
-
 struct PowerControlSettings powerControlSettings;
 
 void setDefaultPowerContrlPin(void* dest)
 {
 	int* destInt = (int*)dest;
 	*destInt = 27;
+}
+
+void setDefaultBME280PowerPin(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 26;
 }
 
 void setDefaultpowerMinPowerOffIntervalSetting(void* dest)
@@ -27,7 +31,7 @@ void setDefaultpowerMinPowerOffIntervalSetting(void* dest)
 struct SettingItem powerControlPinSetting = {
 		"Power Control Pin",
 		"powercontrolpin",
-		& powerControlSettings.powerControlOutputPin,
+		&powerControlSettings.particleSensorPowerControlOutputPin,
 		NUMBER_INPUT_LENGTH,
 		integerValue,
 		setDefaultPowerContrlPin,
@@ -44,9 +48,9 @@ struct SettingItem powerMinPowerOffIntervalSetting = {
 
 
 struct SettingItem powercontrolOutputFitted = {
-		"Power Control Output Fitted",
-		"powerControlFitted",
-		&powerControlSettings.powerControlFitted,
+		"Particle sensor power control fitted",
+		"particlePowerControlFitted",
+		&powerControlSettings.particleSensorPowerControlFitted,
 		ONOFF_INPUT_LENGTH,
 		yesNo,
 		setTrue,
@@ -56,60 +60,107 @@ struct SettingItem powercontrolOutputFitted = {
 struct SettingItem powercontrolOutputPinActiveHighSetting = {
 		"Power Control Output Active High",
 		"powerOutputActivehigh",
-		& powerControlSettings.powerControlOutputPinActiveHigh,
+		&powerControlSettings.particleSensorPowerControlOutputPinActiveHigh,
 		ONOFF_INPUT_LENGTH,
 		yesNo,
 		setTrue,
 		validateYesNo
 };
 
+struct SettingItem bme280PowerControlSetting = {
+		"BME 280 power control active (yes or no)",
+		"bme280powercontrolactive",
+		&powerControlSettings.bme280PowerControlActive,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setFalse,
+		validateYesNo };
+
+struct SettingItem bme280PowerPinSetting = {
+		"BME280 power control pin",
+		"bme280powerpin",
+		&powerControlSettings.bme280PowerControlPin,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultBME280PowerPin,
+		validateInt };
+
+struct SettingItem bme280ControlOutputPinActiveHighSetting = {
+		"BME280 Power Control Output Active High",
+		"bme280powerOutputActivehigh",
+		&powerControlSettings.bme280PowerControlOutputPinActiveHigh,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setTrue,
+		validateYesNo
+};
+
+
 struct SettingItem* powerControlOutputSettingItemPointers[] =
 {
 	&powercontrolOutputFitted,
-	&powerMinPowerOffIntervalSetting,
 	&powerControlPinSetting,
-	&powercontrolOutputPinActiveHighSetting
+	&powercontrolOutputPinActiveHighSetting,
+	&bme280PowerControlSetting,
+	&bme280PowerPinSetting,
+	&bme280ControlOutputPinActiveHighSetting,
+	&powerMinPowerOffIntervalSetting
 };
 
 struct SettingItemCollection powerControlOutputSettingItems = {
 	"powercontroloutput",
-	"Pin assignment and active level (high or low) and for hardware configuration switch",
+	"Pin assignment and active level (high or low) for hardware power switches",
 	powerControlOutputSettingItemPointers,
 	sizeof(powerControlOutputSettingItemPointers) / sizeof(struct SettingItem*)
 };
 
 
-boolean powerOnValue;
+boolean particlePowerOnValue;
+boolean bmePowerOnValue;
 
-boolean powerOnOutputHigh()
+boolean particlePowerOutputHigh()
 {
-	if (powerControlSettings.powerControlOutputPinActiveHigh)
-		return powerOnValue;
+	if (powerControlSettings.particleSensorPowerControlOutputPinActiveHigh)
+		return particlePowerOnValue;
 	else
-		return !powerOnValue;
+		return !particlePowerOnValue;
 }
 
-boolean powerOn()
+boolean BMEPowerOnOutputHigh()
 {
-		return powerOnValue;
+	if (powerControlSettings.bme280PowerControlOutputPinActiveHigh)
+		return bmePowerOnValue;
+	else
+		return !bmePowerOnValue;
 }
 
 
-boolean setPowerOn()
+boolean particlePowerOn()
 {
-	if (powerOnValue) return true;
+	return particlePowerOnValue;
+}
 
-	powerOnValue = true;
+
+boolean BME280PowerOn()
+{
+	return bmePowerOnValue;
+}
+
+boolean setParticleSensorPowerOn()
+{
+	if (particlePowerOnValue) return true;
+
+	particlePowerOnValue = true;
 
 	WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); //disable brownout detector   
 
-	if (powerControlSettings.powerControlOutputPinActiveHigh)
+	if (powerControlSettings.particleSensorPowerControlOutputPinActiveHigh)
 	{
-		digitalWrite(powerControlSettings.powerControlOutputPin, HIGH);
+		digitalWrite(powerControlSettings.particleSensorPowerControlOutputPin, HIGH);
 	}
 	else
 	{
-		digitalWrite(powerControlSettings.powerControlOutputPin, LOW);
+		digitalWrite(powerControlSettings.particleSensorPowerControlOutputPin, LOW);
 	}
 
 	// let things power up
@@ -121,29 +172,76 @@ boolean setPowerOn()
 	return true;
 }
 
-boolean setPowerOff()
+boolean setParticleSensorPowerOff()
 {
-	if (!powerOnValue) return true;
+	if (!particlePowerOnValue) return true;
 
-	powerOnValue = false;
+	particlePowerOnValue = false;
 
-	if (powerControlSettings.powerControlOutputPinActiveHigh)
+	if (powerControlSettings.particleSensorPowerControlOutputPinActiveHigh)
 	{
-		digitalWrite(powerControlSettings.powerControlOutputPin, LOW);
+		digitalWrite(powerControlSettings.particleSensorPowerControlOutputPin, LOW);
 	}
 	else
 	{
-		digitalWrite(powerControlSettings.powerControlOutputPin, HIGH);
+		digitalWrite(powerControlSettings.particleSensorPowerControlOutputPin, HIGH);
 	}
 	return true;
 }
 
+boolean setBME280SensorPowerOn()
+{
+	if (bmePowerOnValue) return true;
+
+	bmePowerOnValue = true;
+
+	if (powerControlSettings.bme280PowerControlOutputPinActiveHigh)
+	{
+		digitalWrite(powerControlSettings.bme280PowerControlPin, HIGH);
+	}
+	else
+	{
+		digitalWrite(powerControlSettings.bme280PowerControlPin, LOW);
+	}
+
+	return true;
+}
+
+boolean setBME280SensorPowerOff()
+{
+	if (!bmePowerOnValue) return true;
+
+	bmePowerOnValue = false;
+
+	if (powerControlSettings.bme280PowerControlOutputPinActiveHigh)
+	{
+		digitalWrite(powerControlSettings.bme280PowerControlPin, LOW);
+	}
+	else
+	{
+		digitalWrite(powerControlSettings.bme280PowerControlPin, HIGH);
+	}
+
+	return true;
+}
+
+
 int startPowerControl(struct process* powerControlProcess)
 {
-	pinMode(powerControlSettings.powerControlOutputPin, OUTPUT);
+	if (powerControlSettings.particleSensorPowerControlFitted)
+	{
+		pinMode(powerControlSettings.particleSensorPowerControlOutputPin, OUTPUT);
+		particlePowerOnValue = false;
+		setParticleSensorPowerOn();
+	}
 
-	powerOnValue = false;
-	setPowerOn();
+	if (powerControlSettings.bme280PowerControlActive)
+	{
+		pinMode(powerControlSettings.bme280PowerControlPin, OUTPUT);
+		bmePowerOnValue = false;
+		setBME280SensorPowerOn();
+	}
+
 	delay(100);
 	return PROCESS_OK;
 }
@@ -155,17 +253,23 @@ int updatePowerControl(struct process* powerControlProcess)
 
 int stopPowerControl(struct process* powerControlProcess)
 {
+	// turn everything off
+
+	setParticleSensorPowerOff();
+	setBME280SensorPowerOff();
+
 	// set the control pin to be an input to see if this reduces power consumption
 	// will be set back to an input when the device restarts
-	pinMode(powerControlSettings.powerControlOutputPin, INPUT);
+
+	pinMode(powerControlSettings.particleSensorPowerControlOutputPin, INPUT);
+	pinMode(powerControlSettings.bme280PowerControlPin, INPUT);
+
 	return POWER_CONTROL_STOPPED;
 }
 
 void powerControlStatusMessage(struct process* inputSwitchProcess, char* buffer, int bufferLength)
 {
-	if (powerOnOutputHigh())
-		snprintf(buffer, bufferLength, "Power control pin high");
-	else
-		snprintf(buffer, bufferLength, "Power contrl pin low");
+	snprintf(buffer, bufferLength, "Particle pin: %d BME pin: %d", 
+		particlePowerOutputHigh(),BMEPowerOnOutputHigh());
 }
 

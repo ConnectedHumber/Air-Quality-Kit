@@ -12,6 +12,7 @@ struct sensor airqSensor = {
 	0,				// reading number
 	0,				// 
 	startAirq,		// start function
+	stopAirq,		// stop function
 	updateAirqReading,	// update function
 	startAirqReading,	// begin a reading sequence
 	addAirqReading,		// add a reading to the JSON object
@@ -27,13 +28,13 @@ struct sensor airqSensor = {
 
 
 struct sensor gpsSensor = 
-{ "GPS", 0, 0, 0, startGps, updateGpsReading, startGPSReading, addGpsReading, gpsStatusMessage, -1, false, NULL, 0, 
+{ "GPS", 0, 0, 0, startGps, stopGps, updateGpsReading, startGPSReading, addGpsReading, gpsStatusMessage, -1, false, NULL, 0, 
 (unsigned char *) &gpsSetting, sizeof(struct GpsSetting), &gpsSettingItems };
 
-struct sensor bme280Sensor = { "BME280", 0, 0, 0, startBme280, updateBME280Reading, startBME280Reading, addBME280Reading, bme280StatusMessage, -1, false, NULL, 0,
+struct sensor bme280Sensor = { "BME280", 0, 0, 0, startBme280, stopBme280, updateBME280Reading, startBME280Reading, addBME280Reading, bme280StatusMessage, -1, false, NULL, 0,
 	(unsigned char*)&bmeSettings, sizeof(struct Bme280Settings), &bme280SettingItems };
 
-struct sensor clockSensor = { "Clock", 0, 0, 0, startClock, updateClockReading, startClockReading, addClockReading, clockStatusMessage, -1, false, NULL, 0,
+struct sensor clockSensor = { "Clock", 0, 0, 0, startClock, stopClock, updateClockReading, startClockReading, addClockReading, clockStatusMessage, -1, false, NULL, 0,
 	NULL, 0, NULL 
 };
 
@@ -83,11 +84,12 @@ char sensorValueBuffer[SENSOR_VALUE_BUFFER_SIZE];
 
 void startSensors()
 {
+	Serial.println("Starting sensors");
 	// start all the sensor managers
 	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor *); i++)
 	{
 		struct sensor * startSensor = sensorList[i];
-		Serial.printf("Starting sensor %s: ", startSensor->sensorName);
+		Serial.printf("   %s: ", startSensor->sensorName);
 		startSensor->startSensor(sensorList[i]);
 		startSensor->getStatusMessage(startSensor, sensorStatusBuffer, SENSOR_STATUS_BUFFER_SIZE);
 		Serial.printf("%s\n", sensorStatusBuffer);
@@ -160,6 +162,18 @@ void displaySensorStatus()
 	{
 		sensor * displayProcess = sensorList[i];
 		addStatusItem(displayProcess->status == SENSOR_OK);
+	}
+}
+
+void stopSensors()
+{
+	Serial.println("Stopping sensors");
+
+	for (int i = 0; i < sizeof(sensorList) / sizeof(struct sensor*); i++)
+	{
+		sensor* s = sensorList[i];
+		Serial.printf("   %s\n",s->sensorName);
+		s->stopSensor(s);
 	}
 }
 

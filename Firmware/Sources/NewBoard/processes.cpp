@@ -194,7 +194,7 @@ char processStatusBuffer[PROCESS_STATUS_BUFFER_SIZE];
 
 void startProcess(process * proc)
 {
-	Serial.printf("   Starting process %s: ", proc->processName);
+	Serial.printf("   %s: ", proc->processName);
 	proc->startProcess(proc);
 	proc->getStatusMessage(proc, processStatusBuffer, PROCESS_STATUS_BUFFER_SIZE);
 	Serial.printf(" %s\n", processStatusBuffer);
@@ -306,9 +306,10 @@ void iterateThroughProcesses(void (*func) (process * p))
 
 void stopProcesses()
 {
+	Serial.println("Stopping processes");
 	for (int i = 0; i < sizeof(stoppingProcessList) / sizeof(struct process*); i++)
 	{
-		Serial.printf("Stopping %s\n", stoppingProcessList[i]->processName);
+		Serial.printf("   %s\n", stoppingProcessList[i]->processName);
 		stoppingProcessList[i]->stopProcess(stoppingProcessList[i]);
 	}
 }

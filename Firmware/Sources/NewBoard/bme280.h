@@ -26,6 +26,7 @@
 #include "sensors.h"
 
 #define BME280_NOT_CONNECTED -1
+#define BME280_NOT_FITTED -2
 
 struct bme280Reading {
 	int activeBMEAddress;
@@ -54,6 +55,7 @@ extern struct Bme280Settings bmeSettings;
 extern struct SettingItemCollection bme280SettingItems;
 
 int startBme280(struct sensor * bme280Sensor);
+int stopBme280(struct sensor* bme280Sensor);
 int updateBME280Reading(struct sensor * bme280Sensor);
 void startBME280Reading(struct sensor * bme280Sensor);
 int addBME280Reading(struct sensor * bme280Sensor, char * jsonBuffer, int jsonBufferSize);

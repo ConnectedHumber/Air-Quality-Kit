@@ -32,18 +32,15 @@ validateInt };
 struct SettingItem* bme280SettingItemPointers[] =
 {
 	&bme280FittedSetting,
-	& envNoOfAveragesSetting
+	&envNoOfAveragesSetting
 };
 
 struct SettingItemCollection bme280SettingItems = {
 	"bme280",
-	"Number of averages for the environmental sensor",
+	"BME280 Setting Management",
 	bme280SettingItemPointers,
 	sizeof(bme280SettingItemPointers) / sizeof(struct SettingItem*)
 };
-
-
-
 
 Adafruit_BME280 bme;
 
@@ -51,12 +48,11 @@ int bmeAddresses[] = { 0x76, 0x77 };
 
 int startBme280(struct sensor * bme280Sensor)
 {
-	// burn on the power for the BME
-
-	pinMode(26, OUTPUT);
-	digitalWrite(26, HIGH);
-
-	delay(200);
+	if (!bmeSettings.bme280Fitted)
+	{
+		bme280Sensor->status = BME280_NOT_FITTED;
+		return BME280_NOT_FITTED;
+	}
 
 	struct bme280Reading * bme280activeReading;
 
@@ -75,6 +71,14 @@ int startBme280(struct sensor * bme280Sensor)
 	{
 		if (bme.begin(bmeAddresses[i]))
 		{
+			float testTemp = bme.readTemperature();
+
+			if (isnan(testTemp))
+			{
+				// ignpore non-numbers
+				continue;
+			}
+
 			bme280activeReading->activeBMEAddress = bmeAddresses[i];
 			bme280Sensor->status = SENSOR_OK;
 			return SENSOR_OK;
@@ -85,6 +89,12 @@ int startBme280(struct sensor * bme280Sensor)
 
 	return BME280_NOT_CONNECTED;
 }
+
+int stopBme280(struct sensor* bme280Sensor)
+{
+	return SENSOR_OK;
+}
+
 
 void resetEnvqAverages(bme280Reading * reading)
 {
@@ -123,17 +133,36 @@ void startBME280Reading(struct sensor * bme280Sensor)
 
 int updateBME280Reading(struct sensor * bme280Sensor)
 {
-	if (bme280Sensor->status == SENSOR_OK)
+	switch (bme280Sensor->status)
 	{
-		struct bme280Reading * bme280activeReading =
-			(struct bme280Reading *) bme280Sensor->activeReading;
+	case SENSOR_OK:
+	{
+		struct bme280Reading* bme280activeReading =
+			(struct bme280Reading*) bme280Sensor->activeReading;
 
-		bme280activeReading->temperature = bme.readTemperature();
-		bme280activeReading->humidity = bme.readHumidity();
-		bme280activeReading->pressure = bme.readPressure() / 100.0F;
-		bme280Sensor->millisAtLastReading = offsetMillis();
-		bme280Sensor->readingNumber++;
-		updateEnvAverages(bme280activeReading);
+		float temp = bme.readTemperature();
+
+		if (isnan(temp))
+		{
+			bme280Sensor->status = BME280_NOT_CONNECTED;
+		}
+		else
+		{
+			bme280activeReading->temperature = temp;
+			bme280activeReading->humidity = bme.readHumidity();
+			bme280activeReading->pressure = bme.readPressure() / 100.0F;
+			bme280Sensor->millisAtLastReading = offsetMillis();
+			bme280Sensor->readingNumber++;
+			updateEnvAverages(bme280activeReading);
+		}
+	}
+		break;
+
+	case BME280_NOT_CONNECTED:
+		break;
+
+	case BME280_NOT_FITTED:
+		break;
 	}
 
 	return bme280Sensor->status;
@@ -177,6 +206,11 @@ void bme280StatusMessage(struct sensor * bme280sensor, char * buffer, int buffer
 	case BME280_NOT_CONNECTED:
 		snprintf(buffer, bufferLength, "BME 280 sensor not connected");
 		break;
+
+	case BME280_NOT_FITTED:
+		snprintf(buffer, bufferLength, "BME 280 sensor not fitted");
+		break;
+
 	default:
 		snprintf(buffer, bufferLength, "BME 280 status invalid");
 		break;

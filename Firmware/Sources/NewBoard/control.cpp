@@ -16,6 +16,14 @@ void displayControlMessage(int messageNumber, char* messageText)
 
 void startDevice()
 {
+	Serial.begin(115200);
+
+	delay(100);
+
+	Serial.println("\n\n\n\n");
+
+	setupSettings();
+
 	// Start the core processes used by all the others
 
 	startBaseProcesses();
@@ -43,7 +51,8 @@ void startDevice()
 		startSensors();
 		delay(2000); // show the status for a while
 		setupWalkingColour(BLUE_PIXEL_COLOUR);
-		Serial.println("Start complete");
+		Serial.printf("Start complete\n\nType help and press enter for help\n\n");
+
 	}
 }
 

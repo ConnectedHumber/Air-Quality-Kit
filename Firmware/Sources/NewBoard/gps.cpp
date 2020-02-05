@@ -118,6 +118,12 @@ int startGps(struct sensor * gpsSensor)
 	return gpsSensor->status;
 }
 
+int stopGps(struct sensor* airqSensor)
+{
+	return SENSOR_OK;
+}
+
+
 void startGPSReading(struct sensor * gpsSensor)
 {
 }

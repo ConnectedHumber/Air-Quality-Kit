@@ -27,6 +27,7 @@ extern char * dayNames[] ;
 extern char * monthNames[] ;
 
 int startClock(struct sensor * clockSensor);
+int stopClock(struct sensor* clockSensor);
 int updateClockReading(struct sensor * clockSensor);
 void startClockReading(struct sensor * clockSensor);
 int addClockReading(struct sensor * clockSensor, char * jsonBuffer, int jsonBufferSize);

@@ -954,23 +954,20 @@ void act_onJson_command(const char *json, void (*deliverResult)(char *resultText
 
 void setupSettings()
 {
-	Serial.println("Setting up settings");
-
 	EEPROM.begin(EEPROM_SIZE);
 
 	if (validStoredSettings())
 	{
-		Serial.println("settings valid");
 		loadSettings();
-		Serial.println("settings loaded");
+		PrintSystemDetails();
+		Serial.println("  Settings loaded OK");
 	}
 	else
 	{
-		Serial.println("settings invalid");
 		resetSettings();
-		Serial.println("settings reset");
 		saveSettings();
-		Serial.println("settings saved");
+		PrintSystemDetails();
+		Serial.println("  Settings Reset");
 	}
 
 	PrintAllSettings();

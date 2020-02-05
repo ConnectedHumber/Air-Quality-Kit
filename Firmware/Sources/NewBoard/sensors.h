@@ -15,6 +15,7 @@ struct sensor
 	int readingNumber;
 	int lastTransmittedReadingNumber;
 	int(*startSensor)(struct sensor *);
+	int(*stopSensor)(struct sensor*);
 	int(*updateSensor)(struct sensor *);
 	void(*startReading)(struct sensor *);
 	int(*addReading)(struct sensor *, char * jsonBuffer, int jsonBufferSize);
@@ -36,6 +37,8 @@ extern struct sensor airqSensor;
 extern struct sensor clockSensor;
 
 void startSensors();
+
+void stopSensors();
 
 void dumpSensorStatus();
 

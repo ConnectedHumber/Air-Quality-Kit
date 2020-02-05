@@ -45,6 +45,7 @@ struct airqualityReading {
 };
 
 int startAirq(struct sensor * airqSensor);
+int stopAirq(struct sensor* airqSensor);
 int updateAirqReading(struct sensor * airqSensor);
 void startAirqReading(struct sensor * gpsSensor);
 int addAirqReading(struct sensor * airqSensor, char * jsonBuffer, int jsonBufferSize);

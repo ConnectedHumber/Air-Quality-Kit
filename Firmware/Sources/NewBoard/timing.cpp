@@ -15,14 +15,30 @@
 #include "control.h"
 #include "statusled.h"
 #include "powercontrol.h"
+#include "messages.h"
 
 String loggingStateNames [] = { "off", "particles", "temp", "pressure", "humidity", "all"};
 
 struct TimingSettings timingSettings;
 
+void setDefaultReadingTimeoutSecs(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 20;
+}
+
+struct SettingItem readingtimeoutsecsSetting = {
+	"Reading timeout in seconds",
+	"readingtimeoutsecs",
+	& timingSettings.readingTimoutSecs,
+	NUMBER_INPUT_LENGTH,
+	integerValue,
+	setDefaultReadingTimeoutSecs,
+	validateInt };
+
 struct SettingItem sleepProcessorSetting = {
 		"Sleep processor between readings (yes or no)",
-		"sleepProcessorSetting",
+		"sleepProcessorBetweenReadings",
 		& timingSettings.sleepProcessor,
 		ONOFF_INPUT_LENGTH,
 		yesNo,
@@ -63,12 +79,13 @@ struct SettingItem loggingSetting = {
 struct SettingItem* timingSettingItemPointers[] =
 {
 	&sleepProcessorSetting,
+	&readingtimeoutsecsSetting,
 	&loggingSetting
 };
 
 struct SettingItemCollection timingSettingItems = {
 	"timing",
-	"Set logging options and power control setting for external devices",
+	"Set logging options and power control settings",
 	timingSettingItemPointers,
 	sizeof(timingSettingItemPointers) / sizeof(struct SettingItem*)
 };
@@ -79,6 +96,7 @@ RTC_DATA_ATTR unsigned long milliseconds_at_last_mqtt_update = 0;
 
 unsigned long lora_reading_retry_interval_in_millis;
 unsigned long lora_reading_interval_in_millis;
+unsigned long reading_timout_in_millis;
 RTC_DATA_ATTR unsigned long milliseconds_at_last_lora_update = 0;
 RTC_DATA_ATTR int bootCount = 0;
 
@@ -268,9 +286,9 @@ void startParticleSensorWarmingUp()
 {
 	if (timing_state != sensorWarmingUp)
 	{
-		if (powerControlSettings.powerControlFitted)
+		if (powerControlSettings.particleSensorPowerControlFitted)
 		{
-			setPowerOn();
+			setParticleSensorPowerOn();
 		}
 		else {
 			Serial.println("Turning sensor on");
@@ -284,16 +302,7 @@ void turnParticleSensorOff()
 {
 	if (timing_state != particleSensorOff)
 	{
-		if (powerControlSettings.powerControlFitted)
-		{
-			// if we have power control just turn the power off
-			setPowerOff();
-		}
-		else {
-			// otherwise send a command to the sensor to turn it off
-			// Note that not all sensors can do this
-			setParticleSensorWorking(false);
-		}
+		setParticleSensorWorking(false);
 		timing_state = particleSensorOff;
 	}
 }
@@ -395,7 +404,7 @@ void timingSensorGettingReading()
 {
 	unsigned long time_in_millis = offsetMillis();
 
-	unsigned long millis = ulongDiff(time_in_millis, readingFetchStartMillis);
+	unsigned long readingTimeMillis = ulongDiff(time_in_millis, readingFetchStartMillis);
 
 	struct bme280Reading * bme280activeReading =
 		(bme280Reading *) bme280Sensor.activeReading;
@@ -418,6 +427,17 @@ void timingSensorGettingReading()
 		if (time_to_next_update() > minOffTimeInMillis)
 		{
 			timing_state = sensorWaitingForPowerDown;
+		}
+	}
+	else
+	{
+		// not got any readings yet
+		if (readingTimeMillis > reading_timout_in_millis)
+		{
+			displayMessage(TIMING_STATUS_READING_TIMOUT_MESSAGE_NUMBER, TIMING_STATUS_READING_TIMOUT_MESSAGE_TEXT);
+			forceSensorShutdown();
+			// if we get here we are not shutting down - reset the timing
+			readingFetchStartMillis = time_in_millis;
 		}
 	}
 }
@@ -499,13 +519,11 @@ void sleepSensorForTime(unsigned long sleepMillis)
 
 	Serial.printf("Going to sleep for %lu milliseconds\n", sleepMillis);
 
+	// stop all the sensors
+	stopSensors();
+
 	// stop all the processes
 	stopProcesses();
-
-	// turn off the BME280
-
-	pinMode(26, OUTPUT);
-	digitalWrite(26, LOW);
 
 	esp_sleep_enable_timer_wakeup(sleepMillis * uS_TO_mS_FACTOR);
 
@@ -523,20 +541,23 @@ void sleepSensorForTime(unsigned long sleepMillis)
 
 void forceSensorShutdown()
 {
-	unsigned long millisToNextUdate;
+	// Only shut down the processor if we are sleeping
 
-	if (mqtt_reading_interval_in_millis < lora_reading_interval_in_millis)
-		millisToNextUdate = mqtt_reading_interval_in_millis;
-	else
-		millisToNextUdate = lora_reading_interval_in_millis;
+	if (timingSettings.sleepProcessor)
+	{
+		unsigned long millisToNextUdate;
 
-	// force a clean boot next time so that we start the timings from then
+		if (mqtt_reading_interval_in_millis < lora_reading_interval_in_millis)
+			millisToNextUdate = mqtt_reading_interval_in_millis;
+		else
+			millisToNextUdate = lora_reading_interval_in_millis;
 
-	bootCount = 0;
+		// force a clean boot next time so that we start the timings from then
 
-	turnParticleSensorOff();
+		bootCount = 0;
 
-	sleepSensorForTime(millisToNextUdate);
+		sleepSensorForTime(millisToNextUdate);
+	}
 }
 
 
@@ -612,6 +633,8 @@ int startTiming(struct process* timingProcess)
 
 	mqtt_reading_interval_in_millis = mqttSettings.mqttSecsPerUpdate * 1000;
 	lora_reading_interval_in_millis = loRaSettings.seconds_per_lora_update * 1000;
+	reading_timout_in_millis = timingSettings.readingTimoutSecs * 1000;
+
 
 	if (bootCount == 0)
 	{
@@ -693,7 +716,9 @@ void timingStatusMessage(struct process * timingProcess, char * buffer, int buff
 		break;
 
 	case sensorGettingReading:
+	{
 		snprintf(buffer, bufferLength, "Sensor getting readings lora: %lu mqtt: %lu", lora, mqtt);
+	}
 		break;
 
 	case sensorWaitingForPowerDown:

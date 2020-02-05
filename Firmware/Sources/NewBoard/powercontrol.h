@@ -6,11 +6,16 @@
 
 #define POWER_CONTROL_STOPPED 1
 
-boolean powerOn();
-boolean powerOnOutputHigh();
+boolean particlePowerOn();
+boolean particlePowerOutputHigh();
 
-boolean setPowerOn();
-boolean setPowerOff();
+boolean BME280PowerOn();
+boolean BMEPowerOnOutputHigh();
+
+boolean setParticleSensorPowerOn();
+boolean setParticleSensorPowerOff();
+boolean setBME280SensorPowerOn();
+boolean setBME280SensorPowerOff();
 
 int startPowerControl(struct process* inputSwitchProcess);
 int updatePowerControl(struct process* inputSwitchProcess);
@@ -18,9 +23,13 @@ int stopPowerControl(struct process* inputSwitchProcess);
 void powerControlStatusMessage(struct process* inputSwitchProcess, char* buffer, int bufferLength);
 
 struct PowerControlSettings {
-	boolean powerControlFitted;
-	int powerControlOutputPin;
-	boolean powerControlOutputPinActiveHigh;
+	boolean particleSensorPowerControlFitted;
+	int particleSensorPowerControlOutputPin;
+	boolean particleSensorPowerControlOutputPinActiveHigh;
+
+	boolean bme280PowerControlActive;
+	int bme280PowerControlPin;
+	boolean bme280PowerControlOutputPinActiveHigh;
 	int minimumPowerOffIntervalSecs;
 };
 

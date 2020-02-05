@@ -48,6 +48,11 @@ int startClock(struct sensor * clockSensor)
 	return CLOCK_ERROR_NEEDS_SYNC;
 }
 
+int stopClock(struct sensor* clockSensor)
+{
+	return SENSOR_OK;
+}
+
 void getClockReadings(struct sensor * clockSensor)
 {
 	struct clockReading * clockActiveReading;

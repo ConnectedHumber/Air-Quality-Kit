@@ -3,6 +3,10 @@
 
 #define TIMING_H
 
+#define TIMING_STATUS_READING_TIMOUT_MESSAGE_NUMBER 31
+#define TIMING_STATUS_READING_TIMOUT_MESSAGE_TEXT "Reading timeout"
+
+
 enum timingStates { sensorWarmingUp, sensorGettingReading, sensorWaitingForPowerDown, particleSensorOff } ;
 
 enum Logging_State {
@@ -20,6 +24,7 @@ extern String loggingStateNames[];
 struct TimingSettings {
 	boolean sleepProcessor;
 	Logging_State logging;
+	int readingTimoutSecs;
 };
 
 extern struct TimingSettings timingSettings;
@@ -38,13 +43,11 @@ void startGettingSensorReadings();
 bool can_power_off_sensor();
 bool can_start_reading();
 void forceSensorShutdown();
-void start_sensor();
 int startTiming(struct process * timingProcess);
 int updateTiming(struct process * wifiConfigProcess);
 int stopTiming(struct process * wifiConfigProcess);
 void timingStatusMessage(struct process * wifiConfigProcess, char * buffer, int bufferLength);
 void force_mqtt_send ();
-void forceSensorShutdown();
 timingStates getTimingState();
 
 #endif

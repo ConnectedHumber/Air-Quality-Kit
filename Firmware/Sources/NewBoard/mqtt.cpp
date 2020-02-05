@@ -320,6 +320,8 @@ boolean publishBufferToMQTT(char* buffer)
 	{
 		displayMessage(MQTT_STATUS_TRANSMIT_TIMOUT_MESSAGE_NUMBER, MQTT_STATUS_TRANSMIT_TIMEOUT_MESSAGE_TEXT);
 		forceSensorShutdown();
+		// if we get here we have not been shut down - need to do some more retries
+		mqttRetries = 0;
 	}
 
 	return false;

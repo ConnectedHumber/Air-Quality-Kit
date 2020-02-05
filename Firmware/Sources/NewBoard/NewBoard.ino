@@ -34,17 +34,7 @@
 
 void setup()
 {
-	Serial.begin(115200);
-
-	delay(500);
-
-	setupSettings();
-
-	PrintSystemDetails();
-
 	startDevice();
-
-	Serial.printf("\n\nType help and press enter for help\n\n");
 }
 
 void loop()

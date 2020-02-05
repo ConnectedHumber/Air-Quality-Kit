@@ -277,6 +277,8 @@ int updateWifi(struct process* wifiProcess)
 			{
 				displayMessage(WIFI_STATUS_CONNECT_ABANDONED_MESSAGE_NUMBER, WIFI_STATUS_CONNECT_ABANDONED_MESSAGE_TEXT);
 				forceSensorShutdown();
+				// if we get here we have not been shut down - do some more retries
+				wifiConnectAttempts = 0;
 			}
 			wifiProcess->status = startWifi(wifiProcess);
 		}

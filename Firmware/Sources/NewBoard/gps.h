@@ -18,6 +18,7 @@ struct gpsReading {
 };
 
 int startGps(struct sensor * gpsSensor);
+int stopGps(struct sensor* gpsSensor);
 int updateGpsReading(struct sensor * gpsSensor);
 int addGpsReading(struct sensor * gpsSensor, char * jsonBuffer, int jsonBufferSize);
 void startGPSReading(struct sensor * gpsSensor);
