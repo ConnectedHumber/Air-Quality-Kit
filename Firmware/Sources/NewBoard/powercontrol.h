@@ -2,39 +2,20 @@
 
 #define POWERCONTROL_H
 
-#include "processes.h"
-
-#define POWER_CONTROL_STOPPED 1
-
-boolean particlePowerOn();
-boolean particlePowerOutputHigh();
-
-boolean BME280PowerOn();
-boolean BMEPowerOnOutputHigh();
-
-boolean setParticleSensorPowerOn();
-boolean setParticleSensorPowerOff();
-boolean setBME280SensorPowerOn();
-boolean setBME280SensorPowerOff();
-
-int startPowerControl(struct process* inputSwitchProcess);
-int updatePowerControl(struct process* inputSwitchProcess);
-int stopPowerControl(struct process* inputSwitchProcess);
-void powerControlStatusMessage(struct process* inputSwitchProcess, char* buffer, int bufferLength);
-
-struct PowerControlSettings {
-	boolean particleSensorPowerControlFitted;
-	int particleSensorPowerControlOutputPin;
-	boolean particleSensorPowerControlOutputPinActiveHigh;
-
-	boolean bme280PowerControlActive;
-	int bme280PowerControlPin;
-	boolean bme280PowerControlOutputPinActiveHigh;
-	int minimumPowerOffIntervalSecs;
+struct PowerControlPinDescription {
+	bool active;
+	int pinNo;
+	bool activeHigh;
+	bool outputEnabled;
+	bool useBrownoutProtection;
 };
 
-extern struct PowerControlSettings powerControlSettings;
+void setupPowerControlPin(PowerControlPinDescription* descr, boolean initialSetting, 
+	int pinNo, boolean activeHigh, boolean outputEnabled, boolean useBrownoutProtection);
 
-extern struct SettingItemCollection powerControlOutputSettingItems;
+void setPowerControlPinActive(PowerControlPinDescription* descr);
+void setPowerControlPinInactive(PowerControlPinDescription* descr);
+void setPowerControlPinActivity(PowerControlPinDescription* descr, bool value);
+void disablePowerControlPin(PowerControlPinDescription* descr);
 
 #endif

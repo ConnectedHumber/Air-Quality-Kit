@@ -20,6 +20,9 @@ struct AirqualitySettings {
 	int airqRXPinNo;
 	int airqTXPinNo;
 	int airqNoOfAverages;
+	boolean particleSensorPowerControlFitted;
+	int particleSensorPowerControlOutputPin;
+	boolean particleSensorPowerControlOutputPinActiveHigh;
 };
 
 extern struct AirqualitySettings airqualitySettings;

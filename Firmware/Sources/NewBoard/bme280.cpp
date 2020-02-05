@@ -2,6 +2,7 @@
 #include "debug.h"
 #include "sensors.h"
 #include "settings.h"
+#include "powercontrol.h"
 
 struct Bme280Settings bmeSettings;
 
@@ -9,6 +10,12 @@ void setDefaultEnvnoOfAverages(void* dest)
 {
 	int* destInt = (int*)dest;
 	*destInt = 25;
+}
+
+void setDefaultBME280PowerPin(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 26;
 }
 
 struct SettingItem bme280FittedSetting = {
@@ -29,10 +36,42 @@ integerValue,
 setDefaultEnvnoOfAverages,
 validateInt };
 
+struct SettingItem bme280PowerControlSetting = {
+		"BME 280 power control active (yes or no)",
+		"bme280powercontrolactive",
+		& bmeSettings.bme280PowerControlActive,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setFalse,
+		validateYesNo };
+
+struct SettingItem bme280PowerPinSetting = {
+		"BME280 power control pin",
+		"bme280powerpin",
+		& bmeSettings.bme280PowerControlPin,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultBME280PowerPin,
+		validateInt };
+
+struct SettingItem bme280ControlOutputPinActiveHighSetting = {
+		"BME280 Power Control Output Active High",
+		"bme280powerOutputActivehigh",
+		& bmeSettings.bme280PowerControlOutputPinActiveHigh,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setTrue,
+		validateYesNo
+};
+
+
 struct SettingItem* bme280SettingItemPointers[] =
 {
 	&bme280FittedSetting,
-	&envNoOfAveragesSetting
+	&envNoOfAveragesSetting,
+	& bme280PowerControlSetting,
+	& bme280PowerPinSetting,
+	& bme280ControlOutputPinActiveHighSetting
 };
 
 struct SettingItemCollection bme280SettingItems = {
@@ -46,6 +85,8 @@ Adafruit_BME280 bme;
 
 int bmeAddresses[] = { 0x76, 0x77 };
 
+struct PowerControlPinDescription bme280Power;
+
 int startBme280(struct sensor * bme280Sensor)
 {
 	if (!bmeSettings.bme280Fitted)
@@ -53,6 +94,15 @@ int startBme280(struct sensor * bme280Sensor)
 		bme280Sensor->status = BME280_NOT_FITTED;
 		return BME280_NOT_FITTED;
 	}
+
+	setupPowerControlPin(
+		&bme280Power,	// item to set up
+		true,			// initial state
+		bmeSettings.bme280PowerControlPin,  
+		bmeSettings.bme280PowerControlOutputPinActiveHigh,
+		bmeSettings.bme280PowerControlActive,
+		false //no brownout protection
+	);
 
 	struct bme280Reading * bme280activeReading;
 
@@ -92,6 +142,8 @@ int startBme280(struct sensor * bme280Sensor)
 
 int stopBme280(struct sensor* bme280Sensor)
 {
+	setPowerControlPinInactive(&bme280Power);
+	disablePowerControlPin(&bme280Power);
 	return SENSOR_OK;
 }
 

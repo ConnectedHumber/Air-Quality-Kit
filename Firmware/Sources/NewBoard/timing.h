@@ -25,6 +25,7 @@ struct TimingSettings {
 	boolean sleepProcessor;
 	Logging_State logging;
 	int readingTimoutSecs;
+	int minimumPowerOffIntervalSecs;
 };
 
 extern struct TimingSettings timingSettings;

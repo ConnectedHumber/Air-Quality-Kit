@@ -43,10 +43,6 @@ struct process OTAUpdateProcess = { "OTAUpdate", startOtaUpdate, updateOtaUpdate
 struct process InputSwitchProcess = { "inputswitch", startInputSwitch, updateInputSwitch, stopInputSwitch, inputSwitchStatusMessage, true, false, 0, 0, NULL,
 	(unsigned char*) &inputSwitchSettings, sizeof(InputSwitchSettings), &inputSwitchSettingItems};
 
-struct process PowerControlOutputProcess = { "powercontroloutput", startPowerControl, updatePowerControl, stopPowerControl, powerControlStatusMessage, true, false, 0, 0, NULL,
-	(unsigned char*)&powerControlSettings, sizeof(PowerControlSettings), & powerControlOutputSettingItems };
-
-
 struct process StatusLedProcess = { "statusled", startStatusLed, updateStatusLed, stopstatusLed, statusLedStatusMessage, true, false, 0, 0, NULL,
 	(unsigned char*) &statusLedSettings, sizeof(StatusLedSettings), &statusLedSettingItems};
 
@@ -74,7 +70,6 @@ struct process * allProcessList[] =
 	&LoRaProcess,
 	&OTAUpdateProcess,
 	&InputSwitchProcess,
-	&PowerControlOutputProcess,
 	&StatusLedProcess,
 	& MessagesProcess,
 	&TimingProcess,
@@ -84,7 +79,6 @@ struct process * allProcessList[] =
 
 struct process* baseProcessList[] =
 {
-	&PowerControlOutputProcess,
 	&MessagesProcess,
 	&PixelProcess,
 	&StatusLedProcess,
@@ -104,7 +98,6 @@ struct process* secondBootProcessList[] =
 
 struct process * runningProcessList[] =
 {
-	&PowerControlOutputProcess,
 	&StatusLedProcess,
 	&PixelProcess,
 	&WiFiProcessDescriptor,
@@ -125,7 +118,6 @@ struct process * runningProcessList[] =
 
 struct process* stoppingProcessList[] =
 {
-	&PowerControlOutputProcess,
 	&MQTTProcessDescriptor,
 	&LoRaProcess,
 	&WebServerProcessDescriptor,

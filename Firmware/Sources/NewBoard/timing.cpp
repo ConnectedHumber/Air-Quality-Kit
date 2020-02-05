@@ -27,6 +27,13 @@ void setDefaultReadingTimeoutSecs(void* dest)
 	*destInt = 20;
 }
 
+void setDefaultMinimumPowerOffIntervalSecsSetting(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 30;
+}
+
+
 struct SettingItem readingtimeoutsecsSetting = {
 	"Reading timeout in seconds",
 	"readingtimeoutsecs",
@@ -35,6 +42,16 @@ struct SettingItem readingtimeoutsecsSetting = {
 	integerValue,
 	setDefaultReadingTimeoutSecs,
 	validateInt };
+
+struct SettingItem minimumPowerOffIntervalSecsSetting = {
+	"Minimum reading interval before power off in seconds",
+	"minimumPowerOffIntervalSecs",
+	&timingSettings.minimumPowerOffIntervalSecs,
+	NUMBER_INPUT_LENGTH,
+	integerValue,
+	setDefaultMinimumPowerOffIntervalSecsSetting,
+	validateInt };
+
 
 struct SettingItem sleepProcessorSetting = {
 		"Sleep processor between readings (yes or no)",
@@ -80,7 +97,8 @@ struct SettingItem* timingSettingItemPointers[] =
 {
 	&sleepProcessorSetting,
 	&readingtimeoutsecsSetting,
-	&loggingSetting
+	&loggingSetting,
+	& minimumPowerOffIntervalSecsSetting
 };
 
 struct SettingItemCollection timingSettingItems = {
@@ -286,14 +304,7 @@ void startParticleSensorWarmingUp()
 {
 	if (timing_state != sensorWarmingUp)
 	{
-		if (powerControlSettings.particleSensorPowerControlFitted)
-		{
-			setParticleSensorPowerOn();
-		}
-		else {
-			Serial.println("Turning sensor on");
-			setParticleSensorWorking(true);
-		}
+		setParticleSensorWorking(true);
 		timing_state = sensorWarmingUp;
 	}
 }
@@ -354,7 +365,7 @@ bool can_start_reading()
 
 void checkSensorPowerOff()
 {
-	unsigned long minOffTimeInMillis = powerControlSettings.minimumPowerOffIntervalSecs * 1000;
+	unsigned long minOffTimeInMillis = timingSettings.minimumPowerOffIntervalSecs * 1000;
 
 	if (time_to_next_update() > minOffTimeInMillis)
 	{
@@ -422,7 +433,7 @@ void timingSensorGettingReading()
 		airqSensor.lastTransmittedReadingNumber = airqualityActiveReading->airNoOfAveragesCalculated;
 		bme280Sensor.lastTransmittedReadingNumber = bme280activeReading->envNoOfAveragesCalculated;
 
-		unsigned long minOffTimeInMillis = powerControlSettings.minimumPowerOffIntervalSecs * 1000;
+		unsigned long minOffTimeInMillis = timingSettings.minimumPowerOffIntervalSecs * 1000;
 
 		if (time_to_next_update() > minOffTimeInMillis)
 		{

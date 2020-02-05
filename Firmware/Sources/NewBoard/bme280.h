@@ -48,6 +48,9 @@ struct bme280Reading {
 struct Bme280Settings {
 	boolean bme280Fitted;
 	int envNoOfAverages;
+	boolean bme280PowerControlActive;
+	int bme280PowerControlPin;
+	boolean bme280PowerControlOutputPinActiveHigh;
 };
 
 extern struct Bme280Settings bmeSettings;

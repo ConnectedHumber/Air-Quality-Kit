@@ -44,6 +44,13 @@ void setDefaultAirqnoOfAverages(void* dest)
 	*destInt = 25;
 }
 
+void setDefaultPowerContrlPin(void* dest)
+{
+	int* destInt = (int*)dest;
+	*destInt = 27;
+}
+
+
 
 struct SettingItem airqSensorTypeSetting = {
 "AirQ Sensor type (0 = not fitted 1=SDS011, 2=ZPH01)",
@@ -92,12 +99,44 @@ integerValue,
 setDefaultAirqnoOfAverages,
 validateInt };
 
+struct SettingItem powerControlPinSetting = {
+		"Power Control Pin",
+		"powercontrolpin",
+		&airqualitySettings.particleSensorPowerControlOutputPin,
+		NUMBER_INPUT_LENGTH,
+		integerValue,
+		setDefaultPowerContrlPin,
+		validateInt };
+
+struct SettingItem powercontrolOutputFitted = {
+		"Particle sensor power control fitted",
+		"particlePowerControlFitted",
+		&airqualitySettings.particleSensorPowerControlFitted,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setTrue,
+		validateYesNo
+};
+
+struct SettingItem powercontrolOutputPinActiveHighSetting = {
+		"Power Control Output Active High",
+		"powerOutputActivehigh",
+		&airqualitySettings.particleSensorPowerControlOutputPinActiveHigh,
+		ONOFF_INPUT_LENGTH,
+		yesNo,
+		setTrue,
+		validateYesNo
+};
+
 struct SettingItem* airQualitySettingItemPointers[] =
 {
 	&airqSensorTypeSetting,
 	&airqRXPinNoSetting,
 	&airqTXPinNoSetting,
-	&airqNoOfAveragesSetting
+	&airqNoOfAveragesSetting,
+	& powercontrolOutputFitted,
+	& powerControlPinSetting,
+	& powercontrolOutputPinActiveHighSetting,
 };
 
 struct SettingItemCollection airQualitySettingItems = {
@@ -210,8 +249,19 @@ int getSensorType(int* sensorType)
 	}
 }
 
+struct PowerControlPinDescription particlePower;
+
 int startAirq(struct sensor* airqSensor)
 {
+	setupPowerControlPin(
+		&particlePower,	// item to set up
+		true,			// initial state
+		airqualitySettings.particleSensorPowerControlOutputPin,
+		airqualitySettings.particleSensorPowerControlOutputPinActiveHigh,
+		airqualitySettings.particleSensorPowerControlFitted,
+		true // want brownout protection
+	);
+
 	struct airqualityReading* airqualityActiveReading;
 
 	if (airqSensor->activeReading == NULL)
@@ -499,6 +549,9 @@ void set_sds011_working(bool working)
 	send_block(reporting_mode_command, sizeof(reporting_mode_command) / sizeof(uint8_t));
 }
 
+
+
+
 void setParticleSensorWorking(bool working)
 {
 	if (working)
@@ -510,18 +563,10 @@ void setParticleSensorWorking(bool working)
 		TRACELN("Setting sensor asleep");
 	}
 
-	if (powerControlSettings.particleSensorPowerControlFitted)
+	if (airqualitySettings.particleSensorPowerControlFitted)
 	{
-		// if we have power control just turn the power off
-
-		if (working)
-		{
-			setParticleSensorPowerOn();
-		}
-		else
-		{
-			setParticleSensorPowerOff();
-		}
+		// if we have power control just use it
+		setPowerControlPinActivity(&particlePower, working);
 	}
 	else
 	{
@@ -541,21 +586,6 @@ void setParticleSensorWorking(bool working)
 			break;
 		}
 	}
-}
-
-void switchOffSensor()
-{
-	if (powerControlSettings.particleSensorPowerControlFitted)
-	{
-		// if we have power control just turn the power off
-		setParticleSensorPowerOff();
-	}
-	else {
-		// otherwise send a command to the sensor to turn it off
-		// Note that not all sensors can do this
-		setParticleSensorWorking(false);
-	}
-
 }
 
 int updateAirqReading(struct sensor* airqSensor)
