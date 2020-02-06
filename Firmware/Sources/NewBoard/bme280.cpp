@@ -220,18 +220,25 @@ int updateBME280Reading(struct sensor * bme280Sensor)
 	return bme280Sensor->status;
 }
 
+
+// Only called once an average has been calculated and is ready to be sent
+
 int addBME280Reading(struct sensor * bme280Sensor, char * jsonBuffer, int jsonBufferSize)
 {
+
 	if (bme280Sensor->status == SENSOR_OK)
 	{
 		struct bme280Reading * bme280activeReading =
 			(struct bme280Reading *) bme280Sensor->activeReading;
 
-		snprintf(jsonBuffer, jsonBufferSize, "%s,\"temp\":%.2f,\"humidity\":%.2f,\"pressure\":%.2f",
-			jsonBuffer,
-			bme280activeReading->temperature,
-			bme280activeReading->humidity,
-			bme280activeReading->pressure);
+		if (ulongDiff(offsetMillis(), bme280activeReading->lastEnvqAverageMillis) < ENV_READING_LIFETIME_MSECS)
+		{
+			snprintf(jsonBuffer, jsonBufferSize, "%s,\"temp\":%.2f,\"humidity\":%.2f,\"pressure\":%.2f",
+				jsonBuffer,
+				bme280activeReading->temperatureAverage,
+				bme280activeReading->humidityAverage,
+				bme280activeReading->pressureAverage);
+		}
 	}
 
 	return bme280Sensor->status;

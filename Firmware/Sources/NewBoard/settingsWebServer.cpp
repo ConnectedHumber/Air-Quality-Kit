@@ -33,7 +33,7 @@ const char homePageHeader[] =
 
 const char homePageFooter[] =
 "<p> Select the link to the settings page that you want to edit.</p>"
-"<p> Select the reset link below to reset the sensor.</p>"
+"<p> Select the reset link below to reset the sensor when you have finished.</p>"
 "<a href=""reset"">reset</a>"
 "</body>"
 "</html>";

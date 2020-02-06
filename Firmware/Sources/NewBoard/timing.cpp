@@ -33,6 +33,26 @@ void setDefaultMinimumPowerOffIntervalSecsSetting(void* dest)
 	*destInt = 30;
 }
 
+#define MAX_READING_TIMOUT_SECS 60
+
+boolean validateReadingTimeout(void* dest, const char* newValueStr)
+{
+	int value;
+
+	if (sscanf(newValueStr, "%d", &value) == 1)
+	{
+		if (value > MAX_READING_TIMOUT_SECS)
+		{
+			return false;
+		}
+
+		*(int*)dest = value;
+		return true;
+	}
+
+	return false;
+}
+
 
 struct SettingItem readingtimeoutsecsSetting = {
 	"Reading timeout in seconds",
@@ -410,6 +430,13 @@ void timingSensorWarmingUp()
 		startGettingSensorReadings();
 }
 
+unsigned long millisAtWaitingForSendComplete;
+
+void beginWaitingForSendComplete()
+{
+	millisAtWaitingForSendComplete = offsetMillis();
+	timing_state = sensorWaitingForSendComplete;
+}
 
 void timingSensorGettingReading()
 {
@@ -426,47 +453,80 @@ void timingSensorGettingReading()
 	if (airqSensor.lastTransmittedReadingNumber != airqualityActiveReading->airNoOfAveragesCalculated && 
         bme280Sensor.lastTransmittedReadingNumber != bme280activeReading->envNoOfAveragesCalculated) 
 	{
-        // got readings from both sensors
-
+        // got readings from both sensors - send them
+		Serial.println("Got readings ready");
 		sendReadings();
 
 		airqSensor.lastTransmittedReadingNumber = airqualityActiveReading->airNoOfAveragesCalculated;
 		bme280Sensor.lastTransmittedReadingNumber = bme280activeReading->envNoOfAveragesCalculated;
 
-		unsigned long minOffTimeInMillis = timingSettings.minimumPowerOffIntervalSecs * 1000;
-
-		if (time_to_next_update() > minOffTimeInMillis)
-		{
-			timing_state = sensorWaitingForPowerDown;
-		}
 	}
 	else
 	{
-		// not got any readings yet
+		// not got all the readings yet
 		if (readingTimeMillis > reading_timout_in_millis)
 		{
+			// send what readings we have availalbe - this might be nothing but it should still be sent
+			Serial.println("Reading timeout");
+
+			sendReadings();
+
+			// reset timeouts for any sensors that actually had readings
+
+			if (airqSensor.lastTransmittedReadingNumber != airqualityActiveReading->airNoOfAveragesCalculated)
+			{
+				airqSensor.lastTransmittedReadingNumber = airqualityActiveReading->airNoOfAveragesCalculated;
+			}
+
+			if (bme280Sensor.lastTransmittedReadingNumber != bme280activeReading->envNoOfAveragesCalculated)
+			{
+				bme280Sensor.lastTransmittedReadingNumber = bme280activeReading->envNoOfAveragesCalculated;
+			}
+
 			displayMessage(TIMING_STATUS_READING_TIMOUT_MESSAGE_NUMBER, TIMING_STATUS_READING_TIMOUT_MESSAGE_TEXT);
-			forceSensorShutdown();
-			// if we get here we are not shutting down - reset the timing
-			readingFetchStartMillis = time_in_millis;
+
+		}
+		else
+		{
+			// still waiting for our readings and not timed out yet
+			return;
 		}
 	}
+
+	// if we get here we have either sent a complete reading or timed out and sent what we have
+
+	unsigned long minOffTimeInMillis = timingSettings.minimumPowerOffIntervalSecs * 1000;
+
+	if (time_to_next_update() > minOffTimeInMillis)
+	{
+		// If it is worth powering down, wait for this to be possible
+		beginWaitingForSendComplete();
+	}
+
+	// if we are below the mimimum power down interval we stay getting readings ready for the next one which will be along soon
+
 }
 
-void timingSensorWaitingForPowerDown()
+void timingSensorWaitingForSendComplete()
 {
+	if (mqttSettings.mqtt_enabled)
+	{
+		unsigned long millisSinceStartedWaiting = ulongDiff(offsetMillis(), millisAtWaitingForSendComplete);
+
+
+		if (millisSinceStartedWaiting < RECEIVE_MESSAGE_WAIT_IN_MILLIS)
+		{
+			// let all the update loops keep running so that the MQTT engine can respond to messages
+			return;
+		}
+	}
+
 	if (can_power_off_sensor())
 	{
 		// only get here once LoRa has finished transmitting
 		checkSensorPowerOff();
 	}
 }
-
-bool readingSendComplete()
-{
-	return true;
-}
-
 
 unsigned long dump_air_values_reading_count = 0;
 unsigned long dump_bme_values_reading_count = 0;
@@ -680,8 +740,8 @@ int updateTiming(struct process* timingProcess)
 		timingSensorGettingReading();
 		break;
 
-	case sensorWaitingForPowerDown:
-		timingSensorWaitingForPowerDown();
+	case sensorWaitingForSendComplete:
+		timingSensorWaitingForSendComplete();
 		break;
 	}
 
@@ -732,7 +792,7 @@ void timingStatusMessage(struct process * timingProcess, char * buffer, int buff
 	}
 		break;
 
-	case sensorWaitingForPowerDown:
+	case sensorWaitingForSendComplete:
 		snprintf(buffer, bufferLength, "Sensor waiting for powerdown lora: %lu mqtt: %lu", lora, mqtt);
 		break;
 

@@ -556,11 +556,11 @@ void setParticleSensorWorking(bool working)
 {
 	if (working)
 	{
-		TRACELN("Setting sensor working");
+		TRACELN("Setting particle sensor working");
 	}
 	else
 	{
-		TRACELN("Setting sensor asleep");
+		TRACELN("Setting particle sensor asleep");
 	}
 
 	if (airqualitySettings.particleSensorPowerControlFitted)
@@ -672,12 +672,17 @@ int stopAirq(struct sensor* airqSensor)
 	return SENSOR_OK;
 }
 
+// this function is only called when we have an average ready to send, so we make sure that it has a sensible lifetime before 
+// sending it. This means that if we lose the air quality sensor the values will not be sent after a while
+
 int addAirqReading(struct sensor* airqSensor, char* jsonBuffer, int jsonBufferSize)
 {
 	struct airqualityReading* airqualityActiveReading =
 		(airqualityReading*)airqSensor->activeReading;
 
-	if (ulongDiff(offsetMillis(), airqSensor->millisAtLastReading) < AIRQ_READING_LIFETIME_MSECS)
+	unsigned long readingAge = ulongDiff(offsetMillis(), airqualityActiveReading->lastAirqAverageMillis);
+
+	if (readingAge < AIRQ_READING_LIFETIME_MSECS)
 	{
 		struct airqualityReading* airqualityActiveReading =
 			(airqualityReading*)airqSensor->activeReading;

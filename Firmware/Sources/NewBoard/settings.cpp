@@ -752,7 +752,7 @@ void sendSettingItemToJSONString(struct SettingItem *item, char *buffer, int buf
 		snprintf(buffer, bufferSize, "\"%s\"", item->value);
 		break;
 	case password:
-		snprintf(buffer, bufferSize, "\"%s\"", item->value);
+		snprintf(buffer, bufferSize, "\"******\"");
 		break;
 	case integerValue:
 		valuePointer = (int *)item->value;
@@ -906,27 +906,39 @@ void act_onJson_command(const char *json, void (*deliverResult)(char *resultText
 	{
 		char buffer[120];
 
-		if (!root["value"])
+		if (!root.containsKey("value"))
 		{
-			sendSettingItemToJSONString(item, buffer, 120);
 			// no value - just a status request
+			Serial.println("  No value part");
+			sendSettingItemToJSONString(item, buffer, 120);
 			build_text_value_command_reply(WORKED_OK, buffer, root, command_reply_buffer);
 		}
 		else
 		{
+			// got a value part
 			const char *inputSource = NULL;
 
-			if (!root["value"].is<int>())
+			if (root["value"].is<int>())
 			{
+				//Serial.println("Got an int");
 				// need to convert the input value into a string
 				// as our value parser uses strings as inputs
-				snprintf(buffer, 120, "%d", root["value"]);
+				int v = root["value"];
+				Serial.printf("  Setting int %d\n", v);
+				snprintf(buffer, 120, "%d", v);
 				inputSource = buffer;
 			}
 			else
 			{
-				if (!root["value"].is<char *>())
+				if (root["value"].is<char*>())
+				{
 					inputSource = root["value"];
+					Serial.printf("  Setting string %s\n", inputSource);
+				}
+				else
+				{
+					Serial.println("  Unrecognised setting");
+				}
 			}
 
 			if (inputSource == NULL)

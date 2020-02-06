@@ -28,6 +28,8 @@
 #define BME280_NOT_CONNECTED -1
 #define BME280_NOT_FITTED -2
 
+#define ENV_READING_LIFETIME_MSECS 5000
+
 struct bme280Reading {
 	int activeBMEAddress;
 	float temperature;

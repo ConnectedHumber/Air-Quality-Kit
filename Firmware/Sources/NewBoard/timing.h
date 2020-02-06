@@ -3,11 +3,17 @@
 
 #define TIMING_H
 
-#define TIMING_STATUS_READING_TIMOUT_MESSAGE_NUMBER 31
+#define TIMING_STATUS_READING_SENT_MESSAGE_NUMBER 31
+#define TIMING_STATUS_READING_SENT_MESSAGE_TEXT "Reading sent"
+
+#define TIMING_STATUS_READING_TIMOUT_MESSAGE_NUMBER 32
 #define TIMING_STATUS_READING_TIMOUT_MESSAGE_TEXT "Reading timeout"
 
+// time the sensor remains powered on after a send to allow the receipt of incoming messages
 
-enum timingStates { sensorWarmingUp, sensorGettingReading, sensorWaitingForPowerDown, particleSensorOff } ;
+#define RECEIVE_MESSAGE_WAIT_IN_MILLIS 1500
+
+enum timingStates { sensorWarmingUp, sensorGettingReading, sensorWaitingForSendComplete, particleSensorOff } ;
 
 enum Logging_State {
 	loggingOff=0,

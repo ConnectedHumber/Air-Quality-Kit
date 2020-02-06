@@ -183,10 +183,13 @@ void mqtt_deliver_command_result(char* result)
 	publishBufferToMQTT(result);
 }
 
+// do not process incoming messages on this thread because it is a callback from the MQTT driver
+// that might fire from a network interrupt
 
 void callback(char* topic, byte* payload, unsigned int length)
 {
 	int i;
+
 	for (i = 0; i < length; i++) {
 		mqtt_receive_buffer[i] = (char)payload[i];
 	}
@@ -194,11 +197,27 @@ void callback(char* topic, byte* payload, unsigned int length)
 	// Put the terminator on the string
 	mqtt_receive_buffer[i] = 0;
 
-	act_onJson_command(mqtt_receive_buffer, mqtt_deliver_command_result);
-
-	Serial.printf("Received from MQTT: %s\n", mqtt_receive_buffer);
-
 	messagesReceived++;
+}
+
+void clearIncomingMQTTMessage()
+{
+	mqtt_receive_buffer[0] = 0;
+}
+
+bool receivedIncomingMQTTMessage()
+{
+	return mqtt_receive_buffer[0] != 0;
+}
+
+void handleIncomingMQTTMessage()
+{
+	if (receivedIncomingMQTTMessage())
+	{
+		Serial.printf("Received from MQTT: %s\n", mqtt_receive_buffer);
+		act_onJson_command(mqtt_receive_buffer, mqtt_deliver_command_result);
+		clearIncomingMQTTMessage();
+	}
 }
 
 int mqttConnectErrorNumber;
@@ -224,6 +243,7 @@ int restartMQTT()
 {
 	messagesReceived = 0;
 	messagesSent = 0;
+	clearIncomingMQTTMessage();
 
 	if (mqttWiFiProcess->status != WIFI_OK)
 	{
@@ -307,9 +327,12 @@ boolean publishBufferToMQTT(char* buffer)
 		messagesSent++;
 		mqttRetries = 0;
 		Serial.println("Publishing message");
-		displayMessage(MQTT_STATUS_TRANSMIT_OK_MESSAGE_NUMBER, MQTT_STATUS_TRANSMIT_OK_MESSAGE_TEXT);
 
-		return mqttPubSubClient->publish(mqttSettings.mqttPublishTopic, buffer);
+		boolean result = mqttPubSubClient->publish(mqttSettings.mqttPublishTopic, buffer);
+
+//		displayMessage(MQTT_STATUS_TRANSMIT_OK_MESSAGE_NUMBER, MQTT_STATUS_TRANSMIT_OK_MESSAGE_TEXT);
+
+		return result;
 	}
 
 	Serial.println("Not publishing message");
@@ -338,6 +361,8 @@ unsigned long timeOfLastMQTTsuccess = 0;
 
 int updateMQTT(struct process* mqttProcess)
 {
+	handleIncomingMQTTMessage();
+
 	switch (mqttProcess->status)
 	{
 
